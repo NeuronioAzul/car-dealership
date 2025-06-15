@@ -1,0 +1,30 @@
+# Ignore all files in the .idea directory
+.idea
+# Ignore all files in the .vscode directory
+.vscode
+# Ignore all files in the node_modules directory
+node_modules
+*/node_modules
+# Ignore all files in the vendor directory
+vendor
+*/vendor
+# Ignore all files in the .nuxt directory
+*/.nuxt
+# Ignore all files in the .next directory
+*/.next
+# Ignore all files in the .cache directory
+*/.cache
+# Ignore all files in the .DS_Store directory
+*/.DS_Store
+# Ignore all files in the .env file
+.env
+*/.env
+# ignore all composer lock files
+composer.lock
+*/composer.lock
+# Ignore all files in the .env.local file
+*/.env.local
+# Ignore all files in the .env.development file
+*/.env.development
+# Ignore all files in the .env.production file
+*/.env.production
