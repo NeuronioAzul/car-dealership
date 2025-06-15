@@ -1,0 +1,197 @@
+{
+  "rabbit_version": "3.12.0",
+  "rabbitmq_version": "3.12.0",
+  "product_name": "RabbitMQ",
+  "product_version": "3.12.0",
+  "users": [
+    {
+      "name": "admin",
+      "password_hash": "UYVOONhXftlevpFlLbS+NKbphPe0eUJ/BseHALrDGNU3yqQH",
+      "hashing_algorithm": "rabbit_password_hashing_sha256",
+      "tags": "administrator"
+    }
+  ],
+  "vhosts": [
+    {
+      "name": "/"
+    }
+  ],
+  "permissions": [
+    {
+      "user": "admin",
+      "vhost": "/",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    }
+  ],
+  "topic_permissions": [],
+  "parameters": [],
+  "global_parameters": [
+    {
+      "name": "cluster_name",
+      "value": "car-dealership-cluster"
+    }
+  ],
+  "policies": [],
+  "queues": [
+    {
+      "name": "auth.events",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "customer.events",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "vehicle.events",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "reservation.events",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "payment.events",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "sales.events",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "admin.events",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "saga.orchestrator",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "saga.compensation",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    }
+  ],
+  "exchanges": [
+    {
+      "name": "car.dealership.events",
+      "vhost": "/",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "saga.events",
+      "vhost": "/",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    }
+  ],
+  "bindings": [
+    {
+      "source": "car.dealership.events",
+      "vhost": "/",
+      "destination": "auth.events",
+      "destination_type": "queue",
+      "routing_key": "auth.*",
+      "arguments": {}
+    },
+    {
+      "source": "car.dealership.events",
+      "vhost": "/",
+      "destination": "customer.events",
+      "destination_type": "queue",
+      "routing_key": "customer.*",
+      "arguments": {}
+    },
+    {
+      "source": "car.dealership.events",
+      "vhost": "/",
+      "destination": "vehicle.events",
+      "destination_type": "queue",
+      "routing_key": "vehicle.*",
+      "arguments": {}
+    },
+    {
+      "source": "car.dealership.events",
+      "vhost": "/",
+      "destination": "reservation.events",
+      "destination_type": "queue",
+      "routing_key": "reservation.*",
+      "arguments": {}
+    },
+    {
+      "source": "car.dealership.events",
+      "vhost": "/",
+      "destination": "payment.events",
+      "destination_type": "queue",
+      "routing_key": "payment.*",
+      "arguments": {}
+    },
+    {
+      "source": "car.dealership.events",
+      "vhost": "/",
+      "destination": "sales.events",
+      "destination_type": "queue",
+      "routing_key": "sales.*",
+      "arguments": {}
+    },
+    {
+      "source": "car.dealership.events",
+      "vhost": "/",
+      "destination": "admin.events",
+      "destination_type": "queue",
+      "routing_key": "admin.*",
+      "arguments": {}
+    },
+    {
+      "source": "saga.events",
+      "vhost": "/",
+      "destination": "saga.orchestrator",
+      "destination_type": "queue",
+      "routing_key": "saga.*",
+      "arguments": {}
+    },
+    {
+      "source": "saga.events",
+      "vhost": "/",
+      "destination": "saga.compensation",
+      "destination_type": "queue",
+      "routing_key": "compensation.*",
+      "arguments": {}
+    }
+  ]
+}
+
