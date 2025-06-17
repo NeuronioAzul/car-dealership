@@ -1,9 +1,31 @@
 <?php
-// filepath: /home/mauro/projects/car-dealership/shared/database/migrations/run-migrations.php
+// filepath: /migrations/migrate_docker.php
+
+// Caminho absoluto para a raiz do projeto (ajuste se necessário)
+$projectRoot = __DIR__ . '/..';
+
+// Se não encontrar a pasta vendor, avisa para rodar o composer install
+if (!file_exists($projectRoot . '/vendor/autoload.php')) {
+    echo "❌ Pasta 'vendor' não encontrada! Por favor, execute 'make shared-install' na raiz do projeto.\n";
+    exit(1);
+}
+
+// Carrega o autoload do Composer da raiz do projeto
+require_once $projectRoot . '/vendor/autoload.php';
+
+use Dotenv\Dotenv;
+
+// Carrega as variáveis de ambiente do arquivo .env na raiz do projeto
+if (!file_exists($projectRoot . '/.env')) {
+    echo "❌ Arquivo .env não encontrado na raiz do projeto! Por favor, crie um arquivo .env com as variáveis necessárias.\n";
+    exit(1);
+}
+$dotenv = Dotenv::createImmutable($projectRoot);
+$dotenv->load();
 
 /**
- * Script para executar todas as migrations do sistema (MySQL via Docker)
- * Uso: php run-migrations.php
+ * Script para executar todas as migrations do sistema (MySQL rodando dentro do container)
+ * Uso: php /migrations/migrate_docker.php [--fresh]
  */
 
 function color($text, $color) {
@@ -22,52 +44,32 @@ function log_success($msg) { echo color("✅ $msg\n", 'green'); }
 function log_warning($msg) { echo color("⚠️  $msg\n", 'yellow'); }
 function log_error($msg)   { echo color("❌ $msg\n", 'red'); }
 
-echo "🗄️  Car Dealership - Database Migrations\n";
+echo "🗄️  Car Dealership - Database Migrations (Docker)\n";
 echo "========================================\n";
-
-// Verificar se Docker está rodando
-exec('docker info > /dev/null 2>&1', $out, $dockerStatus);
-if ($dockerStatus !== 0) {
-    log_error("Docker não está rodando!");
-    echo "💡 Inicie o Docker e execute: docker-compose up -d\n";
-    exit(1);
-}
-
-// Verificar se MySQL está rodando
-log_info("Verificando se MySQL está disponível...");
-for ($i = 1; $i <= 30; $i++) {
-    exec('docker-compose exec -T mysql mysqladmin ping -h localhost --silent 2>/dev/null', $out, $mysqlStatus);
-    if ($mysqlStatus === 0) {
-        log_success("MySQL está pronto!");
-        break;
-    }
-    if ($i === 30) {
-        log_error("MySQL não está respondendo após 30 tentativas");
-        exit(1);
-    }
-    echo "⏳ Aguardando MySQL... ($i/30)\n";
-    sleep(2);
-}
 
 // Função para executar migration
 function run_migration($service, $migration_file, $db_name) {
     log_info("Executando migration: $service/$migration_file");
 
-    $file_path = __DIR__ . "/$service/$migration_file";
+    $file_path = __DIR__ . "/migrations/$service/$migration_file";
     if (!file_exists($file_path)) {
-        log_error("Arquivo de migration não encontrado: $service/$migration_file");
+        log_error("Arquivo de migration não encontrado: /migrations/$service/$migration_file");
         return false;
     }
 
-    $cmd = "docker-compose exec -T mysql mysql -u root -prootpassword123 $db_name < \"$file_path\" 2>&1";
+    $db_user = getenv('DB_USERNAME');
+    $db_password = getenv('DB_PASSWORD');
+    $db_host = getenv('DB_HOST') ?: 'localhost'; // Padrão para localhost
+    $db_port = getenv('DB_PORT') ?: '3306'; // Padrão para porta 3306
+    $cmd = "mysql -h $db_host -P $db_port -u $db_user -p$db_password $db_name < \"$file_path\" 2>&1";
     exec($cmd, $output, $status);
     $outputText = implode("\n", $output);
 
     if ($status === 0) {
-        log_success("Migration executada: $service/$migration_file");
+        log_success("Migration executada: /migrations/$service/$migration_file");
         return true;
     } else {
-        log_error("Falha na migration: $service/$migration_file");
+        log_error("Falha na migration: /migrations/$service/$migration_file");
         echo color("Detalhe do erro:\n$outputText\n", 'red');
         return false;
     }
@@ -76,13 +78,37 @@ function run_migration($service, $migration_file, $db_name) {
 // Função para criar banco se não existir
 function create_database($db_name) {
     log_info("Criando banco de dados: $db_name");
-    $cmd = "docker-compose exec -T mysql mysql -u root -prootpassword123 -e \"CREATE DATABASE IF NOT EXISTS $db_name;\" 2>/dev/null";
+    $db_user = getenv('DB_USERNAME');
+    $db_password = getenv('DB_PASSWORD');
+    $db_host = getenv('DB_HOST') ?: 'localhost'; // Padrão para localhost
+    $db_port = getenv('DB_PORT') ?: '3306'; // Padrão para porta 3306
+    $cmd = "mysql -h $db_host -P $db_port -u $db_user -p$db_password -e \"CREATE DATABASE IF NOT EXISTS $db_name;\" 2>&1";
     exec($cmd, $output, $status);
     if ($status === 0) {
         log_success("Banco criado/verificado: $db_name");
         return true;
     } else {
         log_error("Falha ao criar banco: $db_name");
+        echo color("Detalhe do erro:\n" . implode("\n", $output) . "\n", 'red');
+        return false;
+    }
+}
+
+// Função para excluir banco de dados
+function drop_database($db_name) {
+    log_info("Excluindo banco de dados: $db_name");
+    $db_user = getenv('DB_USERNAME');
+    $db_password = getenv('DB_PASSWORD');
+    $db_host = getenv('DB_HOST') ?: 'localhost'; // Padrão para localhost
+    $db_port = getenv('DB_PORT') ?: '3306'; // Padrão para porta 3306
+    $cmd = "mysql -h $db_host -P $db_port -u $db_user -p$db_password -e \"DROP DATABASE IF EXISTS $db_name;\" 2>&1";
+    exec($cmd, $output, $status);
+    if ($status === 0) {
+        log_success("Banco excluído: $db_name");
+        return true;
+    } else {
+        log_error("Falha ao excluir banco: $db_name");
+        echo color("Detalhe do erro:\n" . implode("\n", $output) . "\n", 'red');
         return false;
     }
 }
@@ -99,20 +125,13 @@ $databases = [
 // Se --fresh, excluir todos os bancos antes de criar
 if ($fresh) {
     log_warning("Parâmetro --fresh detectado: Isso irá recriar todos os bancos de dados!");
-// pergunta se tem certeza
     $confirm = readline("Tem certeza que deseja excluir todos os bancos de dados? (s/N): ");
     if (strtolower($confirm) !== 's') {
         log_info("Operação cancelada pelo usuário.");
         exit(0);
-    }    
+    }
     foreach ($databases as $db) {
-        $cmd = "docker-compose exec -T mysql mysql -u root -prootpassword123 -e \"DROP DATABASE IF EXISTS $db;\" 2>/dev/null";
-        exec($cmd, $output, $status);
-        if ($status === 0) {
-            log_success("Banco excluído: $db");
-        } else {
-            log_error("Falha ao excluir banco: $db");
-        }
+        drop_database($db);
     }
 }
 
@@ -182,9 +201,20 @@ log_info("Verificando estrutura criada...");
 
 // Contar tabelas por banco
 foreach ($databases as $db) {
-    $cmd = "docker-compose exec -T mysql mysql -u root -prootpassword123 -e \"SELECT COUNT(*) as count FROM information_schema.tables WHERE table_schema = '$db';\" 2>/dev/null";
+    log_info("Contando tabelas no banco: $db");
+    $db_user = getenv('DB_USERNAME');
+    $db_password = getenv('DB_PASSWORD');
+    $db_host = getenv('DB_HOST') ?: 'localhost'; // Padrão para localhost
+    $db_port = getenv('DB_PORT') ?: '3306'; // Padrão para porta 3306
+    $cmd = "mysql -h $db_host -P $db_port -u $db_user -p$db_password -e \"SELECT COUNT(*) as count FROM information_schema.tables WHERE table_schema = '$db';\" 2>&1";
     exec($cmd, $output, $status);
-    $table_count = isset($output[1]) ? (int)trim($output[1]) : 0;
+    $table_count = 0;
+    foreach ($output as $line) {
+        if (is_numeric(trim($line))) {
+            $table_count = (int)trim($line);
+            break;
+        }
+    }
     if ($table_count > 0) {
         log_success("$db: $table_count tabelas criadas");
     } else {

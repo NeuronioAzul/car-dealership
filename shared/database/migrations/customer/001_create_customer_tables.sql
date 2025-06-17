@@ -10,14 +10,14 @@ CREATE TABLE IF NOT EXISTS customer_profiles (
     
     -- Informações pessoais
     full_name VARCHAR(255) NOT NULL COMMENT 'Nome completo',
-    email VARCHAR(255) UNIQUE NOT NULL COMMENT 'Email',
+    birth_date DATE COMMENT 'Data de nascimento',
     cpf VARCHAR(11) UNIQUE NOT NULL COMMENT 'CPF',
     rg VARCHAR(20) COMMENT 'RG',
-    birth_date DATE COMMENT 'Data de nascimento',
     gender ENUM('M', 'F', 'Other') COMMENT 'Gênero',
-    marital_status ENUM('single', 'married', 'divorced', 'widowed') COMMENT 'Estado civil',
+    marital_status ENUM('Single', 'Married', 'Divorced', 'Widowed', 'Common Law') COMMENT 'Estado civil',
     
     -- Contato
+    email VARCHAR(255) UNIQUE NOT NULL COMMENT 'Email',
     phone VARCHAR(20) COMMENT 'Telefone principal',
     mobile VARCHAR(20) COMMENT 'Celular',
     whatsapp VARCHAR(20) COMMENT 'WhatsApp',

@@ -19,19 +19,9 @@ CREATE TABLE IF NOT EXISTS reservations (
     expires_at TIMESTAMP NOT NULL COMMENT 'Data de expiração (24h)',
     cancelled_at TIMESTAMP NULL COMMENT 'Data do cancelamento',
     completed_at TIMESTAMP NULL COMMENT 'Data da conclusão',
-    
-    -- Informações do veículo (snapshot)
-    vehicle_brand VARCHAR(100) NOT NULL COMMENT 'Marca do veículo',
-    vehicle_model VARCHAR(100) NOT NULL COMMENT 'Modelo do veículo',
-    vehicle_year INT NOT NULL COMMENT 'Ano do veículo',
+
     vehicle_price DECIMAL(10,2) NOT NULL COMMENT 'Preço na data da reserva',
-    vehicle_color VARCHAR(50) NOT NULL COMMENT 'Cor do veículo',
-    
-    -- Informações do cliente (snapshot)
-    customer_name VARCHAR(255) NOT NULL COMMENT 'Nome do cliente',
-    customer_email VARCHAR(255) NOT NULL COMMENT 'Email do cliente',
-    customer_phone VARCHAR(20) COMMENT 'Telefone do cliente',
-    
+
     -- Observações
     notes TEXT COMMENT 'Observações da reserva',
     cancellation_reason TEXT COMMENT 'Motivo do cancelamento',
@@ -59,7 +49,6 @@ CREATE TABLE IF NOT EXISTS payment_codes (
     
     -- Informações do pagamento
     amount DECIMAL(10,2) NOT NULL COMMENT 'Valor do pagamento',
-    currency VARCHAR(3) DEFAULT 'BRL' COMMENT 'Moeda',
     
     -- Status e controle
     status ENUM('pending', 'used', 'expired', 'cancelled') DEFAULT 'pending' COMMENT 'Status do código',
@@ -75,7 +64,7 @@ CREATE TABLE IF NOT EXISTS payment_codes (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Data de criação',
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Data de atualização',
     
-    FOREIGN KEY (reservation_id) REFERENCES reservations(id) ON DELETE CASCADE,
+    -- FOREIGN KEY (reservation_id) REFERENCES reservations(id) ON DELETE CASCADE,
     INDEX idx_reservation_id (reservation_id),
     INDEX idx_payment_code (payment_code),
     INDEX idx_status (status),
@@ -100,7 +89,7 @@ CREATE TABLE IF NOT EXISTS reservation_history (
     -- Timestamp
     changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Data da mudança',
     
-    FOREIGN KEY (reservation_id) REFERENCES reservations(id) ON DELETE CASCADE,
+    -- FOREIGN KEY (reservation_id) REFERENCES reservations(id) ON DELETE CASCADE,
     INDEX idx_reservation_id (reservation_id),
     INDEX idx_changed_at (changed_at),
     INDEX idx_new_status (new_status)
