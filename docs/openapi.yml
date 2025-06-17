@@ -1,0 +1,739 @@
+openapi: 3.0.3
+info:
+  title: Car Dealership API
+  description: Sistema completo de concessionária de veículos com microserviços
+  version: 1.0.0
+  contact:
+    name: Mauro Rocha Tavares
+    email: mauro.rocha.t@gmail.com
+
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Servidor de desenvolvimento
+
+security:
+  - BearerAuth: []
+
+paths:
+  # Auth Service
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Registrar novo usuário
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistration'
+      responses:
+        '201':
+          description: Usuário criado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Dados inválidos
+        '409':
+          description: Email já cadastrado
+
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Fazer login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login realizado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Credenciais inválidas
+
+  /auth/validate:
+    post:
+      tags:
+        - Authentication
+      summary: Validar token
+      responses:
+        '200':
+          description: Token válido
+        '401':
+          description: Token inválido
+
+  /auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Renovar token
+      responses:
+        '200':
+          description: Token renovado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+
+  # Customer Service
+  /customer/profile:
+    get:
+      tags:
+        - Customer
+      summary: Obter perfil do cliente
+      responses:
+        '200':
+          description: Perfil do cliente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+    put:
+      tags:
+        - Customer
+      summary: Atualizar perfil do cliente
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerUpdate'
+      responses:
+        '200':
+          description: Perfil atualizado
+    delete:
+      tags:
+        - Customer
+      summary: Excluir conta do cliente
+      responses:
+        '200':
+          description: Conta excluída
+
+  # Vehicle Service
+  /vehicles:
+    get:
+      tags:
+        - Vehicles
+      summary: Listar veículos
+      security: []
+      parameters:
+        - name: available_only
+          in: query
+          schema:
+            type: boolean
+          description: Apenas veículos disponíveis
+      responses:
+        '200':
+          description: Lista de veículos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      vehicles:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Vehicle'
+
+  /vehicles/search:
+    get:
+      tags:
+        - Vehicles
+      summary: Buscar veículos
+      security: []
+      parameters:
+        - name: brand
+          in: query
+          schema:
+            type: string
+        - name: model
+          in: query
+          schema:
+            type: string
+        - name: year_from
+          in: query
+          schema:
+            type: integer
+        - name: year_to
+          in: query
+          schema:
+            type: integer
+        - name: price_from
+          in: query
+          schema:
+            type: number
+        - name: price_to
+          in: query
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Resultados da busca
+
+  /vehicles/{vehicleId}:
+    get:
+      tags:
+        - Vehicles
+      summary: Detalhes do veículo
+      security: []
+      parameters:
+        - name: vehicleId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Detalhes do veículo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehicle'
+
+  # Reservation Service
+  /reservations:
+    get:
+      tags:
+        - Reservations
+      summary: Listar reservas do cliente
+      responses:
+        '200':
+          description: Lista de reservas
+    post:
+      tags:
+        - Reservations
+      summary: Criar nova reserva
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReservationRequest'
+      responses:
+        '201':
+          description: Reserva criada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reservation'
+
+  /reservations/{reservationId}:
+    get:
+      tags:
+        - Reservations
+      summary: Detalhes da reserva
+      parameters:
+        - name: reservationId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Detalhes da reserva
+    delete:
+      tags:
+        - Reservations
+      summary: Cancelar reserva
+      parameters:
+        - name: reservationId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Reserva cancelada
+
+  /reservations/generate-payment-code:
+    post:
+      tags:
+        - Reservations
+      summary: Gerar código de pagamento
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reservation_id:
+                  type: string
+      responses:
+        '200':
+          description: Código gerado
+
+  # Payment Service
+  /payments/create:
+    post:
+      tags:
+        - Payments
+      summary: Criar pagamento
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentCreateRequest'
+      responses:
+        '201':
+          description: Pagamento criado
+
+  /payments:
+    post:
+      tags:
+        - Payments
+      summary: Processar pagamento
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentProcessRequest'
+      responses:
+        '200':
+          description: Pagamento processado
+
+  /payments/{paymentCode}:
+    get:
+      tags:
+        - Payments
+      summary: Status do pagamento
+      security: []
+      parameters:
+        - name: paymentCode
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Status do pagamento
+
+  /payments/my-payments:
+    get:
+      tags:
+        - Payments
+      summary: Histórico de pagamentos
+      responses:
+        '200':
+          description: Lista de pagamentos
+
+  # Sales Service
+  /sales:
+    get:
+      tags:
+        - Sales
+      summary: Listar vendas do cliente
+      responses:
+        '200':
+          description: Lista de vendas
+    post:
+      tags:
+        - Sales
+      summary: Criar venda
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaleCreateRequest'
+      responses:
+        '201':
+          description: Venda criada
+
+  /sales/{saleId}:
+    get:
+      tags:
+        - Sales
+      summary: Detalhes da venda
+      parameters:
+        - name: saleId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Detalhes da venda
+
+  /sales/{saleId}/contract:
+    get:
+      tags:
+        - Sales
+      summary: Download do contrato
+      parameters:
+        - name: saleId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Arquivo PDF do contrato
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+
+  /sales/{saleId}/invoice:
+    get:
+      tags:
+        - Sales
+      summary: Download da nota fiscal
+      parameters:
+        - name: saleId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Arquivo PDF da nota fiscal
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+
+  # SAGA Orchestrator
+  /saga/purchase:
+    post:
+      tags:
+        - SAGA
+      summary: Iniciar compra de veículo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PurchaseRequest'
+      responses:
+        '201':
+          description: Transação iniciada
+
+  /saga/transactions/{transactionId}:
+    get:
+      tags:
+        - SAGA
+      summary: Status da transação
+      parameters:
+        - name: transactionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Status da transação
+
+  # Admin Service
+  /admin/dashboard:
+    get:
+      tags:
+        - Admin
+      summary: Dashboard administrativo
+      responses:
+        '200':
+          description: Estatísticas do dashboard
+
+  /admin/reports/sales:
+    get:
+      tags:
+        - Admin
+      summary: Relatório de vendas
+      parameters:
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Relatório de vendas
+
+  /admin/reports/customers:
+    get:
+      tags:
+        - Admin
+      summary: Relatório de clientes
+      responses:
+        '200':
+          description: Relatório de clientes
+
+  /admin/reports/vehicles:
+    get:
+      tags:
+        - Admin
+      summary: Relatório de veículos
+      responses:
+        '200':
+          description: Relatório de veículos
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    UserRegistration:
+      type: object
+      required:
+        - name
+        - email
+        - password
+        - cpf
+        - phone
+      properties:
+        name:
+          type: string
+          example: "João Silva"
+        email:
+          type: string
+          format: email
+          example: "joao@email.com"
+        password:
+          type: string
+          minLength: 6
+          example: "senha123"
+        cpf:
+          type: string
+          example: "12345678901"
+        phone:
+          type: string
+          example: "11999999999"
+        address:
+          $ref: '#/components/schemas/Address'
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    AuthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            access_token:
+              type: string
+            refresh_token:
+              type: string
+            expires_in:
+              type: integer
+            user:
+              $ref: '#/components/schemas/User'
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [customer, admin]
+
+    Customer:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        cpf:
+          type: string
+        phone:
+          type: string
+        address:
+          $ref: '#/components/schemas/Address'
+
+    CustomerUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+        address:
+          $ref: '#/components/schemas/Address'
+
+    Address:
+      type: object
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zip_code:
+          type: string
+
+    Vehicle:
+      type: object
+      properties:
+        id:
+          type: string
+        brand:
+          type: string
+        model:
+          type: string
+        manufacturing_year:
+          type: integer
+        model_year:
+          type: integer
+        color:
+          type: string
+        mileage:
+          type: integer
+        fuel_type:
+          type: string
+        transmission_type:
+          type: string
+        price:
+          type: number
+        status:
+          type: string
+          enum: [available, reserved, sold]
+
+    ReservationRequest:
+      type: object
+      required:
+        - vehicle_id
+      properties:
+        vehicle_id:
+          type: string
+
+    Reservation:
+      type: object
+      properties:
+        id:
+          type: string
+        customer_id:
+          type: string
+        vehicle_id:
+          type: string
+        status:
+          type: string
+        expires_at:
+          type: string
+          format: date-time
+
+    PaymentCreateRequest:
+      type: object
+      required:
+        - reservation_id
+        - vehicle_id
+        - payment_code
+        - amount
+      properties:
+        reservation_id:
+          type: string
+        vehicle_id:
+          type: string
+        payment_code:
+          type: string
+        amount:
+          type: number
+
+    PaymentProcessRequest:
+      type: object
+      required:
+        - payment_code
+        - method
+      properties:
+        payment_code:
+          type: string
+        method:
+          type: string
+          enum: [credit_card, debit_card, pix, bank_transfer]
+
+    SaleCreateRequest:
+      type: object
+      required:
+        - vehicle_id
+        - reservation_id
+        - payment_id
+        - sale_price
+        - customer_data
+        - vehicle_data
+      properties:
+        vehicle_id:
+          type: string
+        reservation_id:
+          type: string
+        payment_id:
+          type: string
+        sale_price:
+          type: number
+        customer_data:
+          type: object
+        vehicle_data:
+          type: object
+
+    PurchaseRequest:
+      type: object
+      required:
+        - vehicle_id
+        - customer_data
+      properties:
+        vehicle_id:
+          type: string
+        customer_data:
+          type: object
+          properties:
+            name:
+              type: string
+            cpf:
+              type: string
+            email:
+              type: string
+            phone:
+              type: string
+            address:
+              type: string
+
