@@ -1,0 +1,517 @@
+_format_version: "3.0"
+
+services:
+  # Auth Service
+  - name: auth-service
+    url: http://auth-service:80
+    plugins:
+      - name: cors
+        config:
+          origins:
+            - "*"
+          methods:
+            - GET
+            - POST
+            - PUT
+            - DELETE
+            - OPTIONS
+          headers:
+            - Accept
+            - Accept-Version
+            - Content-Length
+            - Content-MD5
+            - Content-Type
+            - Date
+            - Authorization
+          exposed_headers:
+            - X-Auth-Token
+          credentials: true
+          max_age: 3600
+
+  # Customer Service
+  - name: customer-service
+    url: http://customer-service:80
+    plugins:
+      - name: cors
+        config:
+          origins:
+            - "*"
+          methods:
+            - GET
+            - POST
+            - PUT
+            - DELETE
+            - OPTIONS
+          headers:
+            - Accept
+            - Accept-Version
+            - Content-Length
+            - Content-MD5
+            - Content-Type
+            - Date
+            - Authorization
+          exposed_headers:
+            - X-Auth-Token
+          credentials: true
+          max_age: 3600
+
+  # Vehicle Service
+  - name: vehicle-service
+    url: http://vehicle-service:80
+    plugins:
+      - name: cors
+        config:
+          origins:
+            - "*"
+          methods:
+            - GET
+            - POST
+            - PUT
+            - DELETE
+            - OPTIONS
+          headers:
+            - Accept
+            - Accept-Version
+            - Content-Length
+            - Content-MD5
+            - Content-Type
+            - Date
+            - Authorization
+          exposed_headers:
+            - X-Auth-Token
+          credentials: true
+          max_age: 3600
+
+  # Reservation Service
+  - name: reservation-service
+    url: http://reservation-service:80
+    plugins:
+      - name: cors
+        config:
+          origins:
+            - "*"
+          methods:
+            - GET
+            - POST
+            - PUT
+            - DELETE
+            - OPTIONS
+          headers:
+            - Accept
+            - Accept-Version
+            - Content-Length
+            - Content-MD5
+            - Content-Type
+            - Date
+            - Authorization
+          exposed_headers:
+            - X-Auth-Token
+          credentials: true
+          max_age: 3600
+
+  # Payment Service
+  - name: payment-service
+    url: http://payment-service:80
+    plugins:
+      - name: cors
+        config:
+          origins:
+            - "*"
+          methods:
+            - GET
+            - POST
+            - PUT
+            - DELETE
+            - OPTIONS
+          headers:
+            - Accept
+            - Accept-Version
+            - Content-Length
+            - Content-MD5
+            - Content-Type
+            - Date
+            - Authorization
+          exposed_headers:
+            - X-Auth-Token
+          credentials: true
+          max_age: 3600
+
+  # Sales Service
+  - name: sales-service
+    url: http://sales-service:80
+    plugins:
+      - name: cors
+        config:
+          origins:
+            - "*"
+          methods:
+            - GET
+            - POST
+            - PUT
+            - DELETE
+            - OPTIONS
+          headers:
+            - Accept
+            - Accept-Version
+            - Content-Length
+            - Content-MD5
+            - Content-Type
+            - Date
+            - Authorization
+          exposed_headers:
+            - X-Auth-Token
+          credentials: true
+          max_age: 3600
+
+  # Admin Service
+  - name: admin-service
+    url: http://admin-service:80
+    plugins:
+      - name: cors
+        config:
+          origins:
+            - "*"
+          methods:
+            - GET
+            - POST
+            - PUT
+            - DELETE
+            - OPTIONS
+          headers:
+            - Accept
+            - Accept-Version
+            - Content-Length
+            - Content-MD5
+            - Content-Type
+            - Date
+            - Authorization
+          exposed_headers:
+            - X-Auth-Token
+          credentials: true
+          max_age: 3600
+
+routes:
+  # Auth Routes
+  - name: auth-login
+    service: auth-service
+    paths:
+      - /auth/login
+    methods:
+      - POST
+
+  - name: auth-register
+    service: auth-service
+    paths:
+      - /auth/register
+    methods:
+      - POST
+
+  - name: auth-refresh
+    service: auth-service
+    paths:
+      - /auth/refresh
+    methods:
+      - POST
+
+  - name: auth-logout
+    service: auth-service
+    paths:
+      - /auth/logout
+    methods:
+      - GET
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: sub
+          algorithm: HS256
+
+  # Vehicle Routes
+  - name: vehicles-list
+    service: vehicle-service
+    paths:
+      - /vehicles
+    methods:
+      - GET
+
+  - name: vehicles-detail
+    service: vehicle-service
+    paths:
+      - /vehicles/(?<vehicle_id>[^/]+)$
+    methods:
+      - GET
+
+  - name: vehicles-search
+    service: vehicle-service
+    paths:
+      - /vehicles/search
+    methods:
+      - GET
+
+  # Customer Routes (Protected)
+  - name: customer-profile
+    service: customer-service
+    paths:
+      - /customer/profile
+    methods:
+      - GET
+      - PUT
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: sub
+          algorithm: HS256
+
+  - name: customer-password
+    service: customer-service
+    paths:
+      - /customer/password
+    methods:
+      - PUT
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: sub
+          algorithm: HS256
+
+  - name: customer-reservations
+    service: customer-service
+    paths:
+      - /customer/reservations
+    methods:
+      - GET
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: sub
+          algorithm: HS256
+
+  - name: customer-purchases
+    service: customer-service
+    paths:
+      - /customer/purchase
+    methods:
+      - GET
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: sub
+          algorithm: HS256
+
+  # Reservation Routes (Protected)
+  - name: reservations-create
+    service: reservation-service
+    paths:
+      - /reservations
+    methods:
+      - POST
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: sub
+          algorithm: HS256
+
+  - name: reservations-list
+    service: reservation-service
+    paths:
+      - /reservations
+    methods:
+      - GET
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: sub
+          algorithm: HS256
+
+  - name: reservations-detail
+    service: reservation-service
+    paths:
+      - /reservations/(?<reservation_id>[^/]+)$
+    methods:
+      - GET
+      - DELETE
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: sub
+          algorithm: HS256
+
+  # Payment Routes (Protected)
+  - name: payments-generate-code
+    service: payment-service
+    paths:
+      - /payments/generate-code
+    methods:
+      - GET
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: sub
+          algorithm: HS256
+
+  - name: payments-process
+    service: payment-service
+    paths:
+      - /payments
+    methods:
+      - POST
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: sub
+          algorithm: HS256
+
+  - name: payments-status
+    service: payment-service
+    paths:
+      - /payments/(?<payment_code>[^/]+)$
+    methods:
+      - GET
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: sub
+          algorithm: HS256
+
+  # Sales Routes (Protected)
+  - name: sales-list
+    service: sales-service
+    paths:
+      - /sales
+    methods:
+      - GET
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: sub
+          algorithm: HS256
+
+  - name: sales-document
+    service: sales-service
+    paths:
+      - /sales/(?<sale_id>[^/]+)/document$
+    methods:
+      - GET
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: sub
+          algorithm: HS256
+
+  # Admin Routes (Protected - Admin only)
+  - name: admin-reports-reservations
+    service: admin-service
+    paths:
+      - /admin/reports/reservations
+    methods:
+      - GET
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: sub
+          algorithm: HS256
+
+  - name: admin-reports-sales
+    service: admin-service
+    paths:
+      - /admin/reports/sales
+    methods:
+      - GET
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: sub
+          algorithm: HS256
+
+  - name: admin-reports-payments
+    service: admin-service
+    paths:
+      - /admin/reports/payments
+    methods:
+      - GET
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: sub
+          algorithm: HS256
+
+  - name: admin-vehicles
+    service: admin-service
+    paths:
+      - /admin/vehicles
+    methods:
+      - GET
+      - POST
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: sub
+          algorithm: HS256
+
+  - name: admin-vehicles-detail
+    service: admin-service
+    paths:
+      - /admin/vehicles/(?<vehicle_id>[^/]+)$
+    methods:
+      - GET
+      - PUT
+      - DELETE
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: sub
+          algorithm: HS256
+
+  - name: admin-clients
+    service: admin-service
+    paths:
+      - /admin/clients
+    methods:
+      - GET
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: sub
+          algorithm: HS256
+
+  - name: admin-clients-detail
+    service: admin-service
+    paths:
+      - /admin/clients/(?<client_id>[^/]+)$
+    methods:
+      - GET
+      - PUT
+      - DELETE
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: sub
+          algorithm: HS256
+
+plugins:
+  - name: cors
+  - name: jwt
+  - name: rate-limiting
+    config:
+      minute: 100
+      hour: 1000
+

@@ -1,0 +1,591 @@
+_format_version: "3.0"
+
+services:
+  # Auth Service
+
+  - name: auth-service
+    url: http://auth-service:80
+    plugins:
+      - name: cors
+        config:
+          origins:
+            - "*"
+          methods:
+            - GET
+            - POST
+            - PUT
+            - DELETE
+            - OPTIONS
+          headers:
+            - Accept
+            - Accept-Version
+            - Content-Length
+            - Content-MD5
+            - Content-Type
+            - Date
+            - Authorization
+          exposed_headers:
+            - Authorization
+          credentials: true
+          max_age: 3600
+
+  # Customer Service
+  - name: customer-service
+    url: http://customer-service:80
+    plugins:
+      - name: cors
+        config:
+          origins:
+            - "*"
+          methods:
+            - GET
+            - POST
+            - PUT
+            - DELETE
+            - OPTIONS
+          headers:
+            - Accept
+            - Accept-Version
+            - Content-Length
+            - Content-MD5
+            - Content-Type
+            - Date
+            - Authorization
+          exposed_headers:
+            - Authorization
+          credentials: true
+          max_age: 3600
+
+  # Vehicle Service
+  - name: vehicle-service
+    url: http://vehicle-service:80
+    plugins:
+      - name: cors
+        config:
+          origins:
+            - "*"
+          methods:
+            - GET
+            - POST
+            - PUT
+            - DELETE
+            - OPTIONS
+          headers:
+            - Accept
+            - Accept-Version
+            - Content-Length
+            - Content-MD5
+            - Content-Type
+            - Date
+            - Authorization
+          exposed_headers:
+            - Authorization
+          credentials: true
+          max_age: 3600
+
+  # Reservation Service
+  - name: reservation-service
+    url: http://reservation-service:80
+    plugins:
+      - name: cors
+        config:
+          origins:
+            - "*"
+          methods:
+            - GET
+            - POST
+            - PUT
+            - DELETE
+            - OPTIONS
+          headers:
+            - Accept
+            - Accept-Version
+            - Content-Length
+            - Content-MD5
+            - Content-Type
+            - Date
+            - Authorization
+          exposed_headers:
+            - Authorization
+          credentials: true
+          max_age: 3600
+
+  # Payment Service
+  - name: payment-service
+    url: http://payment-service:80
+    plugins:
+      - name: cors
+        config:
+          origins:
+            - "*"
+          methods:
+            - GET
+            - POST
+            - PUT
+            - DELETE
+            - OPTIONS
+          headers:
+            - Accept
+            - Accept-Version
+            - Content-Length
+            - Content-MD5
+            - Content-Type
+            - Date
+            - Authorization
+          exposed_headers:
+            - Authorization
+          credentials: true
+          max_age: 3600
+
+  # Sales Service
+  - name: sales-service
+    url: http://sales-service:80
+    plugins:
+      - name: cors
+        config:
+          origins:
+            - "*"
+          methods:
+            - GET
+            - POST
+            - PUT
+            - DELETE
+            - OPTIONS
+          headers:
+            - Accept
+            - Accept-Version
+            - Content-Length
+            - Content-MD5
+            - Content-Type
+            - Date
+            - Authorization
+          exposed_headers:
+            - Authorization
+          credentials: true
+          max_age: 3600
+
+  # Admin Service
+  - name: admin-service
+    url: http://admin-service:80
+    plugins:
+      - name: cors
+        config:
+          origins:
+            - "*"
+          methods:
+            - GET
+            - POST
+            - PUT
+            - DELETE
+            - OPTIONS
+          headers:
+            - Accept
+            - Accept-Version
+            - Content-Length
+            - Content-MD5
+            - Content-Type
+            - Date
+            - Authorization
+          exposed_headers:
+            - Authorization
+          credentials: true
+          max_age: 3600
+
+  # SAGA Orchestrator
+  - name: saga-orchestrator
+    url: http://saga-orchestrator:80
+    plugins:
+      - name: cors
+        config:
+          origins:
+            - "*"
+          methods:
+            - GET
+            - POST
+            - PUT
+            - DELETE
+            - OPTIONS
+          headers:
+            - Accept
+            - Accept-Version
+            - Content-Length
+            - Content-MD5
+            - Content-Type
+            - Date
+            - Authorization
+          exposed_headers:
+            - Authorization
+          credentials: true
+          max_age: 3600
+
+# Consumers para JWT
+consumers:
+  - username: car-dealership-app
+    custom_id: car-dealership-app
+
+# JWT Credentials
+jwt_secrets:
+  - consumer: car-dealership-app
+    key: car-dealership-issuer
+    secret: your-super-secret-jwt-key-for-auth-service-2025
+
+routes:
+  # Auth Service Routes (Public)
+  - name: auth-login
+    service: auth-service
+    strip_path: false
+    paths:
+      - /api/v1/auth/login
+    methods:
+      - POST
+      - OPTIONS
+
+  - name: auth-register
+    service: auth-service
+    strip_path: false
+    paths:
+      - /api/v1/auth/register
+    methods:
+      - POST
+      - OPTIONS
+
+  - name: auth-health
+    service: auth-service
+    strip_path: false
+    paths:
+      - /api/v1/auth/health
+    methods:
+      - GET
+      - OPTIONS
+
+  # Auth Service Routes (Protected)
+  - name: auth-validate
+    service: auth-service
+    strip_path: false
+    paths:
+      - /api/v1/auth/validate
+    methods:
+      - POST
+      - OPTIONS
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: iss
+
+  - name: auth-refresh
+    service: auth-service
+    strip_path: false
+    paths:
+      - /api/v1/auth/refresh
+    methods:
+      - POST
+      - OPTIONS
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: iss
+
+  # Customer Service Routes (Protected)
+  - name: customer-profile
+    service: customer-service
+    strip_path: false
+    paths:
+      - /api/v1/customer/profile
+    methods:
+      - GET
+      - PUT
+      - DELETE
+      - OPTIONS
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: iss
+
+  # Vehicle Service Routes (Public)
+  - name: vehicles-list
+    service: vehicle-service
+    strip_path: false
+    paths:
+      - /api/v1/vehicles
+    methods:
+      - GET
+      - OPTIONS
+
+  - name: vehicles-search
+    service: vehicle-service
+    strip_path: false
+    paths:
+      - /api/v1/vehicles/search
+    methods:
+      - GET
+      - OPTIONS
+
+  - name: vehicle-details
+    service: vehicle-service
+    strip_path: false
+    paths:
+      - /api/v1/vehicles
+    strip_path: false
+    methods:
+      - GET
+      - OPTIONS
+
+  - name: vehicles-health
+    service: vehicle-service
+    strip_path: false
+    paths:
+      - /api/v1/vehicles/health
+    methods:
+      - GET
+      - OPTIONS
+
+  # Reservation Service Routes (Protected)
+  - name: reservations
+    service: reservation-service
+    strip_path: false
+    paths:
+      - /api/v1/reservations
+    methods:
+      - GET
+      - POST
+      - DELETE
+      - OPTIONS
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: iss
+
+  - name: reservation-details
+    service: reservation-service
+    strip_path: false
+    paths:
+      - /api/v1/reservations
+    strip_path: false
+    methods:
+      - GET
+      - DELETE
+      - OPTIONS
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: iss
+
+  - name: payment-code-generation
+    service: reservation-service
+    strip_path: false
+    paths:
+      - /api/v1/reservations/generate-payment-code
+    methods:
+      - POST
+      - OPTIONS
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: iss
+
+  # Payment Service Routes
+  - name: payments
+    service: payment-service
+    strip_path: false
+    paths:
+      - /api/v1/payments
+    methods:
+      - POST
+      - OPTIONS
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: iss
+
+  - name: payment-create
+    service: payment-service
+    strip_path: false
+    paths:
+      - /api/v1/payments/create
+    methods:
+      - POST
+      - OPTIONS
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: iss
+
+  - name: payment-status
+    service: payment-service
+    strip_path: false
+    paths:
+      - /api/v1/payments
+    strip_path: false
+    methods:
+      - GET
+      - OPTIONS
+
+  - name: customer-payments
+    service: payment-service
+    strip_path: false
+    paths:
+      - /api/v1/payments/my-payments
+    methods:
+      - GET
+      - OPTIONS
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: iss
+
+  # Sales Service Routes (Protected)
+  - name: sales
+    service: sales-service
+    strip_path: false
+    paths:
+      - /api/v1/sales
+    methods:
+      - GET
+      - POST
+      - OPTIONS
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: iss
+
+  - name: sale-details
+    service: sales-service
+    strip_path: false
+    paths:
+      - /api/v1/sales
+    strip_path: false
+    methods:
+      - GET
+      - OPTIONS
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: iss
+
+  - name: sale-contract
+    service: sales-service
+    strip_path: false
+    paths:
+      - /api/v1/sales/contract
+    strip_path: false
+    methods:
+      - GET
+      - OPTIONS
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: iss
+
+  - name: sale-invoice
+    service: sales-service
+    strip_path: false
+    paths:
+      - /api/v1/sales/invoice
+    strip_path: false
+    methods:
+      - GET
+      - OPTIONS
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: iss
+
+  # Admin Service Routes (Admin Only)
+  - name: admin-dashboard
+    service: admin-service
+    strip_path: false
+    paths:
+      - /api/v1/admin/dashboard
+    methods:
+      - GET
+      - OPTIONS
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: iss
+
+  - name: admin-reports
+    service: admin-service
+    strip_path: false
+    paths:
+      - /api/v1/admin/reports
+    strip_path: false
+    methods:
+      - GET
+      - OPTIONS
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: iss
+
+  # SAGA Orchestrator Routes (Protected)
+  - name: saga-purchase
+    service: saga-orchestrator
+    strip_path: false
+    paths:
+      - /api/v1/saga/purchase
+    methods:
+      - POST
+      - OPTIONS
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: iss
+
+  - name: saga-transaction-status
+    service: saga-orchestrator
+    strip_path: false
+    paths:
+      - /api/v1/saga/transactions
+    strip_path: false
+    methods:
+      - GET
+      - OPTIONS
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: iss
+
+  # Health Check Routes (Public)
+  - name: health-checks
+    service: auth-service
+    strip_path: false
+    paths:
+      - /api/v1/health
+    methods:
+      - GET
+      - OPTIONS
+
+# Global Plugins
+plugins:
+  # Rate Limiting Global
+  - name: rate-limiting
+    config:
+      minute: 100
+      hour: 1000
+      policy: local
+      fault_tolerant: true
+      hide_client_headers: false
+
+  # Request Size Limiting Global
+  - name: request-size-limiting
+    config:
+      allowed_payload_size: 10
+
