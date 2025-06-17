@@ -1,0 +1,384 @@
+services:
+  # Database
+  mysql:
+    image: mysql:8.0
+    container_name: car_dealership_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword123
+      MYSQL_DATABASE: car_dealership
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./shared/database/init:/docker-entrypoint-initdb.d
+      - ./shared/database/migrations:/migrations
+    networks:
+      - car_dealership_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    restart: unless-stopped
+
+  # Message Broker
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: car_dealership_rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin123
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+      - ./shared/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json
+      - ./shared/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+    networks:
+      - car_dealership_network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      timeout: 30s
+      retries: 10
+    restart: unless-stopped
+
+  # Auth Service
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: car_dealership_auth
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: auth_db
+      DB_USERNAME: root
+      DB_PASSWORD: rootpassword123
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: admin
+      RABBITMQ_PASS: admin123
+      JWT_SECRET: your-super-secret-jwt-key-for-auth-service-2025
+      JWT_EXPIRATION: 3600
+    volumes:
+      - ./auth-service:/var/www/html
+    ports:
+      - "8081:80"  # Porta pública para o serviço de autenticação
+    expose:
+      - "80"
+    networks:
+      - car_dealership_network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Customer Service
+  customer-service:
+    build:
+      context: ./customer-service
+      dockerfile: Dockerfile
+    container_name: car_dealership_customer
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: customer_db
+      DB_USERNAME: root
+      DB_PASSWORD: rootpassword123
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: admin
+      RABBITMQ_PASS: admin123
+      JWT_SECRET: your-super-secret-jwt-key-for-auth-service-2025
+    volumes:
+      - ./customer-service:/var/www/html
+    ports:
+      - "8082:80"  # Porta pública para o serviço de clientes
+    expose:
+      - "80"
+    networks:
+      - car_dealership_network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Vehicle Service
+  vehicle-service:
+    build:
+      context: ./vehicle-service
+      dockerfile: Dockerfile
+    container_name: car_dealership_vehicle
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: vehicle_db
+      DB_USERNAME: root
+      DB_PASSWORD: rootpassword123
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: admin
+      RABBITMQ_PASS: admin123
+    volumes:
+      - ./vehicle-service:/var/www/html
+    ports:
+      - "8083:80"  # Porta pública para o serviço de veículos
+    expose:
+      - "80"
+    networks:
+      - car_dealership_network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Reservation Service
+  reservation-service:
+    build:
+      context: ./reservation-service
+      dockerfile: Dockerfile
+    container_name: car_dealership_reservation
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: reservation_db
+      DB_USERNAME: root
+      DB_PASSWORD: rootpassword123
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: admin
+      RABBITMQ_PASS: admin123
+      JWT_SECRET: your-super-secret-jwt-key-for-auth-service-2025
+    volumes:
+      - ./reservation-service:/var/www/html
+    ports:
+      - "8084:80"  # Porta pública para o serviço de reservas
+    expose:
+      - "80"
+    networks:
+      - car_dealership_network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Payment Service
+  payment-service:
+    build:
+      context: ./payment-service
+      dockerfile: Dockerfile
+    container_name: car_dealership_payment
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: payment_db
+      DB_USERNAME: root
+      DB_PASSWORD: rootpassword123
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: admin
+      RABBITMQ_PASS: admin123
+      JWT_SECRET: your-super-secret-jwt-key-for-auth-service-2025
+    volumes:
+      - ./payment-service:/var/www/html
+    ports:
+      - "8085:80"  # Porta pública para o serviço de pagamentos
+    expose:
+      - "80"
+    networks:
+      - car_dealership_network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Sales Service
+  sales-service:
+    build:
+      context: ./sales-service
+      dockerfile: Dockerfile
+    container_name: car_dealership_sales
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: sales_db
+      DB_USERNAME: root
+      DB_PASSWORD: rootpassword123
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: admin
+      RABBITMQ_PASS: admin123
+      JWT_SECRET: your-super-secret-jwt-key-for-auth-service-2025
+    volumes:
+      - ./sales-service:/var/www/html
+      - sales_pdfs:/var/www/html/storage/pdfs
+    ports:
+      - "8086:80"  # Porta pública para o serviço de vendas
+    expose:
+      - "80"
+    networks:
+      - car_dealership_network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Admin Service
+  admin-service:
+    build:
+      context: ./admin-service
+      dockerfile: Dockerfile
+    container_name: car_dealership_admin
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: admin_db
+      DB_USERNAME: root
+      DB_PASSWORD: rootpassword123
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: admin
+      RABBITMQ_PASS: admin123
+      JWT_SECRET: your-super-secret-jwt-key-for-auth-service-2025
+    volumes:
+      - ./admin-service:/var/www/html
+      - ./shared:/var/www/html/shared
+      - ./tests:/var/www/html/tests
+    ports:
+      - "8087:80"  # Porta pública para o serviço administrativo
+    expose:
+      - "80"
+    networks:
+      - car_dealership_network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # SAGA Orchestrator
+  saga-orchestrator:
+    build:
+      context: ./saga-orchestrator
+      dockerfile: Dockerfile
+    container_name: car_dealership_saga
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: saga_db
+      DB_USERNAME: root
+      DB_PASSWORD: rootpassword123
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: admin
+      RABBITMQ_PASS: admin123
+      JWT_SECRET: your-super-secret-jwt-key-for-auth-service-2025
+      # URLs dos microserviços para comunicação HTTP
+      AUTH_SERVICE_URL: http://auth-service
+      CUSTOMER_SERVICE_URL: http://customer-service
+      VEHICLE_SERVICE_URL: http://vehicle-service
+      RESERVATION_SERVICE_URL: http://reservation-service
+      PAYMENT_SERVICE_URL: http://payment-service
+      SALES_SERVICE_URL: http://sales-service
+    expose:
+      - "80"
+    networks:
+      - car_dealership_network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # API Gateway
+  kong:
+    image: kong:3.4
+    container_name: car_dealership_kong
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yml
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001
+      KONG_PROXY_LISTEN: 0.0.0.0:8000
+    ports:
+      - "8000:8000"   # API Gateway público
+      - "8001:8001"   # Kong Admin API
+    volumes:
+      - ./api-gateway/kong.yml:/kong/declarative/kong.yml
+    networks:
+      - car_dealership_network
+    depends_on:
+      - auth-service
+      - customer-service
+      - vehicle-service
+      - reservation-service
+      - payment-service
+      - sales-service
+      - admin-service
+      - saga-orchestrator
+    restart: unless-stopped
+
+  # phpMyAdmin
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: car_dealership_phpmyadmin
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: root
+      PMA_PASSWORD: rootpassword123
+      PMA_ARBITRARY: 1
+    ports:
+      - "8090:80"
+    networks:
+      - car_dealership_network
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Documentation Service (Swagger UI customizado)
+  docs:
+    build:
+      context: ./docs
+      dockerfile: Dockerfile
+    container_name: car_dealership_docs
+    volumes:
+      - ./docs:/usr/share/nginx/html/
+    ports:
+      - "8089:80"
+    networks:
+      - car_dealership_network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+    driver: local
+  rabbitmq_data:
+    driver: local
+  sales_pdfs:
+    driver: local
+
+networks:
+  car_dealership_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
