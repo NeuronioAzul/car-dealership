@@ -1,0 +1,14 @@
+# Adicionar ao Dockerfile do SAGA Orchestrator
+RUN mkdir -p /var/www/html/bin
+COPY bin/ /var/www/html/bin/
+RUN chmod +x /var/www/html/bin/saga-processor.php
+
+# Instalar supervisor para gerenciar processos
+RUN apt-get update && apt-get install -y supervisor
+
+# Configuração do supervisor
+COPY supervisor.conf /etc/supervisor/conf.d/saga-processor.conf
+
+# Comando para iniciar Apache e Supervisor
+CMD ["sh", "-c", "service supervisor start && apache2-foreground"]
+
