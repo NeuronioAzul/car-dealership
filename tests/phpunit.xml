@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.0/phpunit.xsd"
+         bootstrap="bootstrap.php"
+         colors="true"
+         verbose="true"
+         stopOnFailure="false"
+         processIsolation="false"
+         backupGlobals="false"
+         backupStaticAttributes="false">
+    
+    <testsuites>
+        <testsuite name="Unit">
+            <directory>Unit</directory>
+        </testsuite>
+        <testsuite name="Integration">
+            <directory>Integration</directory>
+        </testsuite>
+        <testsuite name="Feature">
+            <directory>Feature</directory>
+        </testsuite>
+    </testsuites>
+    
+    <source>
+        <include>
+            <directory suffix=".php">../auth-service/src</directory>
+            <directory suffix=".php">../customer-service/src</directory>
+            <directory suffix=".php">../vehicle-service/src</directory>
+            <directory suffix=".php">../reservation-service/src</directory>
+            <directory suffix=".php">../payment-service/src</directory>
+            <directory suffix=".php">../sales-service/src</directory>
+            <directory suffix=".php">../admin-service/src</directory>
+            <directory suffix=".php">../saga-orchestrator/src</directory>
+        </include>
+    </source>
+    
+    <coverage>
+        <report>
+            <html outputDirectory="coverage"/>
+            <text outputFile="coverage.txt"/>
+        </report>
+    </coverage>
+    
+    <php>
+        <env name="APP_ENV" value="testing"/>
+        <env name="DB_HOST" value="localhost"/>
+        <env name="DB_PORT" value="3306"/>
+        <env name="DB_USERNAME" value="root"/>
+        <env name="DB_PASSWORD" value="root"/>
+        <env name="RABBITMQ_HOST" value="localhost"/>
+        <env name="RABBITMQ_PORT" value="5672"/>
+        <env name="RABBITMQ_USER" value="admin"/>
+        <env name="RABBITMQ_PASS" value="admin123"/>
+        <env name="API_BASE_URL" value="http://localhost:8000/api/v1"/>
+    </php>
+    
+    <logging>
+        <junit outputFile="results.xml"/>
+    </logging>
+</phpunit>
+

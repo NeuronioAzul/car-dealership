@@ -1,0 +1,25 @@
+{
+    "name": "car-dealership/tests",
+    "description": "Test suite for Car Dealership System",
+    "type": "project",
+    "require": {
+        "php": "^8.4",
+        "phpunit/phpunit": "^10.0",
+        "guzzlehttp/guzzle": "^7.0",
+        "vlucas/phpdotenv": "^5.0",
+        "fakerphp/faker": "^1.20"
+    },
+    "autoload": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "test-unit": "phpunit --testsuite=Unit",
+        "test-integration": "phpunit --testsuite=Integration",
+        "test-feature": "phpunit --testsuite=Feature",
+        "test-coverage": "phpunit --coverage-html coverage"
+    }
+}
+

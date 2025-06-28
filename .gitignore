@@ -28,3 +28,5 @@ composer.lock
 */.env.development
 # Ignore all files in the .env.production file
 */.env.production
+tests/.phpunit.result.cache
+tests/results.xml
