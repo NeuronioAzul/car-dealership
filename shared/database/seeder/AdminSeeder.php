@@ -40,7 +40,7 @@ class AdminSeeder extends BaseSeeder
             [
                 'id' => $this->generateUuid(),
                 'setting_key' => 'company_name',
-                'setting_value' => $this->getEnv('COMPANY_NAME', 'Concessionária AutoMax'),
+                'setting_value' => $this->getEnv('COMPANY_NAME', 'Concessionária M&D Ultra Max'),
                 'setting_type' => 'string',
                 'category' => 'company',
                 'description' => 'Nome da empresa',
@@ -88,7 +88,7 @@ class AdminSeeder extends BaseSeeder
             [
                 'id' => $this->generateUuid(),
                 'setting_key' => 'company_email',
-                'setting_value' => $this->getEnv('COMPANY_EMAIL', 'contato@automax.com.br'),
+                'setting_value' => $this->getEnv('COMPANY_EMAIL', 'contato@mdultramax.com.br'),
                 'setting_type' => 'string',
                 'category' => 'company',
                 'description' => 'Email da empresa',

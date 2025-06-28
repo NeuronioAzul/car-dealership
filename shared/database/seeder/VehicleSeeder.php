@@ -18,42 +18,101 @@ class VehicleSeeder extends BaseSeeder
         'Hyundai' => ['Elantra', 'Sonata', 'Tucson', 'Creta', 'HB20', 'Azera', 'Santa Fe'],
         'Fiat' => ['Cronos', 'Toro', 'Argo', 'Mobi', 'Strada', 'Pulse', 'Fastback']
     ];
-    
+
     private array $colors = [
-        'Branco', 'Preto', 'Prata', 'Cinza', 'Vermelho', 'Azul', 'Bege', 'Dourado', 'Verde', 'Marrom'
+        'Branco',
+        'Preto',
+        'Prata',
+        'Cinza',
+        'Vermelho',
+        'Azul',
+        'Bege',
+        'Dourado',
+        'Verde',
+        'Marrom'
     ];
-    
+
     private array $fuelTypes = ['Gasolina', 'Etanol', 'Flex', 'Diesel', 'Hibrido', 'Eletrico'];
     private array $transmissions = ['Manual', 'Automatico', 'CVT'];
     private array $categories = ['Hatchback', 'Sedan', 'SUV', 'Pickup', 'Crossover', 'Wagon'];
-    
+
     public function __construct()
     {
         parent::__construct($this->getEnv('VEHICLE_DB_NAME', 'vehicle_db'));
         $this->faker = Factory::create('pt_BR');
     }
-    
+
     public function run(): void
     {
         echo "🚗 Iniciando seed do Vehicle Service...\n";
-        
+
         // Limpar tabelas
         $this->truncateTable('vehicle_images');
         $this->truncateTable('vehicles');
-        
+
         // Criar veículos
         $this->createVehicles();
-        
+
         echo "✅ Seed do Vehicle Service concluído!\n\n";
     }
-    
+
     private function createVehicles(): void
     {
+
+
+
+
+        exec('cd ../public' . ' && ls -la', $output, $returnVar);
+        echo "Print do exec\n";
+        var_dump($output);
+        var_dump($returnVar);
+
+        die("🚗 Parou o seed do Vehicle Service...");
+
         $vehicles = [];
         $vehicleImages = [];
-        
+
         $vehiclesCount = (int) $this->getEnv('SEED_VEHICLES_COUNT', 100);
-        
+
+        // Caminhos das imagens reais
+        // caminho que eu quero acessar: /var/www/html/public/seeder-images/cars
+        //esse código não está funcionando: $carsDir = __DIR__ . '/../../../public/seeder-images/cars';
+        // caminho que está sendo gerado pelo código acima: /var/www/html/shared/database/seeder/../../../public/seeder-images/cars
+        $carsDir = '../../../public/seeder-images/cars';
+
+        $motorsDir = '../../../public/seeder-images/motors';
+
+        echo $carsDir . "\n";
+        echo $motorsDir . "\n";
+
+        if (is_dir($carsDir)) {
+            exec('ls -la ' . $carsDir);
+            $carImages = glob($carsDir . '/*.{jpg,png,jpeg}', GLOB_BRACE);
+        } else {
+            echo "Diretório de carros não encontrado: $carsDir\n";
+            $carImages = [];
+        }
+
+        if (is_dir($motorsDir)) {
+            exec('ls -la ' . $motorsDir);
+            $motorImages = glob($motorsDir . '/*.{jpg,png,jpeg}', GLOB_BRACE);
+        } else {
+            echo "Diretório de motores não encontrado: $motorsDir\n";
+            $motorImages = [];
+        }
+
+        // Caminhos relativos para uso no campo image_url
+        $carImagesRel = array_map(function ($path) {
+            return '/seeder-images/cars/' . basename($path);
+        }, $carImages);
+
+        $motorImagesRel = array_map(function ($path) {
+            return '/seeder-images/motors/' . basename($path);
+        }, $motorImages);
+
+        var_dump("Car images count: " . count($carImagesRel));
+        var_dump("Motor images count: " . count($motorImagesRel));
+die();
         for ($i = 1; $i <= $vehiclesCount; $i++) {
             $brand = $this->faker->randomElement(array_keys($this->brands));
             $model = $this->faker->randomElement($this->brands[$brand]);
@@ -62,12 +121,27 @@ class VehicleSeeder extends BaseSeeder
             $fuelType = $this->faker->randomElement($this->fuelTypes);
             $transmission = $this->faker->randomElement($this->transmissions);
             $category = $this->faker->randomElement($this->categories);
-            
+
             $basePrice = $this->faker->numberBetween(45000, 150000);
             $mileage = $year < 2023 ? $this->faker->numberBetween(5000, 80000) : $this->faker->numberBetween(0, 15000);
-            
+
             $vehicleId = $this->generateUuid();
-            
+            $features = [
+                'Ar condicionado',
+                'Direção hidráulica',
+                'Vidros elétricos',
+                'Travas elétricas',
+                'Airbag duplo',
+                'Freios ABS',
+                'Rodas de liga leve',
+                'Câmera de ré',
+                'Sensor de estacionamento',
+                'Central multimídia',
+                'Bluetooth',
+                'Controle de cruzeiro'
+            ];
+
+
             $vehicles[] = [
                 'id' => $vehicleId,
                 'brand' => $brand,
@@ -79,14 +153,10 @@ class VehicleSeeder extends BaseSeeder
                 'mileage' => $mileage,
                 'price' => $basePrice,
                 'description' => $this->generateVehicleDescription($brand, $model, $year, $color),
-                
                 'status' => $this->faker->randomElement(['available', 'reserved', 'sold']),
-                'features' => json_encode($this->faker->randomElements([
-                    'Ar condicionado', 'Direção hidráulica', 'Vidros elétricos', 'Travas elétricas',
-                    'Airbag duplo', 'Freios ABS', 'Rodas de liga leve', 'Câmera de ré', 'Sensor de estacionamento',
-                    'Central multimídia', 'Bluetooth', 'Controle de cruzeiro'
-                ], $this->faker->numberBetween(3, 6))),
-                
+
+                'features' => json_encode($this->faker->randomElements($features, $this->faker->boolean(0.7) ? $this->faker->numberBetween(3, 6) : $this->faker->numberBetween(1, 3))),
+
                 'engine_size' => $this->faker->randomElement(['1.0', '1.4', '1.6', '2.0', '2.4', '3.0']),
                 'doors' => $this->faker->randomElement([2, 4, 5]),
                 'seats' => $this->faker->numberBetween(2, 7),
@@ -105,15 +175,49 @@ class VehicleSeeder extends BaseSeeder
                 'updated_at' => $this->getCurrentTimestamp(),
                 'deleted_at' => $this->faker->boolean(0.1) ? $this->getCurrentTimestamp() : null
             ];
-            
+
             // Gerar imagens para o veículo
             $imageCount = $this->faker->numberBetween(3, 8);
+
+            // Embaralhar as listas para cada veículo
+            $carImagesShuffled = $carImagesRel;
+            $motorImagesShuffled = $motorImagesRel;
+            shuffle($carImagesShuffled);
+            shuffle($motorImagesShuffled);
+
+            $carIdx = 0;
+            $motorIdx = 0;
+
+            var_dump("Gerando imagens para o veículo {$i}: {$brand} {$model} ({$year}) - Total de imagens: {$imageCount}");
+            var_dump("Car images:", $carImagesShuffled);
+            var_dump("Motor images:", $motorImagesShuffled);
+
             for ($j = 1; $j <= $imageCount; $j++) {
+                if ($j === 1) {
+                    // Main image: usar uma imagem de carro
+                    var_dump("Main image:", $carIdx, $carImagesShuffled);
+                    $img = $carImagesShuffled[$carIdx % count($carImagesShuffled)];
+                    $type = 'main';
+                    $carIdx++;
+                } elseif ($j <= 4) {
+                    // Exterior: usar imagens de carro
+                    var_dump("Exterior image:", $carIdx, $carImagesShuffled);
+                    $img = $carImagesShuffled[$carIdx % count($carImagesShuffled)];
+                    $type = 'exterior';
+                    $carIdx++;
+                } else {
+                    // Interior: usar imagens de motor
+                    var_dump("Interior image:", $motorIdx, $motorImagesShuffled);
+                    $img = $motorImagesShuffled[$motorIdx % count($motorImagesShuffled)];
+                    $type = 'interior';
+                    $motorIdx++;
+                }
+
                 $vehicleImages[] = [
                     'id' => $this->generateUuid(),
                     'vehicle_id' => $vehicleId,
-                    'image_url' => $this->faker->imageUrl(640, 480, 'car', true),
-                    'image_type' => $j === 1 ? 'main' : ($j <= 4 ? 'exterior' : 'interior'),
+                    'image_url' => $img,
+                    'image_type' => $type,
                     'display_order' => $j,
                     'alt_text' => "{$brand} {$model} {$year} - " . ($j === 1 ? 'Foto Principal' : "Foto {$j}"),
                     'created_at' => $this->getCurrentTimestamp(),
@@ -121,33 +225,39 @@ class VehicleSeeder extends BaseSeeder
                 ];
             }
         }
-        
+
         $this->insertBatch('vehicles', $vehicles);
         $this->insertBatch('vehicle_images', $vehicleImages);
-        
+
         echo "📊 Criados: {$vehiclesCount} veículos com imagens\n";
     }
-    
+
     private function generateVehicleDescription(string $brand, string $model, int $year, string $color): string
     {
         $features = [
-            'ar condicionado', 'direção hidráulica', 'vidros elétricos', 'travas elétricas',
-            'airbag duplo', 'freios ABS', 'som original', 'rodas de liga leve'
+            'ar condicionado',
+            'direção hidráulica',
+            'vidros elétricos',
+            'travas elétricas',
+            'airbag duplo',
+            'freios ABS',
+            'som original',
+            'rodas de liga leve'
         ];
-        
+
         $selectedFeatures = $this->faker->randomElements($features, $this->faker->numberBetween(3, 6));
-        
+
         return "Excelente {$brand} {$model} {$year} na cor {$color}. Veículo em ótimo estado de conservação, " .
-               "com " . implode(', ', $selectedFeatures) . ". " .
-               "Ideal para quem busca conforto, economia e segurança. " .
-               "Documentação em dia, pronto para transferência.";
+            "com " . implode(', ', $selectedFeatures) . ". " .
+            "Ideal para quem busca conforto, economia e segurança. " .
+            "Documentação em dia, pronto para transferência.";
     }
-    
+
     private function generateChassisNumber(): string
     {
         $letters = 'ABCDEFGHJKLMNPRSTUVWXYZ';
         $numbers = '0123456789';
-        
+
         $chassis = '';
         for ($i = 0; $i < 17; $i++) {
             if (in_array($i, [0, 1, 3, 4, 5, 7, 8])) {
@@ -156,45 +266,57 @@ class VehicleSeeder extends BaseSeeder
                 $chassis .= $numbers[mt_rand(0, strlen($numbers) - 1)];
             }
         }
-        
+
         return $chassis;
     }
-    
+
     private function generateLicensePlate(): string
     {
         $letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $numbers = '0123456789';
-        
+
         // Formato Mercosul: ABC1D23
         return $letters[mt_rand(0, 25)] . $letters[mt_rand(0, 25)] . $letters[mt_rand(0, 25)] .
-               $numbers[mt_rand(0, 9)] . $letters[mt_rand(0, 25)] . $numbers[mt_rand(0, 9)] . $numbers[mt_rand(0, 9)];
+            $numbers[mt_rand(0, 9)] . $letters[mt_rand(0, 25)] . $numbers[mt_rand(0, 9)] . $numbers[mt_rand(0, 9)];
     }
-    
+
     private function generateEngineNumber(): string
     {
         return strtoupper($this->faker->bothify('??######'));
     }
-    
+
     private function generateStandardItems(): string
     {
         $items = [
-            'Ar condicionado', 'Direção hidráulica', 'Vidros elétricos dianteiros',
-            'Travas elétricas', 'Airbag duplo', 'Freios ABS', 'Som AM/FM',
-            'Cintos de segurança de 3 pontos', 'Encostos de cabeça ajustáveis'
+            'Ar condicionado',
+            'Direção hidráulica',
+            'Vidros elétricos dianteiros',
+            'Travas elétricas',
+            'Airbag duplo',
+            'Freios ABS',
+            'Som AM/FM',
+            'Cintos de segurança de 3 pontos',
+            'Encostos de cabeça ajustáveis'
         ];
-        
+
         return implode(', ', $this->faker->randomElements($items, $this->faker->numberBetween(5, 8)));
     }
-    
+
     private function generateOptionalItems(): string
     {
         $items = [
-            'Central multimídia', 'Câmera de ré', 'Sensores de estacionamento',
-            'Rodas de liga leve', 'Bancos de couro', 'Teto solar',
-            'Controle de cruzeiro', 'Bluetooth', 'USB', 'Piloto automático'
+            'Central multimídia',
+            'Câmera de ré',
+            'Sensores de estacionamento',
+            'Rodas de liga leve',
+            'Bancos de couro',
+            'Teto solar',
+            'Controle de cruzeiro',
+            'Bluetooth',
+            'USB',
+            'Piloto automático'
         ];
-        
+
         return implode(', ', $this->faker->randomElements($items, $this->faker->numberBetween(2, 5)));
     }
 }
-

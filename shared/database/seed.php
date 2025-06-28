@@ -10,28 +10,57 @@ if (!file_exists($autoloadPath)) {
     echo "❌ Autoload não encontrado. Execute 'composer install' primeiro.\n";
     exit(1);
 }
+
 require_once $autoloadPath;
+
+$menuOptions = [
+    '1' => '👥 Executar Seeder de Usuários',
+    '2' => '🚗 Executar Seeder de Veículos',
+    '3' => '👤 Executar Seeder de Clientes',
+    '4' => '📅 Executar Seeder de Reservas',
+    '5' => '💳 Executar Seeder de Pagamentos',
+    '6' => '💼 Executar Seeder de Vendas',
+    '7' => '🛠️ Executar Seeder Administrativo',
+    '8' => '🔄 Executar Seeder SAGA',
+    '9' => '🌱 Executar Todos os Seeders',
+    '0' => '❌ Sair'
+];
+
+// Função para exibir o menu
+function displayMenu($options) {
+    echo "\nEscolha uma opção:\n";
+    foreach ($options as $key => $value) {
+        echo "[$key] $value\n";
+    }
+}
+
+$selectedOption = null;
+
+while ($selectedOption === null) {
+    displayMenu($menuOptions);
+    $input = trim(fgets(STDIN));
+
+    if (array_key_exists($input, $menuOptions)) {
+        $selectedOption = $input;
+    } elseif ($input === '') {
+        continue; // Executar todos os seeders
+    } else {
+        echo "❌ Opção inválida. Tente novamente.\n\n";
+    }
+}
+
 
 // Caminho do seeder principal
 $seederPath = __DIR__ . '/seeder/DatabaseSeeder.php';
+
 if (!file_exists($seederPath)) {
     echo "❌ Seeder principal não encontrado em $seederPath\n";
     exit(1);
 }
 
+
 // Executar o seeder principal
-echo "🌱 Executando seeders...\n";
+echo "\n\n🌱 Executando seeders...\n\n";
+
 require_once $seederPath;
 
-echo "\n🎉 Seeders executados com sucesso!\n";
-echo "\n🔗 LINKS ÚTEIS:\n";
-echo "===============\n";
-echo "🌐 API Gateway: http://localhost:8000\n";
-echo "📚 Documentação: http://localhost:8089\n";
-echo "🗄️  phpMyAdmin: http://localhost:8090\n";
-echo "🐰 RabbitMQ: http://localhost:15672\n";
-echo "\n🔑 CREDENCIAIS:\n";
-echo "===============\n";
-echo "👨‍💼 Admin: admin@concessionaria.com / admin123\n";
-echo "👨‍💻 Vendedor: vendedor1@concessionaria.com / vendedor123\n";
-echo "👤 Cliente: Use qualquer email gerado / cliente123\n";
