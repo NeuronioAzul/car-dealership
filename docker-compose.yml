@@ -256,6 +256,7 @@ services:
       - ./admin-service:/var/www/html
       - ./shared:/var/www/html/shared
       - ./tests:/var/www/html/tests
+      - ./public:/var/www/html/public
     ports:
       - "8087:80"  # Porta pública para o serviço administrativo
     expose:
