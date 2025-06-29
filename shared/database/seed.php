@@ -1,8 +1,8 @@
 <?php
 // filepath: /home/mauro/projects/car-dealership/shared/database/seed.php
 
-echo "🌱 EXECUTANDO SEEDERS DO SISTEMA DE CONCESSIONÁRIA\n";
-echo "==================================================\n";
+echo "\n🌱 SEEDERS DO SISTEMA DE CONCESSIONÁRIA\n";
+echo "=======================================\n";
 
 // Verificar se o autoload existe
 $autoloadPath = __DIR__ . '/../vendor/autoload.php';
@@ -44,6 +44,9 @@ while ($selectedOption === null) {
         $selectedOption = $input;
     } elseif ($input === '') {
         continue; // Executar todos os seeders
+    } elseif ($input === '0') {
+        echo "❌ Saindo do seeder.\n";
+        exit(0);
     } else {
         echo "❌ Opção inválida. Tente novamente.\n\n";
     }
