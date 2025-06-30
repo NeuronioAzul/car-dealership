@@ -375,7 +375,7 @@ class CompletePurchaseFlowTest extends TestCase
             $body = json_decode($response->getBody()->getContents(), true);
             $this->assertTrue($body['success']);
             
-            $transactionId = $body['data']['transaction_id'];
+            $transactionId = $body['data']['saga_transaction_id'];
             test_log("Transação SAGA iniciada (ID: $transactionId)");
             
             // Monitorar execução da SAGA
