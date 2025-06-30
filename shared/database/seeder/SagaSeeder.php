@@ -41,8 +41,8 @@ class SagaSeeder extends BaseSeeder
         $sagaCount = (int) $this->getEnv('SEED_SAGA_TRANSACTIONS_COUNT', 10);
 
         $sales = $salesConnection->query("SELECT s.*, p.payment_method 
-            FROM sales s
-            LEFT JOIN payments p ON s.payment_id = p.id
+            FROM sales_db.sales s
+            LEFT JOIN payment_db.payments p ON s.payment_id = p.id
             LIMIT {$sagaCount}
         ")->fetchAll();
 
