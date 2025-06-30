@@ -8,47 +8,51 @@ use Faker\Generator;
 class SagaSeeder extends BaseSeeder
 {
     private Generator $faker;
-    
+
     public function __construct()
     {
         parent::__construct($this->getEnv('SAGA_DB_NAME', 'saga_db'));
         $this->faker = Factory::create('pt_BR');
     }
-    
+
     public function run(): void
     {
         echo "🔄 Iniciando seed do SAGA Service...\n";
-        
+
         // Limpar tabelas
         $this->truncateTable('saga_events');
         $this->truncateTable('saga_steps');
         $this->truncateTable('saga_transactions');
-        
+
         // Criar transações SAGA
         $this->createSagaTransactions();
-        
+
         echo "✅ Seed do SAGA Service concluído!\n\n";
     }
-    
+
     private function createSagaTransactions(): void
     {
         $transactions = [];
         $steps = [];
         $events = [];
-        
+
         // Buscar vendas para criar SAGAs baseadas nelas
         $salesConnection = $this->getDbConnection($this->getEnv('SALES_DB_NAME', 'sales_db'));
         $sagaCount = (int) $this->getEnv('SEED_SAGA_TRANSACTIONS_COUNT', 10);
-        
-        $sales = $salesConnection->query("SELECT * FROM sales LIMIT {$sagaCount}")->fetchAll();
-        
+
+        $sales = $salesConnection->query("SELECT s.*, p.payment_method 
+            FROM sales s
+            LEFT JOIN payments p ON s.payment_id = p.id
+            LIMIT {$sagaCount}
+        ")->fetchAll();
+
         foreach ($sales as $sale) {
             $transactionId = $this->generateUuid();
             $status = $this->faker->randomElement(['pending', 'completed', 'failed', 'compensating', 'compensated']);
-            
+
             $createdAt = $this->faker->dateTimeBetween($sale['created_at'], 'now');
             $completedAt = $status === 'completed' ? $this->faker->dateTimeBetween($createdAt, 'now') : null;
-            
+
             // Transação SAGA principal
             $transactions[] = [
                 'id' => $transactionId,
@@ -64,17 +68,17 @@ class SagaSeeder extends BaseSeeder
                 'created_at' => $createdAt->format('Y-m-d H:i:s'),
                 'updated_at' => $this->getCurrentTimestamp()
             ];
-            
+
             // Passos da SAGA
             $sagaSteps = $this->getSagaSteps();
             $currentStepIndex = $this->getCurrentStepIndex($status);
-            
+
             foreach ($sagaSteps as $index => $stepName) {
                 $stepId = $this->generateUuid();
                 $stepStatus = $this->getStepStatus($index, $currentStepIndex, $status);
                 $stepStarted = $index <= $currentStepIndex ? $this->faker->dateTimeBetween($createdAt, 'now') : null;
                 $stepCompleted = $stepStatus === 'completed' ? $this->faker->dateTimeBetween($stepStarted, 'now') : null;
-                
+
                 $steps[] = [
                     'id' => $stepId,
                     'saga_transaction_id' => $transactionId,
@@ -92,7 +96,7 @@ class SagaSeeder extends BaseSeeder
                     'created_at' => $createdAt->format('Y-m-d H:i:s'),
                     'updated_at' => $this->getCurrentTimestamp()
                 ];
-                
+
                 // Eventos para cada passo
                 if ($stepStarted) {
                     $events[] = [
@@ -104,7 +108,7 @@ class SagaSeeder extends BaseSeeder
                         'created_at' => $stepStarted->format('Y-m-d H:i:s')
                     ];
                 }
-                
+
                 if ($stepCompleted) {
                     $events[] = [
                         'id' => $this->generateUuid(),
@@ -115,7 +119,7 @@ class SagaSeeder extends BaseSeeder
                         'created_at' => $stepCompleted->format('Y-m-d H:i:s')
                     ];
                 }
-                
+
                 if ($stepStatus === 'failed') {
                     $events[] = [
                         'id' => $this->generateUuid(),
@@ -127,7 +131,7 @@ class SagaSeeder extends BaseSeeder
                     ];
                 }
             }
-            
+
             // Evento de início da transação
             $events[] = [
                 'id' => $this->generateUuid(),
@@ -137,7 +141,7 @@ class SagaSeeder extends BaseSeeder
                 'event_data' => json_encode(['type' => 'vehicle_purchase', 'customer_id' => $sale['customer_id']], JSON_UNESCAPED_UNICODE),
                 'created_at' => $createdAt->format('Y-m-d H:i:s')
             ];
-            
+
             // Evento de conclusão se aplicável
             if ($completedAt) {
                 $events[] = [
@@ -150,14 +154,14 @@ class SagaSeeder extends BaseSeeder
                 ];
             }
         }
-        
+
         $this->insertBatch('saga_transactions', $transactions);
         $this->insertBatch('saga_steps', $steps);
         $this->insertBatch('saga_events', $events);
-        
+
         echo "📊 Criadas: " . count($transactions) . " transações SAGA com passos e eventos\n";
     }
-    
+
     private function getSagaSteps(): array
     {
         return [
@@ -168,11 +172,11 @@ class SagaSeeder extends BaseSeeder
             'update_vehicle_status'
         ];
     }
-    
+
     private function getCurrentStep(string $status): string
     {
         $steps = $this->getSagaSteps();
-        
+
         switch ($status) {
             case 'pending':
                 return $this->faker->randomElement(array_slice($steps, 0, 3));
@@ -187,7 +191,7 @@ class SagaSeeder extends BaseSeeder
                 return $steps[0];
         }
     }
-    
+
     private function getCurrentStepIndex(string $status): int
     {
         switch ($status) {
@@ -204,7 +208,7 @@ class SagaSeeder extends BaseSeeder
                 return 0;
         }
     }
-    
+
     private function getStepStatus(int $stepIndex, int $currentStepIndex, string $sagaStatus): string
     {
         if ($stepIndex < $currentStepIndex) {
@@ -221,7 +225,7 @@ class SagaSeeder extends BaseSeeder
             return 'pending';
         }
     }
-    
+
     private function getServiceName(string $stepName): string
     {
         $mapping = [
@@ -231,10 +235,10 @@ class SagaSeeder extends BaseSeeder
             'create_sale' => 'sales-service',
             'update_vehicle_status' => 'vehicle-service'
         ];
-        
+
         return $mapping[$stepName] ?? 'unknown-service';
     }
-    
+
     private function generateContextData(array $sale): string
     {
         return json_encode([
@@ -245,7 +249,7 @@ class SagaSeeder extends BaseSeeder
             'payment_method' => $sale['payment_method']
         ], JSON_UNESCAPED_UNICODE);
     }
-    
+
     private function generateRequestData(string $stepName, array $sale): string
     {
         $data = [
@@ -272,10 +276,10 @@ class SagaSeeder extends BaseSeeder
                 'status' => 'sold'
             ]
         ];
-        
+
         return json_encode($data[$stepName] ?? [], JSON_UNESCAPED_UNICODE);
     }
-    
+
     private function generateResponseData(string $stepName): string
     {
         $data = [
@@ -301,10 +305,10 @@ class SagaSeeder extends BaseSeeder
                 'new_status' => 'sold'
             ]
         ];
-        
+
         return json_encode($data[$stepName] ?? [], JSON_UNESCAPED_UNICODE);
     }
-    
+
     private function generateCompensationData(string $stepName): string
     {
         $data = [
@@ -329,10 +333,10 @@ class SagaSeeder extends BaseSeeder
                 'endpoint' => '/vehicles/{id}/status'
             ]
         ];
-        
+
         return json_encode($data[$stepName] ?? [], JSON_UNESCAPED_UNICODE);
     }
-    
+
     private function generateErrorMessage(): string
     {
         $errors = [
@@ -342,10 +346,10 @@ class SagaSeeder extends BaseSeeder
             'Erro interno do gateway de pagamento',
             'Limite de reservas atingido para o cliente'
         ];
-        
+
         return $this->faker->randomElement($errors);
     }
-    
+
     private function generateStepError(string $stepName): string
     {
         $errors = [
@@ -355,7 +359,7 @@ class SagaSeeder extends BaseSeeder
             'create_sale' => 'Erro ao gerar documentos de venda',
             'update_vehicle_status' => 'Falha ao atualizar status no banco de dados'
         ];
-        
+
         return $errors[$stepName] ?? 'Erro desconhecido no passo';
     }
 }
