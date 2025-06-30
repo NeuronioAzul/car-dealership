@@ -1,5 +1,5 @@
 <?php
-// filepath: /migrations/migrate_docker.php
+// filepath: /migrations/migrate.php
 
 // Caminho absoluto para a raiz do projeto (ajuste se necessário)
 $projectRoot = __DIR__ . '/..';
@@ -144,17 +144,38 @@ foreach ($databases as $db) {
 echo "\n";
 log_info("Executando migrations...");
 
+// Verifica se o diretório de migrations existe
+log_info("Verificando se o diretório de migrations existe...");
+$migration_dir = __DIR__ . '/migrations';
+if (!is_dir($migration_dir)) {
+    log_error("Diretório de migrations não encontrado: $migration_dir");
+    exit(1);
+}
+
 // Lista de migrations na ordem correta
-$migrations = [
-    "auth:001_create_users_table.sql",
-    "vehicle:001_create_vehicles_table.sql",
-    "customer:001_create_customer_tables.sql",
-    "reservation:001_create_reservation_tables.sql",
-    "payment:001_create_payment_tables.sql",
-    "sales:001_create_sales_tables.sql",
-    "saga:001_create_saga_tables.sql",
-    "admin:001_create_admin_tables.sql"
-];
+log_info("Listando as migrations disponíveis...");
+$files = scandir($migration_dir);
+$migrations = [];
+$services = ['auth', 'vehicle', 'customer', 'reservation', 'payment', 'sales', 'saga', 'admin'];
+log_info("Preparando as migrations para execução...");
+foreach ($files as $file) {
+    if (is_file($migration_dir . '/' . $file) && preg_match('/^(\w+):(\d+_.*\.sql)$/', $file, $matches)) {
+        $service = $matches[1];
+        if (in_array($service, $services)) {
+            $migrations[] = "$service:$matches[2]";
+        } else {
+            log_warning("Serviço desconhecido na migration: $file");
+        }
+    } elseif (is_dir($migration_dir . '/' . $file) && in_array($file, $services)) {
+        // Se for um diretório de serviço, procurar migrations dentro dele
+        $sub_files = scandir($migration_dir . '/' . $file);
+        foreach ($sub_files as $sub_file) {
+            if (is_file($migration_dir . '/' . $file . '/' . $sub_file) && preg_match('/^(\d+_.*\.sql)$/', $sub_file)) {
+                $migrations[] = "$file:$sub_file";
+            }
+        }
+    }
+}
 
 // Executar migrations
 $failed_migrations = [];
@@ -227,13 +248,6 @@ echo "\n";
 log_success("🎉 Sistema de banco de dados configurado com sucesso!");
 echo "\n";
 echo "📋 Próximos passos:\n";
-echo "  1. Execute: ./seed-database.php (para dados de exemplo)\n";
+echo "  1. Execute: make seeder-sql (para dados de exemplo)\n";
 echo "  2. Teste os endpoints da API\n";
-echo "  3. Acesse o painel administrativo\n";
-echo "\n";
-echo "🌐 URLs úteis:\n";
-echo "  - API: http://localhost:8000/api/v1\n";
-echo "  - Documentação: http://localhost:8089\n";
-echo "  - phpMyAdmin: http://localhost:8090\n";
-echo "  - RabbitMQ: http://localhost:15672\n";
 echo "\n";
