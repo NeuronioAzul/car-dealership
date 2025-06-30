@@ -11,9 +11,6 @@ use Shared\Database\Seeder\SalesSeeder;
 use Shared\Database\Seeder\AdminSeeder;
 use Shared\Database\Seeder\SagaSeeder;
 
-echo "🌱 INICIANDO SEED DO SISTEMA DE CONCESSIONÁRIA\n";
-echo "=============================================\n\n";
-
 try {
 
     $startTime = microtime(true);
@@ -59,10 +56,16 @@ try {
                 $seeder->run();
             }
             break;
+        case '0':
+            echo "❌ Saindo do seeder.\n";
+            exit(0);
         default:
             echo "❌ Opção inválida. Por favor, escolha uma opção válida.\n";
             exit(1);
     }
+
+    echo "🌱 INICIANDO SEED DO SISTEMA DE CONCESSIONÁRIA\n";
+    echo "=============================================\n\n";
 
     $endTime = microtime(true);
     $executionTime = round($endTime - $startTime, 2);
