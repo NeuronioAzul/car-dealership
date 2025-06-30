@@ -182,7 +182,6 @@ O script `migrate.php` fornece logs detalhados:
 - ✅ Migrations executadas com sucesso
 - ❌ Migrations que falharam
 - 📊 Relatório final com contagem de tabelas
-- 💡 Próximos passos sugeridos
 
 ## 🔄 Versionamento
 
