@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS saga_transactions (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Data de atualização',
     deleted_at TIMESTAMP NULL COMMENT 'Data de exclusão (soft delete)',
     -- Índices
-    INDEX idx_saga_transaction_id (saga_transaction_id),
+    INDEX idx_saga_transaction_id (id),
     INDEX idx_status (status),
     INDEX idx_customer_id (customer_id),
     INDEX idx_vehicle_id (vehicle_id),
@@ -75,14 +75,14 @@ CREATE TABLE IF NOT EXISTS saga_steps (
     -- Timestamps
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Data de criação',
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Data de atualização',
-    FOREIGN KEY (transaction_id) REFERENCES saga_transactions(id) ON DELETE CASCADE,
-    INDEX idx_transaction_id (transaction_id),
+    FOREIGN KEY (saga_transaction_id) REFERENCES saga_transactions(id) ON DELETE CASCADE,
+    INDEX idx_transaction_id (saga_transaction_id),
     INDEX idx_step_name (step_name),
     INDEX idx_step_order (step_order),
     INDEX idx_status (status),
     INDEX idx_service_name (service_name),
     INDEX idx_started_at (started_at),
-    INDEX idx_transaction_order (transaction_id, step_order)
+    INDEX idx_transaction_order (saga_transaction_id, step_order)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Passos das transações SAGA';
 
 -- Criar tabela de eventos SAGA
@@ -103,9 +103,9 @@ CREATE TABLE IF NOT EXISTS saga_events (
     processed_at TIMESTAMP NULL COMMENT 'Data do processamento',
     -- Timestamp
     occurred_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Data do evento',
-    FOREIGN KEY (transaction_id) REFERENCES saga_transactions(id) ON DELETE CASCADE,
+    FOREIGN KEY (saga_transaction_id) REFERENCES saga_transactions(id) ON DELETE CASCADE,
     FOREIGN KEY (step_id) REFERENCES saga_steps(id) ON DELETE SET NULL,
-    INDEX idx_transaction_id (transaction_id),
+    INDEX idx_transaction_id (saga_transaction_id),
     INDEX idx_step_id (step_id),
     INDEX idx_event_type (event_type),
     INDEX idx_event_name (event_name),
