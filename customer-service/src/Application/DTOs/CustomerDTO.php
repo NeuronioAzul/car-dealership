@@ -217,14 +217,16 @@ class CustomerDTO
             'deleted_at' => $this->deletedAt?->format('Y-m-d H:i:s')
         ];
     }
+    
     public static function fromArray(array $data): self
     {
         $address = CustomerAddress::fromArray($data['address']);
         $birthDate = isset($data['birth_date']) ? new DateTime($data['birth_date']) : null;
         $lastPurchaseDate = isset($data['last_purchase_date']) ? new DateTime($data['last_purchase_date']) : null;
 
+        self::$id = $data['id'] ?? Uuid::uuid6()->toString(); // Gera um novo ID se não estiver presente
+
         return new self(
-            id: $data['id'],
             userId: $data['user_id'] ?? null,
             fullName: $data['full_name'],
             email: $data['email'],
