@@ -13,9 +13,9 @@ class GetCustomerProfileUseCase
         $this->customerRepository = $customerRepository;
     }
 
-    public function execute(string $customerId): array
+    public function execute(string $userId): array
     {
-        $customer = $this->customerRepository->findById($customerId);
+        $customer = $this->customerRepository->findByUserId($userId);
 
         if (!$customer) {
             throw new \Exception('Cliente não encontrado', 404);

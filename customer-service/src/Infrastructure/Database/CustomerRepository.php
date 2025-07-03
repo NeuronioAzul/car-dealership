@@ -2,11 +2,12 @@
 
 namespace App\Infrastructure\Database;
 
-use App\Domain\Entities\Customer;
-use App\Domain\ValueObjects\Address;
+use App\Application\DTOs\CustomerDTO;
+use App\Domain\ValueObjects\CustomerAddress;
 use App\Domain\Repositories\CustomerRepositoryInterface;
 use PDO;
 use DateTime;
+use DateTimeZone;
 
 class CustomerRepository implements CustomerRepositoryInterface
 {
@@ -17,11 +18,11 @@ class CustomerRepository implements CustomerRepositoryInterface
         $this->connection = $connection;
     }
 
-    public function save(Customer $customer): bool
+    public function save(CustomerDTO $customer): bool
     {
         $sql = "
             INSERT INTO customer_profiles (
-                id, full_name, email, cpf, rg, birth_date, gender, marital_status,
+                id, user_id, full_name, email, cpf, rg, birth_date, gender, marital_status,
                 phone, mobile, whatsapp,
                 street, number, complement, neighborhood, city, state, zip_code,
                 occupation, company, monthly_income,
@@ -45,6 +46,7 @@ class CustomerRepository implements CustomerRepositoryInterface
 
         return $stmt->execute([
             'id' => $customer->getId(),
+            'user_id' => $customer->getUserId(),
             'full_name' => $customer->getFullName(),
             'email' => $customer->getEmail(),
             'cpf' => $customer->getCpf(),
@@ -78,7 +80,7 @@ class CustomerRepository implements CustomerRepositoryInterface
         ]);
     }
 
-    public function findById(string $id): ?Customer
+    public function findById(string $id): ?CustomerDTO
     {
         $sql = "SELECT * FROM customer_profiles WHERE id = :id AND deleted_at IS NULL";
         $stmt = $this->connection->prepare($sql);
@@ -88,13 +90,24 @@ class CustomerRepository implements CustomerRepositoryInterface
         return $data ? $this->mapToCustomer($data) : null;
     }
 
-    public function findByEmail(string $email): ?Customer
+    public function findByUserId(string $id): ?CustomerDTO
+    {
+        $sql = "SELECT * FROM customer_profiles WHERE user_id = :id AND deleted_at IS NULL";
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute(['id' => $id]);
+        $data = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $data ? $this->mapToCustomer($data) : null;
+    }
+
+    public function findByEmail(string $email): ?CustomerDTO
     {
         $sql = "SELECT * FROM customer_profiles WHERE email = :email AND deleted_at IS NULL";
         $stmt = $this->connection->prepare($sql);
         $stmt->execute(['email' => $email]);
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
+        # need to return a Customer object or null
         return $data ? $this->mapToCustomer($data) : null;
     }
 
@@ -111,10 +124,11 @@ class CustomerRepository implements CustomerRepositoryInterface
         return $customers;
     }
 
-    public function update(Customer $customer): bool
+    public function update(CustomerDTO $customer): bool
     {
         $sql = "
             UPDATE customer_profiles SET
+                user_id = :user_id,
                 full_name = :full_name,
                 email = :email,
                 cpf = :cpf,
@@ -151,6 +165,7 @@ class CustomerRepository implements CustomerRepositoryInterface
 
         return $stmt->execute([
             'id' => $customer->getId(),
+            'user_id' => $customer->getUserId(),
             'full_name' => $customer->getFullName(),
             'email' => $customer->getEmail(),
             'cpf' => $customer->getCpf(),
@@ -200,9 +215,9 @@ class CustomerRepository implements CustomerRepositoryInterface
         return $stmt->fetchColumn() > 0;
     }
 
-    private function mapToCustomer(array $data): Customer
+    private function mapToCustomer(array $data): CustomerDTO
     {
-        $address = new Address(
+        $address = new CustomerAddress(
             $data['street'] ?? '',
             $data['number'] ?? '',
             $data['neighborhood'] ?? '',
@@ -212,29 +227,33 @@ class CustomerRepository implements CustomerRepositoryInterface
             $data['complement'] ?? ''
         );
 
-        $customer = new Customer(
-            $data['full_name'] ?? '',
-            $data['email'] ?? '',
-            $data['cpf'] ?? '',
-            $data['rg'] ?? '',
-            isset($data['birth_date']) ? new DateTime($data['birth_date']) : null,
-            $data['gender'] ?? null,
-            $data['marital_status'] ?? null,
-            $data['phone'] ?? '',
-            $data['mobile'] ?? '',
-            $data['whatsapp'] ?? '',
-            $address,
-            $data['occupation'] ?? null,
-            $data['company'] ?? null,
-            $data['monthly_income'] ?? null,
-            $data['preferred_contact'] ?? null,
-            $data['newsletter_subscription'] ?? false,
-            $data['sms_notifications'] ?? false,
-            $data['total_purchases'] ?? 0,
-            $data['total_spent'] ?? 0.0,
-            isset($data['last_purchase_date']) ? new DateTime($data['last_purchase_date']) : null,
-            $data['customer_score'] ?? 0,
-            $data['customer_tier'] ?? 'bronze'
+        $customer = new CustomerDTO(
+            userId: $data['user_id'] ?? '',
+            fullName: $data['full_name'] ?? '',
+            email: $data['email'] ?? '',
+            cpf: $data['cpf'] ?? '',
+            rg: $data['rg'] ?? '',
+            birthDate: isset($data['birth_date']) ? new DateTime($data['birth_date']) : null,
+            gender: $data['gender'] ?? null,
+            maritalStatus: $data['marital_status'] ?? null,
+            phone: $data['phone'] ?? '',
+            mobile: $data['mobile'] ?? '',
+            whatsapp: $data['whatsapp'] ?? '',
+            address: $address,
+            occupation: $data['occupation'] ?? null,
+            company: $data['company'] ?? null,
+            monthlyIncome: $data['monthly_income'] ?? null,
+            preferredContact: $data['preferred_contact'] ?? null,
+            newsletterSubscription: $data['newsletter_subscription'] ?? false,
+            smsNotifications: $data['sms_notifications'] ?? false,
+            totalPurchases: $data['total_purchases'] ?? 0,
+            totalSpent: $data['total_spent'] ?? 0.0,
+            lastPurchaseDate: isset($data['last_purchase_date']) ? new DateTime($data['last_purchase_date']) : null,
+            customerScore: $data['customer_score'] ?? 0,
+            customerTier: $data['customer_tier'] ?? 'bronze',
+            #formato pt_BR
+            createdAt: isset($data['created_at']) ? new DateTime($data['created_at'], new DateTimeZone('America/Sao_Paulo')) : "",
+            updatedAt: isset($data['updated_at']) ? new DateTime($data['updated_at'], new DateTimeZone('America/Sao_Paulo')) : ""
         );
 
         // Reflection para setar propriedades privadas (id, createdAt, updatedAt, deletedAt)
@@ -261,4 +280,3 @@ class CustomerRepository implements CustomerRepositoryInterface
         return $customer;
     }
 }
-

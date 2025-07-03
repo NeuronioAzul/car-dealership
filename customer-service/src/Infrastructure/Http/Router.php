@@ -18,7 +18,7 @@ class Router
     private function setupRoutes(): void
     {
         $this->routes = [
-            'POST /' => [$this->customerController, 'createCustomer'],
+            'POST /profile' => [$this->customerController, 'createCustomer'],
             'GET /profile' => [$this->customerController, 'getProfile'],
             'PUT /profile' => [$this->customerController, 'updateProfile'],
             'DELETE /profile' => [$this->customerController, 'deleteProfile'],

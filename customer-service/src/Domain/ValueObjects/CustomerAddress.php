@@ -2,7 +2,7 @@
 
 namespace App\Domain\ValueObjects;
 
-class Address
+class CustomerAddress
 {
     private string $street;
     private string $number;
@@ -81,5 +81,18 @@ class Address
             'state' => $this->state,
             'zip_code' => $this->zipCode
         ];
+    }
+
+    public static function fromArray(array $data): self
+    {
+        return new self(
+            street: $data['street'] ?? '',
+            number: $data['number'] ?? '',
+            complement: $data['complement'] ?? '',
+            neighborhood: $data['neighborhood'] ?? '',
+            city: $data['city'] ?? '',
+            state: $data['state'] ?? '',
+            zipCode: $data['zip_code'] ?? ''
+        );
     }
 }

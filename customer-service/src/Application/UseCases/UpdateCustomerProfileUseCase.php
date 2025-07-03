@@ -2,8 +2,8 @@
 
 namespace App\Application\UseCases;
 
-use App\Domain\Entities\Customer;
-use App\Domain\ValueObjects\Address;
+use App\Application\DTOs\CustomerDTO;
+use App\Domain\ValueObjects\CustomerAddress;
 use App\Domain\Repositories\CustomerRepositoryInterface;
 use App\Infrastructure\Messaging\EventPublisher;
 use DateTime;
@@ -56,7 +56,7 @@ class UpdateCustomerProfileUseCase
         }
 
         if (isset($updateData['address'])) {
-            $address = new Address(
+            $address = new CustomerAddress(
                 $updateData['address']['street'],
                 $updateData['address']['number'],
                 $updateData['address']['neighborhood'],

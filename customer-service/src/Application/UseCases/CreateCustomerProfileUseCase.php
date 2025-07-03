@@ -1,18 +1,15 @@
 <?php
 
 namespace App\Application\UseCases;
-use App\Domain\Entities\Customer;
+
+use App\Application\DTOs\CustomerDTO;
 use App\Domain\Repositories\CustomerRepositoryInterface;
+
 class CreateCustomerProfileUseCase
 {
-    private CustomerRepositoryInterface $customerRepository;
+    public function __construct(private readonly CustomerRepositoryInterface $customerRepository) {}
 
-    public function __construct(CustomerRepositoryInterface $customerRepository)
-    {
-        $this->customerRepository = $customerRepository;
-    }
-
-    public function execute(Customer $customer): bool
+    public function execute(CustomerDTO $customer): bool
     {
         // Verifica se o cliente já existe pelo email
         if ($this->customerRepository->existsByEmail($customer->getEmail())) {

@@ -2,15 +2,16 @@
 
 namespace App\Domain\Repositories;
 
-use App\Domain\Entities\Customer;
+use App\Application\DTOs\CustomerDTO;
 
 interface CustomerRepositoryInterface
 {
-    public function save(Customer $customer): bool;
-    public function findById(string $id): ?Customer;
-    public function findByEmail(string $email): ?Customer;
+    public function save(CustomerDTO $customer): bool;
+    public function findById(string $id): ?CustomerDTO;
+    public function findByUserId(string $id): ?CustomerDTO;
+    public function findByEmail(string $email): ?CustomerDTO;
     public function findAll(): array;
-    public function update(Customer $customer): bool;
+    public function update(CustomerDTO $customer): bool;
     public function delete(string $id): bool;
     public function existsByEmail(string $email): bool;
 }
