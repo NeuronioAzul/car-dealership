@@ -34,14 +34,15 @@ class CustomerSeeder extends BaseSeeder
         
         // Buscar usuários clientes do auth_db
         $authConnection = $this->getDbConnection($this->getEnv('AUTH_DB_NAME', 'auth_db'));
-        $stmt = $authConnection->query("SELECT id, name, email, phone FROM users WHERE role = 'customer'");
+        $stmt = $authConnection->query("SELECT id as user_id, name, email, phone FROM auth_db.users WHERE role = 'customer'");
         $customers = $stmt->fetchAll();
         
         foreach ($customers as $customer) {
             
             // Perfil do cliente
             $profiles[] = [
-                'id' => $customer['id'],
+                'id' => $this->faker->uuid(),
+                'user_id' => $customer['user_id'],
                 'full_name' => $customer['name'],
                 'birth_date' => $this->faker->dateTimeBetween('-50 years', '-18 years')->format('Y-m-d'),
                 'cpf' => $this->faker->cpf(false),

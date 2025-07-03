@@ -7,6 +7,7 @@ USE customer_db;
 -- Criar tabela de perfis de clientes
 CREATE TABLE IF NOT EXISTS customer_profiles (
     id VARCHAR(36) PRIMARY KEY COMMENT 'UUID do cliente (mesmo do auth)',
+    user_id VARCHAR(36) UNIQUE NOT NULL COMMENT 'ID do usuário associado (mesmo do auth)',
     
     -- Informações pessoais
     full_name VARCHAR(255) NOT NULL COMMENT 'Nome completo',
