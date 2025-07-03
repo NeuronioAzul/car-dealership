@@ -292,9 +292,11 @@ routes:
     service: customer-service
     strip_path: false
     paths:
+      - /api/v1/customer/
       - /api/v1/customer/profile
     methods:
       - GET
+      - POST
       - PUT
       - DELETE
       - OPTIONS
