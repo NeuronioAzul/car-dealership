@@ -30,3 +30,4 @@ composer.lock
 */.env.production
 tests/.phpunit.result.cache
 tests/results.xml
+vehicle-service/.phpunit.result.cache
