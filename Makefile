@@ -7,7 +7,7 @@
 .DEFAULT_GOAL := help
 
 ## —— Ambiente de desenvolvimento 🏗️
-setup: build up install-all install-shared install-tests migrate seed ## Prepara todo o ambiente de desenvolvimento
+setup: build up install-all kong-sync install-shared install-tests migrate seed ## Prepara todo o ambiente de desenvolvimento
 reset: clean-all stop prune ## Limpa tudo e reseta o ambiente
 
 ## —— Docker 🐳
@@ -63,6 +63,10 @@ install-all: ## Instala dependências Composer em todos os containers
 	|| (echo '❌ Erro ao rodar composer install no sales-service!' && exit 1)
 	@docker-compose exec -T vehicle-service bash -c "composer install --no-interaction --optimize-autoloader --quiet" \
 	|| (echo '❌ Erro ao rodar composer install no vehicle-service!' && exit 1)
+
+kong-sync: ## Sincroniza as configurações do kong.yml com o Kong postgres
+	@echo "🔂 Synchronizing Kong configuration..."
+	@docker-compose exec -T admin-service deck gateway sync ./api-gateway/kong.yml --kong-addr http://kong:8001
 
 install-shared: ## Instala dependências Composer na pasta shared
 	@echo "Installing shared dependencies..."
