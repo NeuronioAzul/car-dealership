@@ -222,17 +222,16 @@ services:
 consumers:
   - username: car-dealership-app
     custom_id: car-dealership-app
-
-# JWT Credentials
-jwt_secrets:
-  - consumer: car-dealership-app
-    key: car-dealership-issuer
-    secret: your-super-secret-jwt-key-for-auth-service-2025
+    jwt_secrets:
+      - key: car-dealership-issuer
+        secret: your-super-secret-jwt-key-for-auth-service-2025
+        algorithm: HS256
 
 routes:
   # Auth Service Routes (Public)
   - name: auth-login
-    service: auth-service
+    service:
+      name: auth-service
     strip_path: false
     paths:
       - /api/v1/auth/login
@@ -241,7 +240,8 @@ routes:
       - OPTIONS
 
   - name: auth-register
-    service: auth-service
+    service:
+      name: auth-service
     strip_path: false
     paths:
       - /api/v1/auth/register
@@ -250,7 +250,8 @@ routes:
       - OPTIONS
 
   - name: auth-health
-    service: auth-service
+    service:
+      name: auth-service
     strip_path: false
     paths:
       - /api/v1/auth/health
@@ -260,7 +261,8 @@ routes:
 
   # Auth Service Routes (Protected)
   - name: auth-validate
-    service: auth-service
+    service:
+      name: auth-service
     strip_path: false
     paths:
       - /api/v1/auth/validate
@@ -274,7 +276,8 @@ routes:
           key_claim_name: iss
 
   - name: auth-refresh
-    service: auth-service
+    service:
+      name: auth-service
     strip_path: false
     paths:
       - /api/v1/auth/refresh
@@ -289,7 +292,8 @@ routes:
 
   # Customer Service Routes (Protected)
   - name: customer-profile
-    service: customer-service
+    service:
+      name: customer-service
     strip_path: false
     paths:
       - /api/v1/customer/
@@ -308,7 +312,8 @@ routes:
 
   # Vehicle Service Routes (Public)
   - name: vehicles-list
-    service: vehicle-service
+    service:
+      name: vehicle-service
     strip_path: false
     paths:
       - /api/v1/vehicles
@@ -316,8 +321,24 @@ routes:
       - GET
       - OPTIONS
 
+  - name: vehicles-create
+    service:
+      name: vehicle-service
+    strip_path: false
+    paths:
+      - /api/v1/vehicles/create
+    methods:
+      - POST
+      - OPTIONS
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: iss
+
   - name: vehicles-search
-    service: vehicle-service
+    service:
+      name: vehicle-service
     strip_path: false
     paths:
       - /api/v1/vehicles/search
@@ -326,7 +347,8 @@ routes:
       - OPTIONS
 
   - name: vehicle-details
-    service: vehicle-service
+    service:
+      name: vehicle-service
     strip_path: false
     paths:
       - /api/v1/vehicles
@@ -336,7 +358,8 @@ routes:
       - OPTIONS
 
   - name: vehicles-health
-    service: vehicle-service
+    service:
+      name: vehicle-service
     strip_path: false
     paths:
       - /api/v1/vehicles/health
@@ -346,7 +369,8 @@ routes:
 
   # Reservation Service Routes (Protected)
   - name: reservations
-    service: reservation-service
+    service:
+      name: reservation-service
     strip_path: false
     paths:
       - /api/v1/reservations
@@ -362,7 +386,8 @@ routes:
           key_claim_name: iss
 
   - name: reservation-details
-    service: reservation-service
+    service:
+      name: reservation-service
     strip_path: false
     paths:
       - /api/v1/reservations
@@ -378,7 +403,8 @@ routes:
           key_claim_name: iss
 
   - name: payment-code-generation
-    service: reservation-service
+    service:
+      name: reservation-service
     strip_path: false
     paths:
       - /api/v1/reservations/generate-payment-code
@@ -393,7 +419,8 @@ routes:
 
   # Payment Service Routes
   - name: payments
-    service: payment-service
+    service:
+      name: payment-service
     strip_path: false
     paths:
       - /api/v1/payments
@@ -407,7 +434,8 @@ routes:
           key_claim_name: iss
 
   - name: payment-create
-    service: payment-service
+    service:
+      name: payment-service
     strip_path: false
     paths:
       - /api/v1/payments/create
@@ -421,7 +449,8 @@ routes:
           key_claim_name: iss
 
   - name: payment-status
-    service: payment-service
+    service:
+      name: payment-service
     strip_path: false
     paths:
       - /api/v1/payments
@@ -431,7 +460,8 @@ routes:
       - OPTIONS
 
   - name: customer-payments
-    service: payment-service
+    service:
+      name: payment-service
     strip_path: false
     paths:
       - /api/v1/payments/my-payments
@@ -446,7 +476,8 @@ routes:
 
   # Sales Service Routes (Protected)
   - name: sales
-    service: sales-service
+    service:
+      name: sales-service
     strip_path: false
     paths:
       - /api/v1/sales
@@ -461,7 +492,8 @@ routes:
           key_claim_name: iss
 
   - name: sale-details
-    service: sales-service
+    service:
+      name: sales-service
     strip_path: false
     paths:
       - /api/v1/sales
@@ -476,7 +508,8 @@ routes:
           key_claim_name: iss
 
   - name: sale-contract
-    service: sales-service
+    service:
+      name: sales-service
     strip_path: false
     paths:
       - /api/v1/sales/contract
@@ -491,7 +524,8 @@ routes:
           key_claim_name: iss
 
   - name: sale-invoice
-    service: sales-service
+    service:
+      name: sales-service
     strip_path: false
     paths:
       - /api/v1/sales/invoice
@@ -507,7 +541,8 @@ routes:
 
   # Admin Service Routes (Admin Only)
   - name: admin-dashboard
-    service: admin-service
+    service:
+      name: admin-service
     strip_path: false
     paths:
       - /api/v1/admin/dashboard
@@ -521,7 +556,8 @@ routes:
           key_claim_name: iss
 
   - name: admin-reports
-    service: admin-service
+    service:
+      name: admin-service
     strip_path: false
     paths:
       - /api/v1/admin/reports
@@ -537,7 +573,8 @@ routes:
 
   # SAGA Orchestrator Routes (Protected)
   - name: saga-purchase
-    service: saga-orchestrator
+    service:
+      name: saga-orchestrator
     strip_path: false
     paths:
       - /api/v1/saga/purchase
@@ -551,7 +588,8 @@ routes:
           key_claim_name: iss
 
   - name: saga-transaction-status
-    service: saga-orchestrator
+    service:
+      name: saga-orchestrator
     strip_path: false
     paths:
       - /api/v1/saga/transactions
@@ -567,7 +605,8 @@ routes:
 
   # Health Check Routes (Public)
   - name: health-checks
-    service: auth-service
+    service:
+      name: auth-service
     strip_path: false
     paths:
       - /api/v1/health
