@@ -3,31 +3,34 @@
 **Versão:** 1.0.0
 **Data:** 13 de junho de 2025
 **Autor:** Mauro Rocha Tavares
-**Tecnologias:** PHP 8.4, MySQL 8, RabbitMQ 3, Kong API Gateway, Docker
+**Tecnologias:** Github, laravel 11, PHP8.4, Arquitetura Limpa ou (Clean Architecture), MySQL 8, RabbitMQ 3, orquestração SAGA, Kong API Gateway community, Dockerfile, docker-compose.yml, Makefile e Swagger
 
 ---
 
 ## Visão Geral
 
 O Sistema de Concessionária de Veículos contém o básico para gestão de concessionárias.
-Desenvolvi usando a arquitetura de microserviços e Clean Architecture. 
+Desenvolvido usando a arquitetura de microserviços e Clean Architecture.
 O sistema oferece a gestão de catálogo de veículos até processamento de vendas e geração automática de documentação.
 
 ### Principais características
 
 🏗️ **Arquitetura de Microserviços**
+
 - 8 microserviços independentes
 - Clean Architecture em cada serviço
 - Comunicação via REST APIs e mensageria
 - Escalabilidade horizontal
 
 🔐 **Segurança**
+
 - Autenticação JWT com refresh tokens
 - Controle de acesso baseado em roles (RBAC)
 - Rate limiting e proteção contra abuso
 - Validação de dados
 
 🚗 **Funcionalidades Completas**
+
 - Catálogo de veículos com busca
 - Sistema de reservas com expiração automática
 - Processamento de pagamentos
@@ -35,6 +38,7 @@ O sistema oferece a gestão de catálogo de veículos até processamento de vend
 - Painel administrativo com relatórios
 
 ⚡ **Performance e Confiabilidade**
+
 - Padrão SAGA Orquestrada para transações distribuídas
 - Compensação automática em caso de falhas
 - Testes
@@ -56,18 +60,19 @@ O sistema oferece a gestão de catálogo de veículos até processamento de vend
 ### Infraestrutura
 
 - **Kong API Gateway** (8000) - Ponto único de entrada
-- **MySQL 8** - Bancos de dados separados por serviço
-- **RabbitMQ 3** (15672) - Message broker para eventos
-- **phpMyAdmin** (8090) - Interface de administração do banco
 - **Swagger UI** (8089) - Documentação interativa da API
+- **phpMyAdmin** (8090) - Interface de administração do banco
+- **RabbitMQ 3** (15672) - Message broker para eventos
+- **MySQL 8** - Bancos de dados separados por serviço
+- **Makefile** - Automação de tarefas
 
 ## Instalação e Configuração
 
 ### Pré-requisitos
 
 - Sistema Linux Ubuntu ou wsl2 no windows ( testado e recomendado )
-- Docker 20.10+
-- Docker Compose 2.0+
+- Docker
+- Docker Compose
 - Git
 - 8GB RAM disponível
 - 20GB espaço em disco
@@ -79,30 +84,56 @@ O sistema oferece a gestão de catálogo de veículos até processamento de vend
 git clone <repository-url>
 cd car-dealership
 
-# 2. Inicie todos os serviços
-docker-compose up -d
+# 2. Use o Makefile para instalar e configurar o ambiente
+make setup
+```
 
-# 3. Aguarde inicialização (2-3 minutos)
+### Usando o Docker Compose
+
+```bash
+# 1. Clone o repositório
+git clone <repository-url>
+cd car-dealership
+
+# 2. Certifique-se de que o Docker e o Docker Compose estão instalados
+docker --version
+docker-compose --version
+
+# 3. Inicie todos os serviços
+COMPOSE_BAKE=true docker-compose build --pull --no-cache
+
+# 4. Aguarde inicialização completa
 docker-compose logs -f
 
-# 4. Execute migration do banco (necessário)
-php shared/database/migration.php
+# 5. Execute migration do banco (necessário)
+php shared/database/migrate.php
 
-# 5. Execute seeding do banco (recomendado)
-php shared/database/seeding.php
+# 6. Execute seeding do banco (recomendado)
+php shared/database/seed.php
 
-# 6. Verifique se todos os serviços estão funcionando
+# 7. Verifique se todos os serviços estão funcionando
 curl http://localhost:8000/api/v1/auth/health
+```
+
+A resposta do health check deve ser parecida com:
+
+```json
+{
+  "success": true,
+  "service": "auth-service",
+  "status": "healthy",
+  "timestamp": "2025-07-12 21:23:21"
+}
 ```
 
 ### Verificação da Instalação
 
 Acesse os seguintes URLs para verificar se tudo está funcionando:
 
-- **API Gateway:** http://localhost:8000/api/v1/auth/health
-- **Documentação Swagger:** http://localhost:8089
-- **phpMyAdmin:** http://localhost:8090 (root/rootpassword)
-- **RabbitMQ Management:** http://localhost:15672 (guest/guest)
+- **API Gateway:** <http://localhost:8000/api/v1/auth/health>
+- **Documentação Swagger:** <http://localhost:8089>
+- **phpMyAdmin:** <http://localhost:8090> (root/rootpassword)
+- **RabbitMQ Management:** <http://localhost:15672> (admin/admin123)
 
 ## Uso da API
 
@@ -115,18 +146,24 @@ Todos os endpoints protegidos requerem autenticação JWT. Primeiro, registre um
 curl -X POST http://localhost:8000/api/v1/auth/register \
   -H "Content-Type: application/json" \
   -d '{
-    "name": "João Silva",
-    "email": "joao@email.com",
-    "password": "senha123",
-    "cpf": "12345678901",
-    "phone": "11999887766",
-    "address": {
-      "street": "Rua das Flores, 123",
-      "city": "São Paulo",
-      "state": "SP",
-      "zip_code": "01234-567"
-    }
-  }'
+  "name": "Maria Silva",
+  "email": "maria@email.com",
+  "password": "senha123",
+  "phone": "11999999999",
+  "birth_date": "1981-05-28",
+  "role": "customer",
+  "address": {
+    "street": "Rua xyz",
+    "number": "28",
+    "neighborhood": "Cesamo",
+    "city": "string",
+    "state": "SP",
+    "zip_code": "03618-010"
+  },
+  "accept_terms": true,
+  "accept_privacy": true,
+  "accept_communications": true
+}'
 
 # Fazer login
 curl -X POST http://localhost:8000/api/v1/auth/login \
@@ -282,8 +319,8 @@ docker-compose logs -f auth-service
 
 ### Métricas
 
-- **RabbitMQ Management:** http://localhost:15672
-- **phpMyAdmin:** http://localhost:8090
+- **RabbitMQ Management:** <http://localhost:15672>
+- **phpMyAdmin:** <http://localhost:8090>
 - **Logs estruturados** em JSON para integração com ferramentas de monitoramento
 
 ## Configuração de Produção
@@ -328,6 +365,7 @@ docker run --rm -v car-dealership_mysql_data:/data -v $(pwd):/backup alpine tar 
 ### Problemas Comuns
 
 **Serviços não inicializam:**
+
 ```bash
 # Verificar logs
 docker-compose logs
@@ -340,6 +378,7 @@ docker-compose build --no-cache
 ```
 
 **Erro de conexão com banco:**
+
 ```bash
 # Verificar se MySQL está rodando
 docker-compose ps mysql
@@ -352,6 +391,7 @@ sleep 60
 ```
 
 **Problemas de autenticação:**
+
 ```bash
 # Verificar se JWT_SECRET está configurado
 docker-compose exec auth-service env | grep JWT
@@ -433,4 +473,3 @@ Este projeto é desenvolvido para Fase final da Pós Graduação FIAP de Softwar
 **Versão:** 1.0.0  
 **Última atualização:** 13 de junho de 2025  
 **Contato:** Mauro Rocha Tavares
-
