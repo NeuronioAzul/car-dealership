@@ -16,6 +16,11 @@ RUN apt-get update && apt-get install -y \
 #instala o mysql-client 
 RUN apt-get install -y default-mysql-client
 
+# Instalar o deck para a sincronização do Kong yml com o postgres
+RUN curl -sL https://github.com/kong/deck/releases/download/v1.49.1/deck_1.49.1_linux_amd64.tar.gz -o deck.tar.gz
+RUN tar -xf deck.tar.gz -C /tmp
+RUN cp /tmp/deck /usr/local/bin/
+
 # Instalar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
