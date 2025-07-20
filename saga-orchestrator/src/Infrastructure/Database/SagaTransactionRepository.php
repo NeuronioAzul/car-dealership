@@ -70,7 +70,6 @@ class SagaTransactionRepository implements SagaTransactionRepositoryInterface
             'next_retry_at' => $transaction->getNextRetryAt()?->format('Y-m-d H:i:s'),
             'created_at' => $transaction->getCreatedAt()->format('Y-m-d H:i:s'),
             'updated_at' => $transaction->getUpdatedAt()->format('Y-m-d H:i:s'),
-            'completed_at' => $transaction->getCompletedAt()?->format('Y-m-d H:i:s')
         ]);
     }
 
