@@ -32,7 +32,7 @@ class Router
         $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         
         // Remover prefixos desnecessários
-        $path = preg_replace('/^\/admin/', '', $path);
+        $path = preg_replace('#^\/api\/v1\/admin#', '', $path);
         if ($path === '') {
             $path = '/dashboard';
         }
