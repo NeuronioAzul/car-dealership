@@ -40,7 +40,7 @@ class VehiclesApiTest extends TestCase
     // insert a new vehicle
     public function testInsertVehicleEndpoint()
     {
-        $response = $this->client->post('/api/v1/vehicles/', [
+        $response = $this->client->post('/api/v1/vehicles/create', [
             'json' => [
                 'make' => 'Test',
                 'model' => 'Vehicle',
