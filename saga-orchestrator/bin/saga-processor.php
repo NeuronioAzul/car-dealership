@@ -22,6 +22,7 @@ use App\Application\Services\MicroserviceClient;
 use App\Application\Sagas\VehiclePurchaseSaga;
 use App\Application\Services\SagaProcessorService;
 use App\Infrastructure\Messaging\EventPublisher;
+use App\Infrastructure\Messaging\EventConsumer;
 
 echo "Iniciando processador de SAGAs...\n";
 
@@ -31,6 +32,7 @@ try {
     $transactionRepository = new SagaTransactionRepository($database);
     $microserviceClient = new MicroserviceClient();
     $eventPublisher = new EventPublisher();
+    $consumer = new EventConsumer();
     
     $vehiclePurchaseSaga = new VehiclePurchaseSaga($transactionRepository, $microserviceClient, $eventPublisher);
     $sagaProcessor = new SagaProcessorService($transactionRepository, $vehiclePurchaseSaga);
@@ -38,6 +40,8 @@ try {
     echo "Processando transações pendentes...\n";
     
     while (true) {
+        echo "Verificando novamente por transações pendentes...\n";
+
         $results = $sagaProcessor->processAllPendingTransactions();
         
         if (!empty($results)) {
@@ -58,4 +62,19 @@ try {
     echo "Erro no processador de SAGAs: " . $e->getMessage() . "\n";
     exit(1);
 }
+
+// Exemplo de callback para eventos de pagamento
+$consumer->consumePaymentEvents(function ($data) {
+    // Processa o evento de pagamento
+    print_r($data);
+});
+
+// Exemplo de callback para eventos de reserva
+$consumer->consumeReservationEvents(function ($data) {
+    // Processa o evento de reserva
+    print_r($data);
+});
+
+// Inicia o loop de consumo
+$consumer->startConsuming();
 
