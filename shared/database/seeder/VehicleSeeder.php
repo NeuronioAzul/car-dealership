@@ -62,8 +62,8 @@ class VehicleSeeder extends BaseSeeder
         $vehiclesCount = (int) $this->getEnv('SEED_VEHICLES_COUNT', 100);
 
         // Caminhos das imagens reais
-        $carsDir = 'public/seeder-images/cars';
-        $motorsDir = 'public/seeder-images/motors';
+        $carsDir = 'public-assets/seeder-images/cars';
+        $motorsDir = 'public-assets/seeder-images/motors';
 
         if (is_dir($carsDir)) {
             exec('ls -la ' . $carsDir);
