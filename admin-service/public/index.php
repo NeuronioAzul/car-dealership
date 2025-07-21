@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 try {
     // Inicializar conexões
-    $database = DatabaseConfig::getConnection();
+    // $database = DatabaseConfig::getConnection();
     $rabbitmq = RabbitMQConnection::getInstance();
     
     // Inicializar roteador
