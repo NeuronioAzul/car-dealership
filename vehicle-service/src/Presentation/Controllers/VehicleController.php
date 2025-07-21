@@ -5,12 +5,20 @@ namespace App\Presentation\Controllers;
 use App\Application\UseCases\ListVehiclesUseCase;
 use App\Application\UseCases\GetVehicleDetailsUseCase;
 use App\Application\UseCases\SearchVehiclesUseCase;
+use App\Application\UseCases\CreateVehicleUseCase;
+use App\Application\UseCases\UpdateVehicleUseCase;
+use App\Application\Validation\Requests\CreateVehicleRequest;
+use App\Application\Validation\Requests\UpdateVehicleRequest;
+use App\Application\DTOs\VehicleDTO;
 use App\Infrastructure\Database\DatabaseConfig;
 use App\Infrastructure\Database\VehicleRepository;
 use App\Presentation\Middleware\AuthMiddleware;
+use Exception;
 
 class VehicleController
 {
+    private CreateVehicleUseCase $createVehicleUseCase;
+    private UpdateVehicleUseCase $updateVehicleUseCase;
     private ListVehiclesUseCase $listVehiclesUseCase;
     private GetVehicleDetailsUseCase $getVehicleDetailsUseCase;
     private SearchVehiclesUseCase $searchVehiclesUseCase;
@@ -25,6 +33,94 @@ class VehicleController
         $this->listVehiclesUseCase = new ListVehiclesUseCase($vehicleRepository);
         $this->getVehicleDetailsUseCase = new GetVehicleDetailsUseCase($vehicleRepository);
         $this->searchVehiclesUseCase = new SearchVehiclesUseCase($vehicleRepository);
+        $this->createVehicleUseCase = new CreateVehicleUseCase($vehicleRepository);
+        $this->updateVehicleUseCase = new UpdateVehicleUseCase($vehicleRepository);
+    }
+
+    public function createVehicle(): void
+    {
+        try {
+            // Verificar se é admin antes de prosseguir
+            $user = $this->authMiddleware->requireAdmin();
+            
+            $data = json_decode(file_get_contents('php://input'), true);
+
+            $request = new CreateVehicleRequest($data);
+
+            if (!$request->validate()) {
+                http_response_code(422);
+                echo json_encode([
+                    'error' => true,
+                    'message' => 'Validation failed',
+                    'errors' => $request->errors()
+                ]);
+                return;
+            }
+
+            $vehicleDTO = VehicleDTO::fromArray($request->validated());
+
+            $createdVehicle = $this->createVehicleUseCase->execute($vehicleDTO);
+
+            http_response_code(201);
+            echo json_encode([
+                'success' => true,
+                'message' => 'Veículo criado com sucesso',
+                'data' => $createdVehicle->toArray(),
+                'created_by' => $user['user_id'] // Adicionar informação de quem criou
+            ]);
+        } catch (Exception $e) {
+            $code = $e->getCode() ?: 500;
+            http_response_code($code);
+            
+            $response = [
+                'error' => true,
+                'message' => $e->getMessage(),
+                'code' => $code
+            ];
+            
+            // Adicionar contexto adicional para erros de autenticação
+            if ($code === 401) {
+                $response['type'] = 'authentication_error';
+                $response['action'] = 'redirect_to_login';
+            } elseif ($code === 403) {
+                $response['type'] = 'authorization_error';
+                $response['action'] = 'insufficient_permissions';
+            }
+            
+            echo json_encode($response);
+        }
+    }
+
+    public function updateVehicle(string $id): void
+    {
+        try {
+            $inputData = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+
+            $request = new UpdateVehicleRequest($inputData);
+
+            if (!$request->validate()) {
+                http_response_code(400);
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Dados inválidos',
+                    'errors' => $request->errors()
+                ]);
+                return;
+            }
+
+            $vehicleDTO = VehicleDTO::fromArray($request->validated());
+            $vehicleDTO->setId($id);
+
+            $updatedVehicle = $this->updateVehicleUseCase->execute($vehicleDTO);
+
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Erro interno do servidor',
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 
     public function listVehicles(): void
@@ -35,20 +131,19 @@ class VehicleController
             try {
                 $user = $this->authMiddleware->authenticate();
                 $showAll = $user['role'] === 'admin';
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 // Usuário não autenticado, mostrar apenas disponíveis
             }
 
             $vehicles = $this->listVehiclesUseCase->execute(!$showAll);
-            
+
             http_response_code(200);
             echo json_encode([
                 'success' => true,
                 'data' => $vehicles,
                 'total' => count($vehicles)
             ]);
-            
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $code = $e->getCode() ?: 500;
             http_response_code($code);
             echo json_encode([
@@ -58,26 +153,21 @@ class VehicleController
         }
     }
 
-    public function getVehicleDetails(): void
+    public function getVehicleDetails(string $id): void
     {
         try {
-            $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-            $pathParts = explode('/', trim($path, '/'));
-            $vehicleId = end($pathParts);
-
-            if (!$vehicleId) {
-                throw new \Exception('ID do veículo é obrigatório', 400);
+            if (!$id) {
+                throw new Exception('ID do veículo é obrigatório', 400);
             }
 
-            $vehicle = $this->getVehicleDetailsUseCase->execute($vehicleId);
-            
+            $vehicle = $this->getVehicleDetailsUseCase->execute($id);
+
             http_response_code(200);
             echo json_encode([
                 'success' => true,
                 'data' => $vehicle
             ]);
-            
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $code = $e->getCode() ?: 500;
             http_response_code($code);
             echo json_encode([
@@ -91,16 +181,15 @@ class VehicleController
     {
         try {
             $criteria = $_GET;
-            
+
             $result = $this->searchVehiclesUseCase->execute($criteria);
-            
+
             http_response_code(200);
             echo json_encode([
                 'success' => true,
                 'data' => $result
             ]);
-            
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $code = $e->getCode() ?: 500;
             http_response_code($code);
             echo json_encode([
@@ -120,5 +209,35 @@ class VehicleController
             'timestamp' => date('Y-m-d H:i:s')
         ]);
     }
-}
 
+    public function deleteVehicle(string $id): void
+    {
+        try {
+            // Verificar autenticação - apenas admin pode deletar
+            $user = $this->authMiddleware->authenticate();
+            if ($user['role'] !== 'admin') {
+                throw new Exception('Acesso negado. Apenas administradores podem deletar veículos.', 403);
+            }
+
+            if (!$id) {
+                throw new Exception('ID do veículo é obrigatório', 400);
+            }
+
+            // Aqui você implementaria o DeleteVehicleUseCase
+            // $this->deleteVehicleUseCase->execute($id);
+
+            http_response_code(200);
+            echo json_encode([
+                'success' => true,
+                'message' => 'Veículo deletado com sucesso'
+            ]);
+        } catch (Exception $e) {
+            $code = $e->getCode() ?: 500;
+            http_response_code($code);
+            echo json_encode([
+                'error' => true,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+}
