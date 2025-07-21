@@ -63,7 +63,7 @@ class SearchVehiclesUseCase
 
         // Tipo de combustível
         if (!empty($criteria['fuel_type'])) {
-            $validFuelTypes = ['Etanol', 'Gasolina', 'Flex', 'Diesel'];
+            $validFuelTypes = ['Gasolina', 'Etanol', 'Flex', 'Diesel', 'Hibrido', 'Eletrico'];
             if (in_array($criteria['fuel_type'], $validFuelTypes)) {
                 $validCriteria['fuel_type'] = $criteria['fuel_type'];
             }
@@ -71,7 +71,7 @@ class SearchVehiclesUseCase
 
         // Tipo de transmissão
         if (!empty($criteria['transmission_type'])) {
-            $validTransmissionTypes = ['Manual', 'Automático', 'CVT'];
+            $validTransmissionTypes = ['Manual', 'Automatico', 'CVT'];
             if (in_array($criteria['transmission_type'], $validTransmissionTypes)) {
                 $validCriteria['transmission_type'] = $criteria['transmission_type'];
             }
