@@ -289,6 +289,22 @@ routes:
         config:
           secret_is_base64: false
           key_claim_name: iss
+  
+  - name: auth-logout
+    service:
+      name: auth-service
+    strip_path: false
+    paths:
+      - /api/v1/auth/logout
+    methods:
+      - POST
+      - GET
+      - OPTIONS
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: iss
 
   # Customer Service Routes (Protected)
   - name: customer-profile
@@ -309,6 +325,17 @@ routes:
         config:
           secret_is_base64: false
           key_claim_name: iss
+
+  # Customer Service Routes (Public)
+  - name: customer-health
+    service:
+      name: customer-service
+    strip_path: false
+    paths:
+      - /api/v1/customer/health
+    methods:
+      - GET
+      - OPTIONS
 
   # Vehicle Service Routes (Public)
   - name: vehicles-list
@@ -417,7 +444,18 @@ routes:
           secret_is_base64: false
           key_claim_name: iss
 
-  # Payment Service Routes
+  # Reservation Service Routes (Public)
+  - name: reservation-health
+    service:
+      name: reservation-service
+    strip_path: false
+    paths:
+      - /api/v1/reservations/health
+    methods:
+      - GET
+      - OPTIONS
+
+  # Payment Service Routes (Protected)
   - name: payments
     service:
       name: payment-service
@@ -473,6 +511,17 @@ routes:
         config:
           secret_is_base64: false
           key_claim_name: iss
+
+  # Payment Service Routes (Public)
+  - name: payment-health
+    service:
+      name: payment-service
+    strip_path: false
+    paths:
+      - /api/v1/payments/health
+    methods:
+      - GET
+      - OPTIONS
 
   # Sales Service Routes (Protected)
   - name: sales
@@ -539,6 +588,17 @@ routes:
           secret_is_base64: false
           key_claim_name: iss
 
+  # Sales Service Routes (Public)
+  - name: sales-health
+    service:
+      name: sales-service
+    strip_path: false
+    paths:
+      - /api/v1/sales/health
+    methods:
+      - GET
+      - OPTIONS
+
   # Admin Service Routes (Admin Only)
   - name: admin-dashboard
     service:
@@ -570,6 +630,17 @@ routes:
         config:
           secret_is_base64: false
           key_claim_name: iss
+
+  # Admin Service Routes (Public)
+  - name: admin-health
+    service:
+      name: admin-service
+    strip_path: false
+    paths:
+      - /api/v1/admin/health
+    methods:
+      - GET
+      - OPTIONS
 
   # SAGA Orchestrator Routes (Protected)
   - name: saga-purchase
@@ -603,13 +674,13 @@ routes:
           secret_is_base64: false
           key_claim_name: iss
 
-  # Health Check Routes (Public)
-  - name: health-checks
+  # SAGA Orchestrator Routes (Public)
+  - name: saga-health
     service:
-      name: auth-service
+      name: saga-orchestrator
     strip_path: false
     paths:
-      - /api/v1/health
+      - /api/v1/saga/health
     methods:
       - GET
       - OPTIONS
