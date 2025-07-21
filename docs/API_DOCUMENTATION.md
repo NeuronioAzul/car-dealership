@@ -8,14 +8,14 @@ O sistema de concessionária de veículos é uma aplicação baseada em microser
 
 ### Microserviços
 
-1. **Auth Service** (porta 8001) - Autenticação e autorização
-2. **Customer Service** (porta 8002) - Gestão de clientes
-3. **Vehicle Service** (porta 8003) - Gestão de veículos
-4. **Reservation Service** (porta 8004) - Sistema de reservas
-5. **Payment Service** (porta 8005) - Processamento de pagamentos
-6. **Sales Service** (porta 8006) - Gestão de vendas
-7. **Admin Service** (porta 8008) - Painel administrativo
-8. **SAGA Orchestrator** (porta 8007) - Orquestração de transações
+1. **Auth Service** (porta 8081) - Autenticação e autorização
+2. **Customer Service** (porta 8082) - Gestão de clientes
+3. **Vehicle Service** (porta 8083) - Gestão de veículos
+4. **Reservation Service** (porta 8084) - Sistema de reservas
+5. **Payment Service** (porta 8085) - Processamento de pagamentos
+6. **Sales Service** (porta 8086) - Gestão de vendas
+7. **Admin Service** (porta 8087) - Painel administrativo
+8. **SAGA Orchestrator** (porta 8088) - Orquestração de transações
 
 ### API Gateway
 
@@ -500,20 +500,20 @@ GET /api/v1/health
 ### URLs dos Serviços
 
 - API Gateway: <http://localhost:8000>
-- Auth Service: <http://localhost:8001>
-- Customer Service: <http://localhost:8002>
-- Vehicle Service: <http://localhost:8003>
-- Reservation Service: <http://localhost:8004>
-- Payment Service: <http://localhost:8005>
-- Sales Service: <http://localhost:8006>
-- SAGA Orchestrator: <http://localhost:8007>
-- Admin Service: <http://localhost:8008>
+- Auth Service: <http://localhost:8081>
+- Customer Service: <http://localhost:8082>
+- Vehicle Service: <http://localhost:8083>
+- Reservation Service: <http://localhost:8084>
+- Payment Service: <http://localhost:8085>
+- Sales Service: <http://localhost:8086>
+- Admin Service: <http://localhost:8087>
+- SAGA Orchestrator: <http://localhost:8088>
 
 ### Ferramentas de Apoio
 
+- Swagger UI: <http://localhost:8089>
 - phpMyAdmin: <http://localhost:8090>
 - RabbitMQ Management: <http://localhost:15672>
-- Swagger UI: <http://localhost:8089>
 
 ### Credenciais Padrão
 

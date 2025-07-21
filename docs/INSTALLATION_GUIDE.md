@@ -21,21 +21,21 @@ O sistema utiliza uma arquitetura de microserviços containerizada com Docker, o
 
 ### Microserviços Implementados
 
-**Auth Service (Porta 8001):** Responsável pela autenticação e autorização de usuários, gerenciamento de tokens JWT, registro de novos usuários e controle de acesso baseado em roles. Utiliza bcrypt para hash de senhas e implementa refresh tokens para segurança aprimorada.
+**Auth Service (Porta 8081):** Responsável pela autenticação e autorização de usuários, gerenciamento de tokens JWT, registro de novos usuários e controle de acesso baseado em roles. Utiliza bcrypt para hash de senhas e implementa refresh tokens para segurança aprimorada.
 
-**Customer Service (Porta 8002):** Gerencia perfis de clientes, permitindo visualização, atualização e exclusão de dados pessoais. Implementa soft delete para preservar histórico e validação rigorosa de dados como CPF e telefone.
+**Customer Service (Porta 8082):** Gerencia perfis de clientes, permitindo visualização, atualização e exclusão de dados pessoais. Implementa soft delete para preservar histórico e validação rigorosa de dados como CPF e telefone.
 
-**Vehicle Service (Porta 8003):** Mantém o catálogo de veículos com funcionalidades de listagem, busca avançada com múltiplos filtros, controle de status (disponível, reservado, vendido) e gestão de estoque. Suporta paginação e ordenação flexível.
+**Vehicle Service (Porta 8083):** Mantém o catálogo de veículos com funcionalidades de listagem, busca avançada com múltiplos filtros, controle de status (disponível, reservado, vendido) e gestão de estoque. Suporta paginação e ordenação flexível.
 
-**Reservation Service (Porta 8004):** Implementa sistema de reservas com expiração automática de 24 horas, limite de 3 reservas ativas por cliente, geração de códigos de pagamento únicos e integração com o sistema de pagamentos.
+**Reservation Service (Porta 8084):** Implementa sistema de reservas com expiração automática de 24 horas, limite de 3 reservas ativas por cliente, geração de códigos de pagamento únicos e integração com o sistema de pagamentos.
 
-**Payment Service (Porta 8005):** Processa pagamentos através de gateway fictício configurável, suporta múltiplos métodos de pagamento (cartão de crédito, débito, PIX, transferência), implementa retry automático e logging detalhado de transações.
+**Payment Service (Porta 8085):** Processa pagamentos através de gateway fictício configurável, suporta múltiplos métodos de pagamento (cartão de crédito, débito, PIX, transferência), implementa retry automático e logging detalhado de transações.
 
-**Sales Service (Porta 8006):** Gerencia vendas finalizadas, gera automaticamente documentos PDF (contrato de compra/venda e nota fiscal), mantém histórico de vendas por cliente e fornece download seguro de documentos.
+**Sales Service (Porta 8086):** Gerencia vendas finalizadas, gera automaticamente documentos PDF (contrato de compra/venda e nota fiscal), mantém histórico de vendas por cliente e fornece download seguro de documentos.
 
-**Admin Service (Porta 8008):** Fornece painel administrativo com dashboard em tempo real, relatórios detalhados de vendas, clientes e veículos, estatísticas de performance e acesso a dados consolidados de todos os microserviços.
+**Admin Service (Porta 8087):** Fornece painel administrativo com dashboard em tempo real, relatórios detalhados de vendas, clientes e veículos, estatísticas de performance e acesso a dados consolidados de todos os microserviços.
 
-**SAGA Orchestrator:** Coordena transações distribuídas usando padrão SAGA, implementa compensação automática em caso de falhas, monitora progresso de transações complexas e garante consistência eventual entre serviços.
+**SAGA Orchestrator (Porta 8088):** Coordena transações distribuídas usando padrão SAGA, implementa compensação automática em caso de falhas, monitora progresso de transações complexas e garante consistência eventual entre serviços.
 
 ### Infraestrutura de Apoio
 
@@ -72,7 +72,7 @@ Para desenvolvimento e testes locais, recomenda-se um sistema com pelo menos 8GB
 O sistema utiliza as seguintes portas que devem estar disponíveis no sistema host:
 
 - **8000:** Kong API Gateway (ponto de entrada principal)
-- **8001-8008:** Microserviços individuais (acesso direto para debug)
+- **8081-8088:** Microserviços individuais (acesso direto para debug)
 - **3306:** MySQL (acesso externo para administração)
 - **5672:** RabbitMQ AMQP
 - **15672:** RabbitMQ Management UI
@@ -182,14 +182,14 @@ curl http://localhost:8000/api/v1/admin/health
 curl http://localhost:8000/api/v1/saga/health
 
 # Verificar serviços diretamente (para debug)
-curl http://localhost:8001/health  # Auth Service
-curl http://localhost:8002/health  # Customer Service
-curl http://localhost:8003/health  # Vehicle Service
-curl http://localhost:8004/health  # Reservation Service
-curl http://localhost:8005/health  # Payment Service
-curl http://localhost:8006/health  # Sales Service
-curl http://localhost:8008/health  # Admin Service
-curl http://localhost:8007/health  # SAGA Orchestrator
+curl http://localhost:8081/api/v1/auth/health  # Auth Service
+curl http://localhost:8082/api/v1/customer/health  # Customer Service
+curl http://localhost:8083/api/v1/vehicles/health  # Vehicle Service
+curl http://localhost:8084/api/v1/reservations/health  # Reservation Service
+curl http://localhost:8085/api/v1/payments/health  # Payment Service
+curl http://localhost:8086/api/v1/sales/health  # Sales Service
+curl http://localhost:8087/api/v1/admin/health  # Admin Service
+curl http://localhost:8088/api/v1/saga/health  # SAGA Orchestrator
 ```
 
 Todos os health checks devem retornar status 200 com resposta JSON indicando que o serviço está saudável.
