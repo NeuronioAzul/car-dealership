@@ -55,13 +55,13 @@ O sistema oferece a gestão de catálogo de veículos até processamento de vend
 5. **Payment Service** (8085) - Processamento de pagamentos
 6. **Sales Service** (8086) - Gestão de vendas e documentos
 7. **Admin Service** (8087) - Painel administrativo
-8. **SAGA Orchestrator** - Coordenação de transações
+8. **SAGA Orchestrator** (8088) - Coordenação de transações
 
 ### Infraestrutura
 
-- **Kong API Gateway** (8000) - Ponto único de entrada
 - **Swagger UI** (8089) - Documentação interativa da API
 - **phpMyAdmin** (8090) - Interface de administração do banco
+- **Kong API Gateway** (8000) - Ponto único de entrada
 - **RabbitMQ 3** (15672) - Message broker para eventos
 - **MySQL 8** - Bancos de dados separados por serviço
 - **Makefile** - Automação de tarefas
@@ -473,3 +473,7 @@ Este projeto é desenvolvido para Fase final da Pós Graduação FIAP de Softwar
 **Versão:** 1.0.0  
 **Última atualização:** 13 de junho de 2025  
 **Contato:** Mauro Rocha Tavares
+
+
+incluir documentação do kong Deck
+https://github.com/kong/deck/?tab=readme-ov-file#documentation
