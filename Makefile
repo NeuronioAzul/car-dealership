@@ -19,6 +19,12 @@ up: ## Sobe todos os containers Docker
 	@echo "Starting all Docker containers..."
 	COMPOSE_BAKE=true docker-compose up --force-recreate -d
 
+## —— Kong API Gateway 🦍
+kong-sync: ## Sincroniza as configurações do kong.yml com o Kong postgres
+	@echo "🔂 Sincronizando configuração do Kong..."
+	@docker-compose exec -T admin-service deck gateway sync ./api-gateway/kong.yml --kong-addr http://kong:8001
+	@echo "✅ Configuração do Kong sincronizada!"
+
 stop: ## Para todos os containers Docker (mas não remove volumes/redes)
 	@echo "Stopping all containers..."; \
 		docker-compose stop
@@ -43,7 +49,6 @@ prune: ## Limpa volumes, redes, imagens e containers do Docker (perigoso!)
 		printf "\033[32mContainers, volumes e redes removidos com sucesso!\033[0m\n"; \
 	fi
 
-
 ## —— Composer 📦 ee outras Dependencias 
 install-all: ## Instala dependências Composer em todos os containers
 	@echo "Installing composer dependencies in all containers..."
@@ -63,10 +68,6 @@ install-all: ## Instala dependências Composer em todos os containers
 	|| (echo '❌ Erro ao rodar composer install no sales-service!' && exit 1)
 	@docker-compose exec -T vehicle-service bash -c "composer install --no-interaction --optimize-autoloader --quiet" \
 	|| (echo '❌ Erro ao rodar composer install no vehicle-service!' && exit 1)
-
-kong-sync: ## Sincroniza as configurações do kong.yml com o Kong postgres
-	@echo "🔂 Synchronizing Kong configuration..."
-	@docker-compose exec -T admin-service deck gateway sync ./api-gateway/kong.yml --kong-addr http://kong:8001
 
 install-shared: ## Instala dependências Composer na pasta shared
 	@echo "Installing shared dependencies..."
