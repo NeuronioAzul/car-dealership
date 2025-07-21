@@ -23,7 +23,28 @@ class AuthMiddleware
         }
 
         $token = substr($authHeader, 7);
-        $decoded = $this->jwtService->validateToken($token);
+        
+        try {
+            $decoded = $this->jwtService->validateToken($token);
+        } catch (\Exception $e) {
+            // Tratar diferentes tipos de erro de JWT de forma amigável
+            $message = $e->getMessage();
+            
+            if (str_contains($message, 'Expired token')) {
+                throw new \Exception('Token expirado. Faça login novamente para continuar.', 401);
+            }
+            
+            if (str_contains($message, 'Invalid token') || str_contains($message, 'Token inválido')) {
+                throw new \Exception('Token inválido. Faça login novamente para continuar.', 401);
+            }
+            
+            if (str_contains($message, 'Signature verification failed')) {
+                throw new \Exception('Token inválido. Faça login novamente para continuar.', 401);
+            }
+            
+            // Para qualquer outro erro de JWT
+            throw new \Exception('Token inválido. Faça login novamente para continuar.', 401);
+        }
         
         return [
             'user_id' => $decoded['sub'],
@@ -34,10 +55,15 @@ class AuthMiddleware
 
     public function requireCustomer(): array
     {
-        $user = $this->authenticate();
+        try {
+            $user = $this->authenticate();
+        } catch (\Exception $e) {
+            // Re-lançar exceções de autenticação com suas mensagens já tratadas
+            throw $e;
+        }
         
         if ($user['role'] !== 'customer') {
-            throw new \Exception('Acesso negado. Apenas clientes podem acessar este recurso', 403);
+            throw new \Exception('Acesso negado. Apenas clientes podem acessar este recurso.', 403);
         }
         
         return $user;
@@ -45,13 +71,38 @@ class AuthMiddleware
 
     public function requireAdmin(): array
     {
-        $user = $this->authenticate();
+        try {
+            $user = $this->authenticate();
+        } catch (\Exception $e) {
+            // Re-lançar exceções de autenticação com suas mensagens já tratadas
+            throw $e;
+        }
         
         if ($user['role'] !== 'admin') {
-            throw new \Exception('Acesso negado. Apenas administradores podem acessar este recurso', 403);
+            throw new \Exception('Acesso negado. Apenas administradores podem acessar este recurso.', 403);
         }
         
         return $user;
+    }
+
+    public function isAuthenticated(): bool
+    {
+        try {
+            $this->authenticate();
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    public function isAdmin(): bool
+    {
+        try {
+            $user = $this->authenticate();
+            return $user['role'] === 'admin';
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 }
 
