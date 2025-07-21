@@ -104,8 +104,8 @@ class CustomerDTO
         $this->lastPurchaseDate = $lastPurchaseDate;
         $this->customerScore = $customerScore;
         $this->customerTier = $customerTier;
-        $this->createdAt = new DateTime();
-        $this->updatedAt = new DateTime();
+        $this->createdAt ??= new DateTime();
+        $this->updatedAt ??= new DateTime();
         $this->deletedAt = null;
     }
 

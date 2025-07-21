@@ -38,7 +38,7 @@ class RequestValidator
 
                 // Verifica se o campo é um campo aninhado, como 'address.street'
                 if ($rule === 'required' && (!isset($data[$field]) || $data[$field] === '')) {
-                    $this->errors[$field][] = 'O campo é obrigatório.';
+                    $this->errors[$field][] = 'O campo ' . $field . ' é obrigatório.';
                 }
                 if ($rule === 'email' && isset($data[$field]) && !filter_var($data[$field], FILTER_VALIDATE_EMAIL)) {
                     $this->errors[$field][] = 'Formato de email inválido.';
@@ -68,6 +68,9 @@ class RequestValidator
                 }
                 if ($rule === 'numeric' && isset($data[$field]) && !is_numeric($data[$field])) {
                     $this->errors[$field][] = 'O campo deve ser numérico.';
+                }
+                if ($rule === 'integer' && isset($data[$field]) && !filter_var($data[$field], FILTER_VALIDATE_INT)) {
+                    $this->errors[$field][] = 'O campo deve ser um número inteiro.';
                 }
                 if ($rule === 'uuid' && isset($data[$field]) && !preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $data[$field])) {
                     $this->errors[$field][] = 'Formato de UUID inválido.';
