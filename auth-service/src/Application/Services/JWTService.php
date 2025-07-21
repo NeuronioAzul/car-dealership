@@ -11,12 +11,14 @@ class JWTService
     private string $secret;
     private string $algorithm;
     private int $expiration;
+    private ?TokenBlacklistService $blacklistService;
 
-    public function __construct()
+    public function __construct(?TokenBlacklistService $blacklistService = null)
     {
         $this->secret = $_ENV['JWT_SECRET'];
         $this->algorithm = $_ENV['JWT_ALGORITHM'] ?? 'HS256';
         $this->expiration = (int) $_ENV['JWT_EXPIRATION'];
+        $this->blacklistService = $blacklistService;
     }
 
     public function generateToken(User $user): string
@@ -49,6 +51,11 @@ class JWTService
     public function validateToken(string $token): array
     {
         try {
+            // Verificar se o token está na blacklist antes de validar
+            if ($this->blacklistService && $this->blacklistService->isTokenRevoked($token)) {
+                throw new \Exception('Token foi revogado', 401);
+            }
+
             $decoded = JWT::decode($token, new Key($this->secret, $this->algorithm));
             return (array) $decoded;
         } catch (\Exception $e) {
@@ -90,6 +97,24 @@ class JWTService
     {
         $decoded = $this->validateToken($token);
         return $decoded['role'] ?? 'customer';
+    }
+
+    public function revokeToken(string $token): void
+    {
+        if (!$this->blacklistService) {
+            throw new \Exception('Serviço de blacklist não está disponível', 500);
+        }
+
+        $this->blacklistService->revokeToken($token);
+    }
+
+    public function isTokenRevoked(string $token): bool
+    {
+        if (!$this->blacklistService) {
+            return false;
+        }
+
+        return $this->blacklistService->isTokenRevoked($token);
     }
 }
 

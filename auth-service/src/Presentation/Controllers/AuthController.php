@@ -4,9 +4,12 @@ namespace App\Presentation\Controllers;
 
 use App\Application\UseCases\LoginUseCase;
 use App\Application\UseCases\RegisterUseCase;
+use App\Application\UseCases\LogoutUseCase;
 use App\Application\Services\JWTService;
+use App\Application\Services\TokenBlacklistService;
 use App\Infrastructure\Database\DatabaseConfig;
 use App\Infrastructure\Database\UserRepository;
+use App\Infrastructure\Database\TokenBlacklistRepository;
 use App\Infrastructure\Messaging\EventPublisher;
 use App\Application\Requests\RequestUser;
 
@@ -14,17 +17,24 @@ class AuthController
 {
     private LoginUseCase $loginUseCase;
     private RegisterUseCase $registerUseCase;
+    private LogoutUseCase $logoutUseCase;
     private JWTService $jwtService;
+    private TokenBlacklistService $blacklistService;
 
     public function __construct()
     {
         $database = DatabaseConfig::getConnection();
         $userRepository = new UserRepository($database);
         $eventPublisher = new EventPublisher();
-        $this->jwtService = new JWTService();
+        
+        // Inicializar serviços de token
+        $blacklistRepository = new TokenBlacklistRepository($database);
+        $this->blacklistService = new TokenBlacklistService($blacklistRepository);
+        $this->jwtService = new JWTService($this->blacklistService);
 
         $this->loginUseCase = new LoginUseCase($userRepository, $this->jwtService, $eventPublisher);
         $this->registerUseCase = new RegisterUseCase($userRepository, $eventPublisher);
+        $this->logoutUseCase = new LogoutUseCase($this->jwtService);
     }
 
     public function login(): void
@@ -122,13 +132,43 @@ class AuthController
 
     public function logout(): void
     {
-        // Para logout, apenas retornamos sucesso
-        // Em uma implementação real, poderíamos invalidar o token
-        http_response_code(200);
-        echo json_encode([
-            'success' => true,
-            'message' => 'Logout realizado com sucesso'
-        ]);
+        try {
+            $headers = getallheaders();
+            $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
+
+            if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
+                throw new \Exception('Token não fornecido para logout', 400);
+            }
+
+            $token = substr($authHeader, 7);
+            
+            // Usar o LogoutUseCase
+            $this->logoutUseCase->execute($token);
+
+            http_response_code(200);
+            echo json_encode([
+                'success' => true,
+                'message' => 'Logout realizado com sucesso. Token invalidado.'
+            ]);
+        } catch (\Exception $e) {
+            $code = $e->getCode() ?: 500;
+            
+            // Mensagens mais amigáveis para diferentes tipos de erro
+            $message = $e->getMessage();
+            if (str_contains($message, 'revogado')) {
+                $message = 'Token já foi invalidado anteriormente.';
+            } elseif (str_contains($message, 'Expired token')) {
+                $message = 'Token já expirou.';
+            } elseif (str_contains($message, 'Token inválido')) {
+                $message = 'Token inválido para logout.';
+            }
+            
+            http_response_code($code);
+            echo json_encode([
+                'error' => true,
+                'message' => $message
+            ]);
+        }
     }
 
     public function validate(): void
@@ -151,15 +191,28 @@ class AuthController
                     'valid' => true,
                     'user_id' => $decoded['sub'],
                     'email' => $decoded['email'] ?? null,
-                    'role' => $decoded['role'] ?? 'customer'
+                    'role' => $decoded['role'] ?? 'customer',
+                    'expires_at' => $decoded['exp'] ?? null
                 ]
             ]);
         } catch (\Exception $e) {
-            $code = $e->getCode() ?: 500;
+            $code = $e->getCode() ?: 401;
+            
+            // Mensagens mais amigáveis para diferentes tipos de erro
+            $message = $e->getMessage();
+            if (str_contains($message, 'revogado')) {
+                $message = 'Token foi invalidado. Faça login novamente.';
+            } elseif (str_contains($message, 'Expired token')) {
+                $message = 'Token expirado. Faça login novamente.';
+            } elseif (str_contains($message, 'Token inválido')) {
+                $message = 'Token inválido. Faça login novamente.';
+            }
+            
             http_response_code($code);
             echo json_encode([
                 'error' => true,
-                'message' => $e->getMessage()
+                'message' => $message,
+                'valid' => false
             ]);
         }
     }
