@@ -272,7 +272,7 @@ services:
       - ./admin-service:/var/www/html
       - ./shared:/var/www/html/shared
       - ./tests:/var/www/html/tests
-      - ./public:/var/www/html/public
+      - ./public-assets:/var/www/html/public-assets
       - ./api-gateway:/var/www/html/api-gateway
     ports:
       - "8087:80"  # Porta pública para o serviço administrativo
