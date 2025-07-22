@@ -2,27 +2,32 @@
 
 namespace App\Application\Validation;
 
+use Symfony\Component\Validator\Validation;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
+
 abstract class BaseRequest
 {
     protected array $data;
     protected array $errors = [];
+    protected ValidatorInterface $validator;
     
     public function __construct(array $data)
     {
         $this->data = $data;
+        $this->validator = Validation::createValidator();
     }
     
-    abstract protected function rules(): array;
-    
-    abstract protected function messages(): array;
+    abstract protected function constraints(): array;
     
     public function validate(): bool
     {
-        $validator = new RequestValidator($this->rules());
-        $isValid = $validator->validate($this->data);
+        $constraints = new Assert\Collection($this->constraints());
+        $violations = $this->validator->validate($this->data, $constraints);
         
-        if (!$isValid) {
-            $this->errors = $validator->errors();
+        if (count($violations) > 0) {
+            $this->errors = $this->formatViolations($violations);
             return false;
         }
         
@@ -53,12 +58,24 @@ abstract class BaseRequest
         return $this->data;
     }
     
+    private function formatViolations(ConstraintViolationListInterface $violations): array
+    {
+        $errors = [];
+        
+        foreach ($violations as $violation) {
+            $field = trim($violation->getPropertyPath(), '[]');
+            $errors[$field][] = $violation->getMessage();
+        }
+        
+        return $errors;
+    }
+    
     private function extractValidatedData(): array
     {
-        $rules = $this->rules();
+        $constraints = $this->constraints();
         $validated = [];
         
-        foreach ($rules as $field => $rule) {
+        foreach ($constraints as $field => $constraint) {
             if (isset($this->data[$field])) {
                 $validated[$field] = $this->data[$field];
             }
