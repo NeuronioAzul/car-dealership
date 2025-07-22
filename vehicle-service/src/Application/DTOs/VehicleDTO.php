@@ -2,184 +2,138 @@
 # Create the Vehicle DTO class
 namespace App\Application\DTOs;
 
+use Symfony\Component\Validator\Constraints as Assert;
 use Ramsey\Uuid\Uuid;
 use DateTime;
+use DateTimeImmutable;
 
-
-class VehicleDTO
+final class VehicleDTO
 {
-    private string $id;
-    private string $brand;
-    private string $model;
-    private int $year;
-    private string $color;
-    private string $fuelType;
-    private string $transmissionType;
-    private int $mileage;
-    private float $price;
-    private string $description;
-    private string $status;
-    private ?array $features;
-    private ?string $engineSize;
-    private ?int $doors;
-    private ?int $seats;
-    private ?int $trunkCapacity;
-    private ?float $purchasePrice;
-    private ?float $profitMargin;
-    private ?string $supplier;
-    private ?string $chassisNumber;
-    private ?string $licensePlate;
-    private ?string $renavam;
-    private DateTime $createdAt;
-    private DateTime $updatedAt;
-    private ?DateTime $deletedAt;
+    #[Assert\Uuid]
+    public readonly string $id;
 
-    /**
-     * Vehicle constructor.
-     *
-     * @param string|null $id
-     * @param string $brand
-     * @param string $model
-     * @param int $year
-     * @param string $color
-     * @param string $fuelType
-     * @param string $transmissionType
-     * @param int $mileage
-     * @param float $price
-     * @param string $description
-     * @param string $status
-     * @param array|null $features
-     * @param string|null $engineSize
-     * @param int|null $doors
-     * @param int|null $seats
-     * @param int|null $trunkCapacity
-     * @param float|null $purchasePrice
-     * @param float|null $profitMargin
-     * @param string|null $supplier
-     * @param string|null $chassisNumber
-     * @param string|null $licensePlate
-     * @param string|null $renavam
-     * @param DateTime|null $createdAt
-     * @param DateTime|null $updatedAt
-     * @param DateTime|null $deletedAt
-     */
-    public function __construct(
-        ?string $id,
-        string $brand,
-        string $model,
-        int $year,
-        string $color,
-        string $fuelType,
-        string $transmissionType,
-        int $mileage,
-        float $price,
-        string $description = '',
-        string $status = 'available',
-        ?array $features = [],
-        ?string $engineSize = null,
-        ?int $doors = null,
-        ?int $seats = null,
-        ?int $trunkCapacity = null,
-        ?float $purchasePrice = null,
-        ?float $profitMargin = null,
-        ?string $supplier = null,
-        ?string $chassisNumber = null,
-        ?string $licensePlate = null,
-        ?string $renavam = null,
-        ?DateTime $createdAt = null,
-        ?DateTime $updatedAt = null,
-        ?DateTime $deletedAt = null
-    ) {
-        $this->id = $id ?? Uuid::uuid6()->toString();
-        $this->brand = $brand;
-        $this->model = $model;
-        $this->year = $year;
-        $this->color = $color;
-        $this->fuelType = $fuelType;
-        $this->transmissionType = $transmissionType;
-        $this->mileage = $mileage;
-        $this->price = $price;
-        $this->description = $description;
-        $this->status = $status;
-        $this->features = $features;
-        $this->engineSize = $engineSize;
-        $this->doors = $doors;
-        $this->seats = $seats;
-        $this->trunkCapacity = $trunkCapacity;
-        $this->purchasePrice = $purchasePrice;
-        $this->profitMargin = $profitMargin;
-        $this->supplier = $supplier;
-        $this->chassisNumber = $chassisNumber;
-        $this->licensePlate = $licensePlate;
-        $this->renavam = $renavam;
-        $this->createdAt = $createdAt ?? new DateTime();
-        $this->updatedAt = $updatedAt ?? new DateTime();
-        $this->deletedAt = $deletedAt ?? null;
+    #[Assert\NotBlank]
+    #[Assert\Length(min: 2, max: 50)]
+    public readonly string $brand;
+
+    #[Assert\NotBlank]
+    #[Assert\Length(min: 2, max: 100)]
+    public readonly string $model;
+
+    #[Assert\NotBlank]
+    #[Assert\Range(min: 1900, max: 2030)]
+    public readonly int $year;
+
+    #[Assert\NotBlank]
+    #[Assert\Length(min: 2, max: 30)]
+    public readonly string $color;
+
+    #[Assert\NotBlank]
+    #[Assert\Choice(choices: ['gasoline', 'ethanol', 'flex', 'diesel', 'electric', 'hybrid'])]
+    public readonly string $fuelType;
+
+    #[Assert\NotBlank]
+    #[Assert\Choice(choices: ['manual', 'automatic', 'cvt'])]
+    public readonly string $transmissionType;
+
+    #[Assert\NotBlank]
+    #[Assert\PositiveOrZero]
+    public readonly int $mileage;
+
+    #[Assert\NotBlank]
+    #[Assert\Positive]
+    public readonly float $price;
+
+    #[Assert\Length(max: 1000)]
+    public readonly string $description;
+
+    #[Assert\Choice(choices: ['available', 'reserved', 'sold', 'maintenance'])]
+    public readonly string $status;
+
+    #[Assert\Type('array')]
+    public readonly ?array $features;
+
+    #[Assert\Length(max: 20)]
+    public readonly ?string $engineSize;
+
+    #[Assert\Range(min: 1, max: 10)]
+    public readonly ?int $doors;
+
+    #[Assert\Range(min: 1, max: 20)]
+    public readonly ?int $seats;
+
+    #[Assert\PositiveOrZero]
+    public readonly ?int $trunkCapacity;
+
+    #[Assert\PositiveOrZero]
+    public readonly ?float $purchasePrice;
+
+    #[Assert\Range(min: 0, max: 100)]
+    public readonly ?float $profitMargin;
+
+    #[Assert\Length(max: 100)]
+    public readonly ?string $supplier;
+
+    #[Assert\Length(exactly: 17)]
+    public readonly ?string $chassisNumber;
+
+    #[Assert\Length(min: 7, max: 8)]
+    public readonly ?string $licensePlate;
+
+    #[Assert\Length(exactly: 11)]
+    public readonly ?string $renavam;
+
+    #[Assert\NotBlank]
+    #[Assert\Type(DateTimeImmutable::class)]
+    public readonly DateTimeImmutable $createdAt;
+    
+    #[Assert\Optional]
+    #[Assert\DateTime('Y-m-d H:i:s')]
+    public readonly DateTime $updatedAt;
+
+    #[Assert\Optional]
+    #[Assert\DateTime('Y-m-d H:i:s')]
+    public readonly ?DateTime $deletedAt;
+
+    public function __construct(array $input)
+    {
+        $this->id = $input['id'] ?? Uuid::uuid6()->toString();
+        $this->brand = trim($input['brand'] ?? '');
+        $this->model = trim($input['model'] ?? '');
+        $this->year = (int)($input['year'] ?? 0);
+        $this->color = trim($input['color'] ?? '');
+        $this->fuelType = strtolower(trim($input['fuel_type'] ?? ''));
+        $this->transmissionType = strtolower(trim($input['transmission_type'] ?? ''));
+        $this->mileage = (int)($input['mileage'] ?? 0);
+        $this->price = (float)($input['price'] ?? 0.0);
+        $this->description = trim($input['description'] ?? '');
+        $this->status = strtolower(trim($input['status'] ?? 'available'));
+        $this->features = $input['features'] ?? [];
+        $this->engineSize = isset($input['engine_size']) ? trim($input['engine_size']) : null;
+        $this->doors = isset($input['doors']) ? (int)$input['doors'] : null;
+        $this->seats = isset($input['seats']) ? (int)$input['seats'] : null;
+        $this->trunkCapacity = isset($input['trunk_capacity']) ? (int)$input['trunk_capacity'] : null;
+        $this->purchasePrice = isset($input['purchase_price']) ? (float)$input['purchase_price'] : null;
+        $this->profitMargin = isset($input['profit_margin']) ? (float)$input['profit_margin'] : null;
+        $this->supplier = isset($input['supplier']) ? trim($input['supplier']) : null;
+        $this->chassisNumber = isset($input['chassis_number']) ? trim($input['chassis_number']) : null;
+        $this->licensePlate = isset($input['license_plate']) ? strtoupper(trim($input['license_plate'])) : null;
+        $this->renavam = isset($input['renavam']) ? trim($input['renavam']) : null;
+        $this->createdAt = isset($input['created_at']) && $input['created_at'] 
+            ? new DateTimeImmutable($input['created_at']) 
+            : new DateTimeImmutable('now');
+        $this->updatedAt = isset($input['updated_at']) && $input['updated_at'] 
+            ? new DateTime($input['updated_at']) 
+            : new DateTime('now');
+        $this->deletedAt = isset($input['deleted_at']) && $input['deleted_at'] 
+            ? new DateTime($input['deleted_at']) 
+            : null;
     }
 
-    // Getters
-    public function getId(): string { return $this->id; }
-    public function getBrand(): string { return $this->brand; }
-    public function getModel(): string { return $this->model; }
-    public function getYear(): int { return $this->year; }
-    public function getColor(): string { return $this->color; }
-    public function getFuelType(): string { return $this->fuelType; }
-    public function getTransmissionType(): string { return $this->transmissionType; }
-    public function getMileage(): int { return $this->mileage; }
-    public function getPrice(): float { return $this->price; }
-    public function getDescription(): string { return $this->description; }
-    public function getStatus(): string { return $this->status; }
-    public function getFeatures(): ?array { return $this->features; }
-    public function getEngineSize(): ?string { return $this->engineSize; }
-    public function getDoors(): ?int { return $this->doors; }
-    public function getSeats(): ?int { return $this->seats; }
-    public function getTrunkCapacity(): ?int { return $this->trunkCapacity; }
-    public function getPurchasePrice(): ?float { return $this->purchasePrice; }
-    public function getProfitMargin(): ?float { return $this->profitMargin; }
-    public function getSupplier(): ?string { return $this->supplier; }
-    public function getChassisNumber(): ?string { return $this->chassisNumber; }
-    public function getLicensePlate(): ?string { return $this->licensePlate; }
-    public function getRenavam(): ?string { return $this->renavam; }
-    public function getCreatedAt(): DateTime { return $this->createdAt; }
-    public function getUpdatedAt(): DateTime { return $this->updatedAt; }
-    public function getDeletedAt(): ?DateTime { return $this->deletedAt; }
-
-    // Setters
-    public function setId(string $id): void { $this->id = $id; }
-    public function setBrand(string $brand): void { $this->brand = $brand; $this->updatedAt = new DateTime(); }
-    public function setModel(string $model): void { $this->model = $model; $this->updatedAt = new DateTime(); }
-    public function setYear(int $year): void { $this->year = $year; $this->updatedAt = new DateTime(); }
-    public function setColor(string $color): void { $this->color = $color; $this->updatedAt = new DateTime(); }
-    public function setFuelType(string $fuelType): void { $this->fuelType = $fuelType; $this->updatedAt = new DateTime(); }
-    public function setTransmissionType(string $transmissionType): void { $this->transmissionType = $transmissionType; $this->updatedAt = new DateTime(); }
-    public function setMileage(int $mileage): void { $this->mileage = $mileage; $this->updatedAt = new DateTime(); }
-    public function setPrice(float $price): void { $this->price = $price; $this->updatedAt = new DateTime(); }
-    public function setDescription(string $description): void { $this->description = $description; $this->updatedAt = new DateTime(); }
-    public function setStatus(string $status): void { $this->status = $status; $this->updatedAt = new DateTime(); }
-    public function setFeatures(?array $features): void { $this->features = $features; $this->updatedAt = new DateTime(); }
-    public function setEngineSize(?string $engineSize): void { $this->engineSize = $engineSize; $this->updatedAt = new DateTime(); }
-    public function setDoors(?int $doors): void { $this->doors = $doors; $this->updatedAt = new DateTime(); }
-    public function setSeats(?int $seats): void { $this->seats = $seats; $this->updatedAt = new DateTime(); }
-    public function setTrunkCapacity(?int $trunkCapacity): void { $this->trunkCapacity = $trunkCapacity; $this->updatedAt = new DateTime(); }
-    public function setPurchasePrice(?float $purchasePrice): void { $this->purchasePrice = $purchasePrice; $this->updatedAt = new DateTime(); }
-    public function setProfitMargin(?float $profitMargin): void { $this->profitMargin = $profitMargin; $this->updatedAt = new DateTime(); }
-    public function setSupplier(?string $supplier): void { $this->supplier = $supplier; $this->updatedAt = new DateTime(); }
-    public function setChassisNumber(?string $chassisNumber): void { $this->chassisNumber = $chassisNumber; $this->updatedAt = new DateTime(); }
-    public function setLicensePlate(?string $licensePlate): void { $this->licensePlate = $licensePlate; $this->updatedAt = new DateTime(); }
-    public function setRenavam(?string $renavam): void { $this->renavam = $renavam; $this->updatedAt = new DateTime(); }
-    public function setCreatedAt(DateTime $createdAt): void { $this->createdAt = $createdAt; }
-    public function setUpdatedAt(DateTime $updatedAt): void { $this->updatedAt = $updatedAt; }
-    public function setDeletedAt(?DateTime $deletedAt): void { $this->deletedAt = $deletedAt; }
-
-    // Métodos utilitários
-    public function reserve(): void { $this->status = 'reserved'; $this->updatedAt = new DateTime(); }
-    public function markAsSold(): void { $this->status = 'sold'; $this->updatedAt = new DateTime(); }
-    public function makeAvailable(): void { $this->status = 'available'; $this->updatedAt = new DateTime(); }
-    public function delete(): void { $this->deletedAt = new DateTime(); $this->updatedAt = new DateTime(); }
-    public function isDeleted(): bool { return $this->deletedAt !== null; }
-    public function isAvailable(): bool { return $this->status === 'available' && !$this->isDeleted(); }
-    public function isReserved(): bool { return $this->status === 'reserved' && !$this->isDeleted(); }
-    public function isSold(): bool { return $this->status === 'sold' && !$this->isDeleted(); }
+    public static function fromArray(array $input): self
+    {
+        return new self($input);
+    }
 
     public function toArray(): array
     {
@@ -212,34 +166,29 @@ class VehicleDTO
         ];
     }
 
-    public static function fromArray(array $data): self
+    // Utility methods for status checking
+    public function isDeleted(): bool
     {
-        return new self(
-            $data['id'] ?? null,
-            $data['brand'] ?? '',
-            $data['model'] ?? '',
-            (int)$data['year'] ?? 0,
-            $data['color'] ?? '',
-            $data['fuel_type'] ?? '',
-            $data['transmission_type'] ?? '',
-            (int)$data['mileage'] ?? 0,
-            (float)$data['price'] ?? 0.0,
-            $data['description'] ?? '',
-            $data['status'] ?? 'available',
-            $data['features'] ?? [],
-            $data['engine_size'] ?? null,
-            isset($data['doors']) ? (int)$data['doors'] : null,
-            isset($data['seats']) ? (int)$data['seats'] : null,
-            isset($data['trunk_capacity']) ? (int)$data['trunk_capacity'] : null,
-            isset($data['purchase_price']) ? (float)$data['purchase_price'] : null,
-            isset($data['profit_margin']) ? (float)$data['profit_margin'] : null,
-            $data['supplier'] ?? null,
-            $data['chassis_number'] ?? null,
-            $data['license_plate'] ?? null,
-            $data['renavam'] ?? null,
-            isset($data['created_at']) && $data['created_at'] ? new \DateTime($data['created_at']) : null,
-            isset($data['updated_at']) && $data['updated_at'] ? new \DateTime($data['updated_at']) : null,
-            isset($data['deleted_at']) && $data['deleted_at'] ? new \DateTime($data['deleted_at']) : null
-        );
+        return $this->deletedAt !== null;
+    }
+
+    public function isAvailable(): bool
+    {
+        return $this->status === 'available' && !$this->isDeleted();
+    }
+
+    public function isReserved(): bool
+    {
+        return $this->status === 'reserved' && !$this->isDeleted();
+    }
+
+    public function isSold(): bool
+    {
+        return $this->status === 'sold' && !$this->isDeleted();
+    }
+
+    public function isInMaintenance(): bool
+    {
+        return $this->status === 'maintenance' && !$this->isDeleted();
     }
 }
