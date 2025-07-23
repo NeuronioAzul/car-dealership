@@ -1,0 +1,48 @@
+{
+    "name": "mauro/car-dealership",
+    "description": "Car Dealership Monorepo - Development Tools",
+    "type": "project",
+    "require": {
+        "php": "^8.4"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.84",
+        "symfony/var-dumper": "^7.3"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "CarDealership\\Admin\\": "admin-service/src/",
+            "CarDealership\\Auth\\": "auth-service/src/",
+            "CarDealership\\Customer\\": "customer-service/src/",
+            "CarDealership\\Vehicle\\": "vehicle-service/src/",
+            "CarDealership\\Order\\": "order-service/src/",
+            "CarDealership\\Payment\\": "payment-service/src/",
+            "CarDealership\\Reservation\\": "reservation-service/src/",
+            "CarDealership\\Sales\\": "sales-service/src/",
+            "CarDealership\\Saga\\": "saga-orchestrator/src/",
+            "CarDealership\\Shared\\": "shared/src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Mauro Rocha",
+            "email": "mauro.rocha.t@gmail.com"
+        }
+    ],
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "scripts": {
+        "cs-fix": "php-cs-fixer fix --config=.php-cs-fixer.php",
+        "cs-check": "php-cs-fixer fix --config=.php-cs-fixer.php --dry-run --diff",
+        "cs-fix-service": "php-cs-fixer fix --config=.php-cs-fixer.php",
+        "post-install-cmd": [
+            "echo 'Development tools installed successfully!'"
+        ],
+        "post-update-cmd": [
+            "echo 'Development tools updated successfully!'"
+        ]
+    }
+}
