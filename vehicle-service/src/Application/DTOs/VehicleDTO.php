@@ -86,7 +86,7 @@ final class VehicleDTO
     #[Assert\NotBlank]
     #[Assert\Type(DateTimeImmutable::class)]
     public readonly DateTimeImmutable $createdAt;
-    
+
     #[Assert\Optional]
     #[Assert\DateTime('Y-m-d H:i:s')]
     public readonly DateTime $updatedAt;
@@ -97,7 +97,7 @@ final class VehicleDTO
 
     public function __construct(array $input)
     {
-        $this->id = $input['id'] ?? Uuid::uuid6()->toString();
+        $this->id = $input['id'] ?? '';
         $this->brand = trim($input['brand'] ?? '');
         $this->model = trim($input['model'] ?? '');
         $this->year = (int)($input['year'] ?? 0);
@@ -119,14 +119,14 @@ final class VehicleDTO
         $this->chassisNumber = isset($input['chassis_number']) ? trim($input['chassis_number']) : null;
         $this->licensePlate = isset($input['license_plate']) ? strtoupper(trim($input['license_plate'])) : null;
         $this->renavam = isset($input['renavam']) ? trim($input['renavam']) : null;
-        $this->createdAt = isset($input['created_at']) && $input['created_at'] 
-            ? new DateTimeImmutable($input['created_at']) 
+        $this->createdAt = isset($input['created_at']) && $input['created_at']
+            ? new DateTimeImmutable($input['created_at'])
             : new DateTimeImmutable('now');
-        $this->updatedAt = isset($input['updated_at']) && $input['updated_at'] 
-            ? new DateTime($input['updated_at']) 
+        $this->updatedAt = isset($input['updated_at']) && $input['updated_at']
+            ? new DateTime($input['updated_at'])
             : new DateTime('now');
-        $this->deletedAt = isset($input['deleted_at']) && $input['deleted_at'] 
-            ? new DateTime($input['deleted_at']) 
+        $this->deletedAt = isset($input['deleted_at']) && $input['deleted_at']
+            ? new DateTime($input['deleted_at'])
             : null;
     }
 
