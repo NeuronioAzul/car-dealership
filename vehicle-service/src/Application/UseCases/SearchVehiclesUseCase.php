@@ -17,15 +17,15 @@ class SearchVehiclesUseCase
     {
         // Validar critérios de busca
         $validCriteria = $this->validateCriteria($criteria);
-        
+
         $vehicles = $this->vehicleRepository->search($validCriteria);
 
         return [
-            'vehicles' => array_map(function($vehicle) {
+            'vehicles' => array_map(function ($vehicle) {
                 return $vehicle->toArray();
             }, $vehicles),
             'total' => count($vehicles),
-            'criteria' => $validCriteria
+            'criteria' => $validCriteria,
         ];
     }
 
@@ -63,7 +63,8 @@ class SearchVehiclesUseCase
 
         // Tipo de combustível
         if (!empty($criteria['fuel_type'])) {
-            $validFuelTypes = ['Gasolina', 'Etanol', 'Flex', 'Diesel', 'Hibrido', 'Eletrico'];
+            $validFuelTypes = ['gasoline', 'ethanol', 'flex', 'diesel', 'hybrid', 'electric'];
+
             if (in_array($criteria['fuel_type'], $validFuelTypes)) {
                 $validCriteria['fuel_type'] = $criteria['fuel_type'];
             }
@@ -71,7 +72,8 @@ class SearchVehiclesUseCase
 
         // Tipo de transmissão
         if (!empty($criteria['transmission_type'])) {
-            $validTransmissionTypes = ['Manual', 'Automatico', 'CVT'];
+            $validTransmissionTypes = ['manual', 'automatic', 'cvt'];
+
             if (in_array($criteria['transmission_type'], $validTransmissionTypes)) {
                 $validCriteria['transmission_type'] = $criteria['transmission_type'];
             }
@@ -85,12 +87,22 @@ class SearchVehiclesUseCase
         // Status (para admin)
         if (!empty($criteria['status'])) {
             $validStatuses = ['available', 'reserved', 'sold'];
+
             if (in_array($criteria['status'], $validStatuses)) {
                 $validCriteria['status'] = $criteria['status'];
             }
         }
 
+        // Chassis number
+        if (!empty($criteria['chassis_number'])) {
+            $validCriteria['chassis_number'] = trim($criteria['chassis_number']);
+        }
+
+        // License plate
+        if (!empty($criteria['license_plate'])) {
+            $validCriteria['license_plate'] = strtoupper(trim($criteria['license_plate']));
+        }
+
         return $validCriteria;
     }
 }
-

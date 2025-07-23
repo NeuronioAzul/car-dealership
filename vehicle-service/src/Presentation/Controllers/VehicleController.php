@@ -2,14 +2,14 @@
 
 namespace App\Presentation\Controllers;
 
-use App\Application\UseCases\ListVehiclesUseCase;
-use App\Application\UseCases\GetVehicleDetailsUseCase;
-use App\Application\UseCases\SearchVehiclesUseCase;
+use App\Application\DTOs\VehicleDTO;
 use App\Application\UseCases\CreateVehicleUseCase;
+use App\Application\UseCases\GetVehicleDetailsUseCase;
+use App\Application\UseCases\ListVehiclesUseCase;
+use App\Application\UseCases\SearchVehiclesUseCase;
 use App\Application\UseCases\UpdateVehicleUseCase;
 use App\Application\Validation\Requests\CreateVehicleRequest;
 use App\Application\Validation\Requests\UpdateVehicleRequest;
-use App\Application\DTOs\VehicleDTO;
 use App\Infrastructure\Database\DatabaseConfig;
 use App\Infrastructure\Database\VehicleRepository;
 use App\Presentation\Middleware\AuthMiddleware;
@@ -52,12 +52,25 @@ class VehicleController
                 echo json_encode([
                     'error' => true,
                     'message' => 'Validation failed',
-                    'errors' => $request->errors()
+                    'errors' => $request->errors(),
                 ]);
+
                 return;
             }
 
             $vehicleDTO = VehicleDTO::fromArray($request->validated());
+
+            $existingChassisVehicle = $this->searchVehiclesUseCase->execute([
+                'chassis_number' => $vehicleDTO->chassisNumber,
+            ]);
+
+            $existingLicensePlateVehicle = $this->searchVehiclesUseCase->execute([
+                'license_plate' => $vehicleDTO->licensePlate,
+            ]);
+
+            if ($existingChassisVehicle['total'] > 0 || $existingLicensePlateVehicle['total'] > 0) {
+                throw new Exception('Veículo com chassis ou placa já existente', 409);
+            }
 
             $createdVehicle = $this->createVehicleUseCase->execute($vehicleDTO);
 
@@ -66,7 +79,7 @@ class VehicleController
                 'success' => true,
                 'message' => 'Veículo criado com sucesso',
                 'data' => $createdVehicle,
-                'created_by' => $user['user_id'] // Adicionar informação de quem criou
+                'created_by' => $user['user_id'], // Adicionar informação de quem criou
             ]);
         } catch (Exception $e) {
             if (!is_numeric($e->getCode())) {
@@ -79,7 +92,7 @@ class VehicleController
             $response = [
                 'error' => true,
                 'message' => $e->getMessage(),
-                'code' => $code
+                'code' => $code,
             ];
 
             // Adicionar contexto adicional para erros de autenticação
@@ -99,9 +112,9 @@ class VehicleController
     {
         try {
             $user = $this->authMiddleware->requireAdmin();
-            
+
             $inputData = json_decode(file_get_contents('php://input'), true) ?? $_POST;
-            
+
             $inputData['id'] = $id;
 
             $request = new UpdateVehicleRequest($inputData);
@@ -111,12 +124,14 @@ class VehicleController
                 echo json_encode([
                     'error' => true,
                     'message' => 'Validation failed',
-                    'errors' => $request->errors()
+                    'errors' => $request->errors(),
                 ]);
+
                 return;
             }
 
             $vehicleDTO = VehicleDTO::fromArray($request->validated());
+
             $updatedVehicle = $this->updateVehicleUseCase->execute($vehicleDTO);
 
             http_response_code(200);
@@ -124,7 +139,7 @@ class VehicleController
                 'success' => true,
                 'message' => 'Veículo atualizado com sucesso',
                 'data' => $updatedVehicle->toArray(),
-                'updated_by' => $user['user_id']
+                'updated_by' => $user['user_id'],
             ]);
         } catch (Exception $e) {
             if (!is_numeric($e->getCode())) {
@@ -136,8 +151,8 @@ class VehicleController
 
             $response = [
                 'error' => true,
-                'message' => $e->getMessage(),
-                'code' => $code
+                'message' => $e->getCode() . ' ' . $e->getMessage(),
+                'code' => $code,
             ];
 
             // Adicionar contexto adicional para erros de autenticação
@@ -158,6 +173,7 @@ class VehicleController
         try {
             // Verificar se é admin para mostrar todos os veículos
             $showAll = false;
+
             try {
                 $user = $this->authMiddleware->authenticate();
                 $showAll = $user['role'] === 'admin';
@@ -171,14 +187,14 @@ class VehicleController
             echo json_encode([
                 'success' => true,
                 'data' => $vehicles,
-                'total' => count($vehicles)
+                'total' => count($vehicles),
             ]);
         } catch (Exception $e) {
             $code = $e->getCode() ?: 500;
             http_response_code($code);
             echo json_encode([
                 'error' => true,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ]);
         }
     }
@@ -195,14 +211,14 @@ class VehicleController
             http_response_code(200);
             echo json_encode([
                 'success' => true,
-                'data' => $vehicle
+                'data' => $vehicle,
             ]);
         } catch (Exception $e) {
             $code = $e->getCode() ?: 500;
             http_response_code($code);
             echo json_encode([
                 'error' => true,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ]);
         }
     }
@@ -217,14 +233,14 @@ class VehicleController
             http_response_code(200);
             echo json_encode([
                 'success' => true,
-                'data' => $result
+                'data' => $result,
             ]);
         } catch (Exception $e) {
             $code = $e->getCode() ?: 500;
             http_response_code($code);
             echo json_encode([
                 'error' => true,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ]);
         }
     }
@@ -236,7 +252,7 @@ class VehicleController
             'success' => true,
             'service' => 'vehicle-service',
             'status' => 'healthy',
-            'timestamp' => date('Y-m-d H:i:s')
+            'timestamp' => date('Y-m-d H:i:s'),
         ]);
     }
 
@@ -245,6 +261,7 @@ class VehicleController
         try {
             // Verificar autenticação - apenas admin pode deletar
             $user = $this->authMiddleware->authenticate();
+
             if ($user['role'] !== 'admin') {
                 throw new Exception('Acesso negado. Apenas administradores podem deletar veículos.', 403);
             }
@@ -259,14 +276,14 @@ class VehicleController
             http_response_code(200);
             echo json_encode([
                 'success' => true,
-                'message' => 'Veículo deletado com sucesso'
+                'message' => 'Veículo deletado com sucesso',
             ]);
         } catch (Exception $e) {
             $code = $e->getCode() ?: 500;
             http_response_code($code);
             echo json_encode([
                 'error' => true,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ]);
         }
     }

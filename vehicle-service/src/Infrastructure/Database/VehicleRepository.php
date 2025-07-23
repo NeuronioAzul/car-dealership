@@ -3,12 +3,8 @@
 namespace App\Infrastructure\Database;
 
 use App\Application\DTOs\VehicleDTO;
-use App\Domain\Entities\Vehicle;
 use App\Domain\Repositories\VehicleRepositoryInterface;
 use PDO;
-use PDOException;
-use Exception;
-use DateTime;
 
 class VehicleRepository implements VehicleRepositoryInterface
 {
@@ -21,17 +17,17 @@ class VehicleRepository implements VehicleRepositoryInterface
 
     public function save(VehicleDTO $vehicle): bool
     {
-        $sql = "
+        $sql = '
             INSERT INTO vehicles (
                 id, brand, model, year, color, fuel_type, transmission_type, mileage, price, description, status,
                 features, engine_size, doors, seats, trunk_capacity, purchase_price, profit_margin, supplier,
                 chassis_number, license_plate, renavam, created_at, updated_at, deleted_at
             ) VALUES (
-                :id,:brand, :model, :year, :color, :fuel_type, :transmission_type, :mileage, :price, :description, :status,
+                :id, :brand, :model, :year, :color, :fuel_type, :transmission_type, :mileage, :price, :description, :status,
                 :features, :engine_size, :doors, :seats, :trunk_capacity, :purchase_price, :profit_margin, :supplier,
                 :chassis_number, :license_plate, :renavam, :created_at, :updated_at, :deleted_at
             )
-        ";
+        ';
 
         $arrVehicle = $vehicle->toArray();
 
@@ -44,7 +40,7 @@ class VehicleRepository implements VehicleRepositoryInterface
 
     public function findById(string $id): ?VehicleDTO
     {
-        $sql = "SELECT * FROM vehicles WHERE id = :id AND deleted_at IS NULL";
+        $sql = 'SELECT * FROM vehicles WHERE id = :id AND deleted_at IS NULL';
         $stmt = $this->connection->prepare($sql);
         $stmt->execute(['id' => $id]);
 
@@ -55,7 +51,7 @@ class VehicleRepository implements VehicleRepositoryInterface
 
     public function findAll(): array
     {
-        $sql = "SELECT * FROM vehicles WHERE deleted_at IS NULL ORDER BY created_at DESC";
+        $sql = 'SELECT * FROM vehicles WHERE deleted_at IS NULL ORDER BY created_at DESC';
         $stmt = $this->connection->query($sql);
 
         $vehicles = [];
@@ -81,63 +77,73 @@ class VehicleRepository implements VehicleRepositoryInterface
 
     public function search(array $criteria): array
     {
-        $sql = "SELECT * FROM vehicles WHERE deleted_at IS NULL";
+        $sql = 'SELECT * FROM vehicles WHERE deleted_at IS NULL';
         $params = [];
 
         if (!empty($criteria['brand'])) {
-            $sql .= " AND brand LIKE :brand";
+            $sql .= ' AND brand LIKE :brand';
             $params['brand'] = '%' . $criteria['brand'] . '%';
         }
 
         if (!empty($criteria['model'])) {
-            $sql .= " AND model LIKE :model";
+            $sql .= ' AND model LIKE :model';
             $params['model'] = '%' . $criteria['model'] . '%';
         }
 
         if (!empty($criteria['year_from'])) {
-            $sql .= " AND year >= :year_from";
+            $sql .= ' AND year >= :year_from';
             $params['year_from'] = $criteria['year_from'];
         }
 
         if (!empty($criteria['year_to'])) {
-            $sql .= " AND year <= :year_to";
+            $sql .= ' AND year <= :year_to';
             $params['year_to'] = $criteria['year_to'];
         }
 
         if (!empty($criteria['price_from'])) {
-            $sql .= " AND price >= :price_from";
+            $sql .= ' AND price >= :price_from';
             $params['price_from'] = $criteria['price_from'];
         }
 
         if (!empty($criteria['price_to'])) {
-            $sql .= " AND price <= :price_to";
+            $sql .= ' AND price <= :price_to';
             $params['price_to'] = $criteria['price_to'];
         }
 
         if (!empty($criteria['fuel_type'])) {
-            $sql .= " AND fuel_type = :fuel_type";
+            $sql .= ' AND fuel_type = :fuel_type';
             $params['fuel_type'] = $criteria['fuel_type'];
         }
 
         if (!empty($criteria['transmission_type'])) {
-            $sql .= " AND transmission_type = :transmission_type";
+            $sql .= ' AND transmission_type = :transmission_type';
             $params['transmission_type'] = $criteria['transmission_type'];
         }
 
         if (!empty($criteria['color'])) {
-            $sql .= " AND color LIKE :color";
+            $sql .= ' AND color LIKE :color';
             $params['color'] = '%' . $criteria['color'] . '%';
         }
 
         if (!empty($criteria['status'])) {
-            $sql .= " AND status = :status";
+            $sql .= ' AND status = :status';
             $params['status'] = $criteria['status'];
         } else {
             // Por padrão, mostrar apenas disponíveis
             $sql .= " AND status = 'available'";
         }
 
-        $sql .= " ORDER BY created_at DESC";
+        if (!empty($criteria['chassis_number'])) {
+            $sql .= ' AND chassis_number LIKE :chassis_number';
+            $params['chassis_number'] = '%' . $criteria['chassis_number'] . '%';
+        }
+
+        if (!empty($criteria['license_plate'])) {
+            $sql .= ' AND license_plate LIKE :license_plate';
+            $params['license_plate'] = '%' . strtoupper($criteria['license_plate']) . '%';
+        }
+
+        $sql .= ' ORDER BY created_at DESC';
 
         $stmt = $this->connection->prepare($sql);
         $stmt->execute($params);
@@ -152,7 +158,7 @@ class VehicleRepository implements VehicleRepositoryInterface
 
     public function update(VehicleDTO $vehicle): bool
     {
-        $sql = "
+        $sql = '
             UPDATE vehicles SET
                 brand = :brand,
                 model = :model,
@@ -177,24 +183,21 @@ class VehicleRepository implements VehicleRepositoryInterface
                 renavam = :renavam,
                 updated_at = :updated_at
             WHERE id = :id
-        ";
+        ';
 
         $stmt = $this->connection->prepare($sql);
 
         $vehicleData = $vehicle->toArray();
 
-        // Convert features array to JSON string for database storage
-        if (isset($vehicleData['features']) && is_array($vehicleData['features'])) {
-            $vehicleData['features'] = json_encode($vehicleData['features']);
-        }
+        unset($vehicleData['created_at']);
+        unset($vehicleData['deleted_at']);
 
         return $stmt->execute($vehicleData);
-
     }
 
     public function delete(string $id): bool
     {
-        $sql = "UPDATE vehicles SET deleted_at = NOW(), updated_at = NOW() WHERE id = :id";
+        $sql = 'UPDATE vehicles SET deleted_at = NOW(), updated_at = NOW() WHERE id = :id';
         $stmt = $this->connection->prepare($sql);
 
         return $stmt->execute(['id' => $id]);
@@ -202,7 +205,7 @@ class VehicleRepository implements VehicleRepositoryInterface
 
     public function updateStatus(string $id, string $status): bool
     {
-        $sql = "UPDATE vehicles SET status = :status, updated_at = NOW() WHERE id = :id";
+        $sql = 'UPDATE vehicles SET status = :status, updated_at = NOW() WHERE id = :id';
         $stmt = $this->connection->prepare($sql);
 
         return $stmt->execute(['id' => $id, 'status' => $status]);
@@ -211,6 +214,7 @@ class VehicleRepository implements VehicleRepositoryInterface
     private function mapToVehicle(array $data): VehicleDTO
     {
         $vehicle = new VehicleDTO($data);
+
         return $vehicle;
     }
 }
