@@ -23,19 +23,17 @@ class VehicleRepository implements VehicleRepositoryInterface
     {
         $sql = "
             INSERT INTO vehicles (
-                brand, model, year, color, fuel_type, transmission_type, mileage, price, description, status,
+                id, brand, model, year, color, fuel_type, transmission_type, mileage, price, description, status,
                 features, engine_size, doors, seats, trunk_capacity, purchase_price, profit_margin, supplier,
-                chassis_number, license_plate, renavam, created_at, updated_at
+                chassis_number, license_plate, renavam, created_at, updated_at, deleted_at
             ) VALUES (
-                :brand, :model, :year, :color, :fuel_type, :transmission_type, :mileage, :price, :description, :status,
+                :id,:brand, :model, :year, :color, :fuel_type, :transmission_type, :mileage, :price, :description, :status,
                 :features, :engine_size, :doors, :seats, :trunk_capacity, :purchase_price, :profit_margin, :supplier,
-                :chassis_number, :license_plate, :renavam, :created_at, :updated_at
+                :chassis_number, :license_plate, :renavam, :created_at, :updated_at, :deleted_at
             )
         ";
 
         $arrVehicle = $vehicle->toArray();
-        unset($arrVehicle['id']);
-        unset($arrVehicle['deleted_at']);
 
         $stmt = $this->connection->prepare($sql);
 
@@ -182,7 +180,10 @@ class VehicleRepository implements VehicleRepositoryInterface
         ";
 
         $stmt = $this->connection->prepare($sql);
-        return $stmt->execute($vehicle->toArray());
+        
+        $vehicleData = $vehicle->toArray();
+        
+        return $stmt->execute($vehicleData);
 
     }
 
