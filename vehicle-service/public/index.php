@@ -2,10 +2,10 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use Dotenv\Dotenv;
-use App\Infrastructure\Http\Router;
 use App\Infrastructure\Database\DatabaseConfig;
+use App\Infrastructure\Http\Router;
 use App\Infrastructure\Messaging\RabbitMQConnection;
+use Dotenv\Dotenv;
 
 // Carregar variáveis de ambiente
 if (class_exists('Dotenv\Dotenv')) {
@@ -29,19 +29,17 @@ try {
     // Inicializar conexões
     $database = DatabaseConfig::getConnection();
     $rabbitmq = RabbitMQConnection::getInstance();
-    
+
     // Inicializar roteador
     $router = new Router();
-    
+
     // Processar requisição
     $router->handleRequest();
-    
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode([
         'error' => 'Internal Server Error',
         'message' => $e->getMessage(),
-        'trace' => $e->getTraceAsString()
+        'trace' => $e->getTraceAsString(),
     ]);
 }
-
