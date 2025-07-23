@@ -108,7 +108,7 @@ final class VehicleDTO
         $this->price = (float)($input['price'] ?? 0.0);
         $this->description = trim($input['description'] ?? '');
         $this->status = strtolower(trim($input['status'] ?? 'available'));
-        $this->features = $input['features'] ?? [];
+        $this->features = is_array($input['features']) ? $input['features'] : json_decode($input['features'], true) ?? [];
         $this->engineSize = isset($input['engine_size']) ? trim($input['engine_size']) : null;
         $this->doors = isset($input['doors']) ? (int)$input['doors'] : null;
         $this->seats = isset($input['seats']) ? (int)$input['seats'] : null;
