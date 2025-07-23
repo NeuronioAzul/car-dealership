@@ -40,6 +40,6 @@ try {
     echo json_encode([
         'error'     => 'Internal Server Error',
         'message'    => $e->getMessage(),
-        'trace'             => $e->getTraceAsString(),
+        'trace'            => $e->getTraceAsString(),
     ]);
 }
