@@ -15,11 +15,10 @@ class ListVehiclesUseCase
 
     public function execute(bool $availableOnly = true): array
     {
-        if ($availableOnly) {
-            $vehicles = $this->vehicleRepository->findAvailable();
-        } else {
-            $vehicles = $this->vehicleRepository->findAll();
-        }
+        match ($availableOnly) {
+            true => $vehicles = $this->vehicleRepository->findAvailable(),
+            false => $vehicles = $this->vehicleRepository->findAll(),
+        };
 
         return array_map(function($vehicle) {
             return $vehicle->toArray();
