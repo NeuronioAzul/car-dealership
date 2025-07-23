@@ -12,7 +12,8 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^10.5",
-        "guzzlehttp/guzzle": "^7.9"
+        "guzzlehttp/guzzle": "^7.9",
+        "friendsofphp/php-cs-fixer": "^3.84"
     },
     "autoload": {
         "psr-4": {
