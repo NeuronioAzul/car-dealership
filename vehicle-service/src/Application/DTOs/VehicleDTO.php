@@ -6,6 +6,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Ramsey\Uuid\Uuid;
 use DateTime;
 use DateTimeImmutable;
+use Ramsey\Uuid\Rfc4122\UuidV6;
 
 final class VehicleDTO
 {
@@ -97,7 +98,7 @@ final class VehicleDTO
 
     public function __construct(array $input)
     {
-        $this->id = $input['id'] ?? '';
+        $this->id = $input['id'] ?? UuidV6::uuid6();
         $this->brand = trim($input['brand'] ?? '');
         $this->model = trim($input['model'] ?? '');
         $this->year = (int)($input['year'] ?? 0);
@@ -149,7 +150,7 @@ final class VehicleDTO
             'price' => $this->price,
             'description' => $this->description,
             'status' => $this->status,
-            'features' => $this->features,
+            'features' => (isset($this->features) && is_array($this->features)) ? json_encode($this->features) : $this->features,
             'engine_size' => $this->engineSize,
             'doors' => $this->doors,
             'seats' => $this->seats,
