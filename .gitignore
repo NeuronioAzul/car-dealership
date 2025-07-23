@@ -30,5 +30,5 @@ composer.lock
 */.env.production
 tests/.phpunit.result.cache
 tests/results.xml
-vehicle-service/.phpunit.result.cache
-vehicle-service/.php-cs-fixer.php
+*/.phpunit.result.cache
+*/.php-cs-fixer.cache
