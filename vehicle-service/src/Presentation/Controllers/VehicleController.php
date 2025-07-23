@@ -42,7 +42,7 @@ class VehicleController
         try {
             // Verificar se é admin antes de prosseguir
             $user = $this->authMiddleware->requireAdmin();
-            
+
             $data = json_decode(file_get_contents('php://input'), true);
 
             $request = new CreateVehicleRequest($data);
@@ -69,15 +69,19 @@ class VehicleController
                 'created_by' => $user['user_id'] // Adicionar informação de quem criou
             ]);
         } catch (Exception $e) {
-            $code = $e->getCode() ?: 500;
+            if (!is_numeric($e->getCode())) {
+                $code = 500;
+            } else {
+                $code = $e->getCode();
+            }
             http_response_code($code);
-            
+
             $response = [
                 'error' => true,
                 'message' => $e->getMessage(),
                 'code' => $code
             ];
-            
+
             // Adicionar contexto adicional para erros de autenticação
             if ($code === 401) {
                 $response['type'] = 'authentication_error';
@@ -86,7 +90,7 @@ class VehicleController
                 $response['type'] = 'authorization_error';
                 $response['action'] = 'insufficient_permissions';
             }
-            
+
             echo json_encode($response);
         }
     }
@@ -109,10 +113,11 @@ class VehicleController
             }
 
             $vehicleDTO = VehicleDTO::fromArray($request->validated());
-            $vehicleDTO->setId($id);
+
+            // var_dump($vehicleDTO);
+            // die();
 
             $updatedVehicle = $this->updateVehicleUseCase->execute($vehicleDTO);
-
         } catch (Exception $e) {
             http_response_code(500);
             echo json_encode([
