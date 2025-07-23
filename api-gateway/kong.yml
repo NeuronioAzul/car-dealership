@@ -378,6 +378,21 @@ routes:
           secret_is_base64: false
           key_claim_name: iss
 
+  - name: vehicles-delete
+    service:
+      name: vehicle-service
+    strip_path: false
+    paths:
+      - /api/v1/vehicles/delete
+    methods:
+      - DELETE
+      - OPTIONS
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: iss
+
   - name: vehicles-search
     service:
       name: vehicle-service
