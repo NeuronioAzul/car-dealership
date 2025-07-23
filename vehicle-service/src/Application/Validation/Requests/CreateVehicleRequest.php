@@ -15,7 +15,7 @@ class CreateVehicleRequest extends BaseRequest
                 new Assert\Type(['type' => 'string', 'message' => 'A marca deve ser um texto']),
                 new Assert\Length([
                     'min' => 2,
-                    'max' => 50,
+                    'max' => 100,
                     'minMessage' => 'A marca deve ter pelo menos {{ limit }} caracteres',
                     'maxMessage' => 'A marca não pode ter mais de {{ limit }} caracteres'
                 ])
@@ -25,7 +25,7 @@ class CreateVehicleRequest extends BaseRequest
                 new Assert\Type(['type' => 'string', 'message' => 'O modelo deve ser um texto']),
                 new Assert\Length([
                     'min' => 2,
-                    'max' => 50,
+                    'max' => 100,
                     'minMessage' => 'O modelo deve ter pelo menos {{ limit }} caracteres',
                     'maxMessage' => 'O modelo não pode ter mais de {{ limit }} caracteres'
                 ])
@@ -36,8 +36,7 @@ class CreateVehicleRequest extends BaseRequest
                 new Assert\Range([
                     'min' => 1950,
                     'max' => date('Y') + 1,
-                    'minMessage' => 'O ano deve ser pelo menos {{ limit }}',
-                    'maxMessage' => 'O ano não pode ser maior que {{ limit }}'
+                    'notInRangeMessage' => 'O ano deve estar entre {{ min }} e {{ max }}'
                 ])
             ],
             'color' => [
@@ -53,14 +52,14 @@ class CreateVehicleRequest extends BaseRequest
             'fuel_type' => [
                 new Assert\NotBlank(['message' => 'O tipo de combustível é obrigatório']),
                 new Assert\Choice([
-                    'choices' => ['Gasolina', 'Etanol', 'Flex', 'Diesel', 'Hibrido', 'Eletrico'],
+                    'choices' => ['Gasolina', 'Etanol', 'Flex', 'Diesel', 'Híbrido', 'Elétrico'],
                     'message' => 'Tipo de combustível inválido. Valores aceitos: {{ choices }}'
                 ])
             ],
             'transmission_type' => [
                 new Assert\NotBlank(['message' => 'O tipo de transmissão é obrigatório']),
                 new Assert\Choice([
-                    'choices' => ['Manual', 'Automatico', 'CVT'],
+                    'choices' => ['Manual', 'Automático', 'CVT'],
                     'message' => 'Tipo de transmissão inválido. Valores aceitos: {{ choices }}'
                 ])
             ],
@@ -111,10 +110,9 @@ class CreateVehicleRequest extends BaseRequest
                 new Assert\Optional([
                     new Assert\Type(['type' => 'integer', 'message' => 'O número de portas deve ser um número inteiro']),
                     new Assert\Range([
-                        'min' => 2,
-                        'max' => 6,
-                        'minMessage' => 'O número de portas deve ser pelo menos {{ limit }}',
-                        'maxMessage' => 'O número de portas não pode ser maior que {{ limit }}'
+                        'min' => 1,
+                        'max' => 10,
+                        'notInRangeMessage' => 'O número de portas deve estar entre {{ min }} e {{ max }}'
                     ])
                 ])
             ],
@@ -122,10 +120,9 @@ class CreateVehicleRequest extends BaseRequest
                 new Assert\Optional([
                     new Assert\Type(['type' => 'integer', 'message' => 'O número de assentos deve ser um número inteiro']),
                     new Assert\Range([
-                        'min' => 2,
-                        'max' => 9,
-                        'minMessage' => 'O número de assentos deve ser pelo menos {{ limit }}',
-                        'maxMessage' => 'O número de assentos não pode ser maior que {{ limit }}'
+                        'min' => 1,
+                        'max' => 20,
+                        'notInRangeMessage' => 'O número de assentos deve estar entre {{ min }} e {{ max }}'
                     ])
                 ])
             ],
@@ -147,8 +144,7 @@ class CreateVehicleRequest extends BaseRequest
                     new Assert\Range([
                         'min' => 0,
                         'max' => 100,
-                        'minMessage' => 'A margem de lucro deve ser pelo menos {{ limit }}%',
-                        'maxMessage' => 'A margem de lucro não pode ser maior que {{ limit }}%'
+                        'notInRangeMessage' => 'A margem de lucro deve estar entre {{ min }}% e {{ max }}%'
                     ])
                 ])
             ],
@@ -156,7 +152,7 @@ class CreateVehicleRequest extends BaseRequest
                 new Assert\Optional([
                     new Assert\Type(['type' => 'string', 'message' => 'O fornecedor deve ser um texto']),
                     new Assert\Length([
-                        'max' => 100,
+                        'max' => 255,
                         'maxMessage' => 'O fornecedor não pode ter mais de {{ limit }} caracteres'
                     ])
                 ])
@@ -167,7 +163,7 @@ class CreateVehicleRequest extends BaseRequest
                     new Assert\Length([
                         'min' => 17,
                         'max' => 17,
-                        'exactMessage' => 'O número do chassi deve ter exatamente {{ limit }} caracteres'
+                        'exactMessage' => 'O número do chassi deve ter exatamente 17 caracteres'
                     ])
                 ])
             ],
