@@ -19,21 +19,11 @@ class VehicleSeeder extends BaseSeeder
         'Fiat' => ['Cronos', 'Toro', 'Argo', 'Mobi', 'Strada', 'Pulse', 'Fastback']
     ];
 
-    private array $colors = [
-        'Branco',
-        'Preto',
-        'Prata',
-        'Cinza',
-        'Vermelho',
-        'Azul',
-        'Bege',
-        'Dourado',
-        'Verde',
-        'Marrom'
-    ];
+    private array $colors = ['Branco', 'Preto', 'Prata', 'Cinza', 'Vermelho', 'Azul',
+        'Bege', 'Dourado', 'Verde', 'Marrom', 'Amarelo', 'Roxo', 'Laranja', 'Rosa', 'Turquesa'];
 
-    private array $fuelTypes = ['Gasolina', 'Etanol', 'Flex', 'Diesel', 'Hibrido', 'Eletrico'];
-    private array $transmissions = ['Manual', 'Automatico', 'CVT'];
+    private array $fuelTypes = ['gasoline', 'ethanol', 'flex', 'diesel', 'hybrid', 'electric'];
+    private array $transmissions = ['manual', 'automatic', 'cvt'];
 
     public function __construct()
     {
