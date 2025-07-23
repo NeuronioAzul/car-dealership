@@ -31,3 +31,4 @@ composer.lock
 tests/.phpunit.result.cache
 tests/results.xml
 vehicle-service/.phpunit.result.cache
+vehicle-service/.php-cs-fixer.php

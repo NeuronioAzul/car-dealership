@@ -180,9 +180,14 @@ class VehicleRepository implements VehicleRepositoryInterface
         ";
 
         $stmt = $this->connection->prepare($sql);
-        
+
         $vehicleData = $vehicle->toArray();
-        
+
+        // Convert features array to JSON string for database storage
+        if (isset($vehicleData['features']) && is_array($vehicleData['features'])) {
+            $vehicleData['features'] = json_encode($vehicleData['features']);
+        }
+
         return $stmt->execute($vehicleData);
 
     }
