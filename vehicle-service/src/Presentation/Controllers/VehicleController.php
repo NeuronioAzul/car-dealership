@@ -8,6 +8,7 @@ use App\Application\UseCases\GetVehicleDetailsUseCase;
 use App\Application\UseCases\ListVehiclesUseCase;
 use App\Application\UseCases\SearchVehiclesUseCase;
 use App\Application\UseCases\UpdateVehicleUseCase;
+use App\Application\UseCases\DeleteVehicleUseCase;
 use App\Application\Validation\Requests\CreateVehicleRequest;
 use App\Application\Validation\Requests\UpdateVehicleRequest;
 use App\Infrastructure\Database\DatabaseConfig;
@@ -23,6 +24,7 @@ class VehicleController
     private GetVehicleDetailsUseCase $getVehicleDetailsUseCase;
     private SearchVehiclesUseCase $searchVehiclesUseCase;
     private AuthMiddleware $authMiddleware;
+    private DeleteVehicleUseCase $deleteVehicleUseCase;
 
     public function __construct()
     {
@@ -35,6 +37,7 @@ class VehicleController
         $this->searchVehiclesUseCase = new SearchVehiclesUseCase($vehicleRepository);
         $this->createVehicleUseCase = new CreateVehicleUseCase($vehicleRepository);
         $this->updateVehicleUseCase = new UpdateVehicleUseCase($vehicleRepository);
+        $this->deleteVehicleUseCase = new DeleteVehicleUseCase($vehicleRepository);
     }
 
     public function createVehicle(): void
@@ -270,8 +273,7 @@ class VehicleController
                 throw new Exception('ID do veículo é obrigatório', 400);
             }
 
-            // Aqui você implementaria o DeleteVehicleUseCase
-            // $this->deleteVehicleUseCase->execute($id);
+            $this->deleteVehicleUseCase->execute($id);
 
             http_response_code(200);
             echo json_encode([
