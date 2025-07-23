@@ -6,6 +6,8 @@ use App\Application\DTOs\VehicleDTO;
 use App\Domain\Entities\Vehicle;
 use App\Domain\Repositories\VehicleRepositoryInterface;
 use PDO;
+use PDOException;
+use Exception;
 use DateTime;
 
 class VehicleRepository implements VehicleRepositoryInterface
@@ -31,8 +33,15 @@ class VehicleRepository implements VehicleRepositoryInterface
             )
         ";
 
+        $arrVehicle = $vehicle->toArray();
+        unset($arrVehicle['id']);
+        unset($arrVehicle['deleted_at']);
+
         $stmt = $this->connection->prepare($sql);
-        return $stmt->execute($vehicle->toArray());
+
+        $result = $stmt->execute($arrVehicle);
+
+        return $result;
     }
 
     public function findById(string $id): ?VehicleDTO
