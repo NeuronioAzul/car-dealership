@@ -65,7 +65,7 @@ class VehicleController
             echo json_encode([
                 'success' => true,
                 'message' => 'Veículo criado com sucesso',
-                'data' => $createdVehicle->toArray(),
+                'data' => $createdVehicle,
                 'created_by' => $user['user_id'] // Adicionar informação de quem criou
             ]);
         } catch (Exception $e) {
@@ -98,33 +98,58 @@ class VehicleController
     public function updateVehicle(string $id): void
     {
         try {
+            $user = $this->authMiddleware->requireAdmin();
+            
             $inputData = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+            
+            $inputData['id'] = $id;
 
             $request = new UpdateVehicleRequest($inputData);
 
             if (!$request->validate()) {
-                http_response_code(400);
+                http_response_code(422);
                 echo json_encode([
-                    'success' => false,
-                    'message' => 'Dados inválidos',
+                    'error' => true,
+                    'message' => 'Validation failed',
                     'errors' => $request->errors()
                 ]);
                 return;
             }
 
             $vehicleDTO = VehicleDTO::fromArray($request->validated());
-
-            // var_dump($vehicleDTO);
-            // die();
-
             $updatedVehicle = $this->updateVehicleUseCase->execute($vehicleDTO);
-        } catch (Exception $e) {
-            http_response_code(500);
+
+            http_response_code(200);
             echo json_encode([
-                'success' => false,
-                'message' => 'Erro interno do servidor',
-                'error' => $e->getMessage()
+                'success' => true,
+                'message' => 'Veículo atualizado com sucesso',
+                'data' => $updatedVehicle->toArray(),
+                'updated_by' => $user['user_id']
             ]);
+        } catch (Exception $e) {
+            if (!is_numeric($e->getCode())) {
+                $code = 500;
+            } else {
+                $code = $e->getCode();
+            }
+            http_response_code($code);
+
+            $response = [
+                'error' => true,
+                'message' => $e->getMessage(),
+                'code' => $code
+            ];
+
+            // Adicionar contexto adicional para erros de autenticação
+            if ($code === 401) {
+                $response['type'] = 'authentication_error';
+                $response['action'] = 'redirect_to_login';
+            } elseif ($code === 403) {
+                $response['type'] = 'authorization_error';
+                $response['action'] = 'insufficient_permissions';
+            }
+
+            echo json_encode($response);
         }
     }
 
