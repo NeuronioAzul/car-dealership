@@ -52,14 +52,14 @@ class CreateVehicleRequest extends BaseRequest
             'fuel_type' => [
                 new Assert\NotBlank(['message' => 'O tipo de combustível é obrigatório']),
                 new Assert\Choice([
-                    'choices' => ['Gasolina', 'Etanol', 'Flex', 'Diesel', 'Híbrido', 'Elétrico'],
+                    'choices' => ['gasoline', 'ethanol', 'flex', 'diesel', 'hybrid', 'electric'],
                     'message' => 'Tipo de combustível inválido. Valores aceitos: {{ choices }}'
                 ])
             ],
             'transmission_type' => [
                 new Assert\NotBlank(['message' => 'O tipo de transmissão é obrigatório']),
                 new Assert\Choice([
-                    'choices' => ['Manual', 'Automático', 'CVT'],
+                    'choices' => ['manual', 'automatic', 'cvt'],
                     'message' => 'Tipo de transmissão inválido. Valores aceitos: {{ choices }}'
                 ])
             ],

@@ -11,13 +11,13 @@ CREATE TABLE IF NOT EXISTS vehicles (
     model VARCHAR(100) NOT NULL COMMENT 'Modelo do veículo',
     year INT NOT NULL COMMENT 'Ano do veículo',
     color VARCHAR(50) NOT NULL COMMENT 'Cor do veículo',
-    fuel_type ENUM('Gasolina', 'Etanol', 'Flex', 'Diesel', 'Híbrido', 'Elétrico') NOT NULL COMMENT 'Tipo de combustível',
-    transmission_type ENUM('Manual', 'Automático', 'CVT') NOT NULL COMMENT 'Tipo de transmissão',
+    fuel_type ENUM('gasoline', 'ethanol', 'flex', 'diesel', 'hybrid', 'electric') NOT NULL COMMENT 'Tipo de combustível',
+    transmission_type ENUM('manual', 'automatic', 'cvt') NOT NULL COMMENT 'Tipo de transmissão',
     mileage INT DEFAULT 0 COMMENT 'Quilometragem',
     price DECIMAL(10,2) NOT NULL COMMENT 'Preço do veículo',
     description TEXT COMMENT 'Descrição detalhada do veículo',
 
-    status ENUM('available', 'reserved', 'sold') DEFAULT 'available' COMMENT 'Status do veículo',
+    status ENUM('available', 'reserved', 'sold', 'maintenance') DEFAULT 'available' COMMENT 'Status do veículo',
     features JSON COMMENT 'Lista de características/opcionais',
     
     -- Informações técnicas
