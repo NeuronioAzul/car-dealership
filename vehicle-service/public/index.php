@@ -38,7 +38,7 @@ try {
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode([
-        'error'        => 'Internal Server Error',
+        'error' => 'Internal Server Error',
         'message' => $e->getMessage(),
         'trace' => $e->getTraceAsString(),
     ]);
