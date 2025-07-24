@@ -2,7 +2,7 @@
 
 [![GitHub Release](https://img.shields.io/github/v/release/NeuronioAzul/car-dealership?style=for-the-badge&logo=github&color=blue)](https://github.com/NeuronioAzul/car-dealership/releases)
 [![Last Commit](https://img.shields.io/github/last-commit/NeuronioAzul/car-dealership?style=for-the-badge&logo=git&color=green)](https://github.com/NeuronioAzul/car-dealership/commits/main)
-[![License](https://img.shields.io/github/license/NeuronioAzul/car-dealership?style=for-the-badge&color=orange)](LICENSE)
+[![License](https://img.shields.io/github/license/NeuronioAzul/car-dealership?style=for-the-badge&color=orange)](https://github.com/NeuronioAzul/car-dealership/LICENSE)
 [![PHP Version](https://img.shields.io/badge/PHP-8.4-777BB4?style=for-the-badge&logo=php)](https://www.php.net/)
 
 **Autor:** Mauro Rocha Tavares
