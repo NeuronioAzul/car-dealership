@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Application\Services;
 
 use App\Infrastructure\Database\DatabaseConfig;
@@ -40,8 +42,8 @@ class DashboardService
                     'total_revenue' => $salesStats['total_revenue'],
                     'active_customers' => $userStats['active_customers'],
                     'available_vehicles' => $vehicleStats['available'],
-                    'pending_reservations' => $reservationStats['active']
-                ]
+                    'pending_reservations' => $reservationStats['active'],
+                ],
             ];
         } catch (\Exception $e) {
             throw new \Exception('Erro ao obter estatísticas do dashboard: ' . $e->getMessage());
@@ -53,19 +55,19 @@ class DashboardService
         $stats = [];
 
         // Total de usuários
-        $stmt = $authDb->query("SELECT COUNT(*) as total FROM users WHERE deleted_at IS NULL");
+        $stmt = $authDb->query('SELECT COUNT(*) as total FROM users WHERE deleted_at IS NULL');
         $stats['total'] = $stmt->fetch()['total'];
 
         // Usuários ativos (logaram nos últimos 30 dias)
-        $stmt = $authDb->query("SELECT COUNT(*) as active FROM users WHERE deleted_at IS NULL AND updated_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)");
+        $stmt = $authDb->query('SELECT COUNT(*) as active FROM users WHERE deleted_at IS NULL AND updated_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)');
         $stats['active_customers'] = $stmt->fetch()['active'];
 
         // Novos usuários (últimos 7 dias)
-        $stmt = $authDb->query("SELECT COUNT(*) as new_users FROM users WHERE deleted_at IS NULL AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)");
+        $stmt = $authDb->query('SELECT COUNT(*) as new_users FROM users WHERE deleted_at IS NULL AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)');
         $stats['new_this_week'] = $stmt->fetch()['new_users'];
 
         // Usuários por tipo
-        $stmt = $authDb->query("SELECT role, COUNT(*) as count FROM users WHERE deleted_at IS NULL GROUP BY role");
+        $stmt = $authDb->query('SELECT role, COUNT(*) as count FROM users WHERE deleted_at IS NULL GROUP BY role');
         $roleStats = [];
         while ($row = $stmt->fetch()) {
             $roleStats[$row['role']] = $row['count'];
@@ -80,17 +82,17 @@ class DashboardService
         $stats = [];
 
         // Total de veículos
-        $stmt = $vehicleDb->query("SELECT COUNT(*) as total FROM vehicles WHERE deleted_at IS NULL");
+        $stmt = $vehicleDb->query('SELECT COUNT(*) as total FROM vehicles WHERE deleted_at IS NULL');
         $stats['total'] = $stmt->fetch()['total'];
 
         // Veículos por status
-        $stmt = $vehicleDb->query("SELECT status, COUNT(*) as count FROM vehicles WHERE deleted_at IS NULL GROUP BY status");
+        $stmt = $vehicleDb->query('SELECT status, COUNT(*) as count FROM vehicles WHERE deleted_at IS NULL GROUP BY status');
         while ($row = $stmt->fetch()) {
             $stats[$row['status']] = $row['count'];
         }
 
         // Veículos por marca (top 5)
-        $stmt = $vehicleDb->query("SELECT brand, COUNT(*) as count FROM vehicles WHERE deleted_at IS NULL GROUP BY brand ORDER BY count DESC LIMIT 5");
+        $stmt = $vehicleDb->query('SELECT brand, COUNT(*) as count FROM vehicles WHERE deleted_at IS NULL GROUP BY brand ORDER BY count DESC LIMIT 5');
         $brandStats = [];
         while ($row = $stmt->fetch()) {
             $brandStats[$row['brand']] = $row['count'];
@@ -109,11 +111,11 @@ class DashboardService
         $stats = [];
 
         // Total de reservas
-        $stmt = $reservationDb->query("SELECT COUNT(*) as total FROM reservations WHERE deleted_at IS NULL");
+        $stmt = $reservationDb->query('SELECT COUNT(*) as total FROM reservations WHERE deleted_at IS NULL');
         $stats['total'] = $stmt->fetch()['total'];
 
         // Reservas por status
-        $stmt = $reservationDb->query("SELECT status, COUNT(*) as count FROM reservations WHERE deleted_at IS NULL GROUP BY status");
+        $stmt = $reservationDb->query('SELECT status, COUNT(*) as count FROM reservations WHERE deleted_at IS NULL GROUP BY status');
         while ($row = $stmt->fetch()) {
             $stats[$row['status']] = $row['count'];
         }
@@ -123,7 +125,7 @@ class DashboardService
         $stats['active'] = $stmt->fetch()['active'];
 
         // Reservas criadas hoje
-        $stmt = $reservationDb->query("SELECT COUNT(*) as today FROM reservations WHERE deleted_at IS NULL AND DATE(created_at) = CURDATE()");
+        $stmt = $reservationDb->query('SELECT COUNT(*) as today FROM reservations WHERE deleted_at IS NULL AND DATE(created_at) = CURDATE()');
         $stats['created_today'] = $stmt->fetch()['today'];
 
         return $stats;
@@ -134,11 +136,11 @@ class DashboardService
         $stats = [];
 
         // Total de pagamentos
-        $stmt = $paymentDb->query("SELECT COUNT(*) as total FROM payments WHERE deleted_at IS NULL");
+        $stmt = $paymentDb->query('SELECT COUNT(*) as total FROM payments WHERE deleted_at IS NULL');
         $stats['total'] = $stmt->fetch()['total'];
 
         // Pagamentos por status
-        $stmt = $paymentDb->query("SELECT status, COUNT(*) as count FROM payments WHERE deleted_at IS NULL GROUP BY status");
+        $stmt = $paymentDb->query('SELECT status, COUNT(*) as count FROM payments WHERE deleted_at IS NULL GROUP BY status');
         while ($row = $stmt->fetch()) {
             $stats[$row['status']] = $row['count'];
         }
@@ -164,11 +166,11 @@ class DashboardService
         $stats = [];
 
         // Total de vendas
-        $stmt = $salesDb->query("SELECT COUNT(*) as total FROM sales WHERE deleted_at IS NULL");
+        $stmt = $salesDb->query('SELECT COUNT(*) as total FROM sales WHERE deleted_at IS NULL');
         $stats['total'] = $stmt->fetch()['total'];
 
         // Vendas por status
-        $stmt = $salesDb->query("SELECT status, COUNT(*) as count FROM sales WHERE deleted_at IS NULL GROUP BY status");
+        $stmt = $salesDb->query('SELECT status, COUNT(*) as count FROM sales WHERE deleted_at IS NULL GROUP BY status');
         while ($row = $stmt->fetch()) {
             $stats[$row['status']] = $row['count'];
         }
@@ -195,16 +197,15 @@ class DashboardService
             $monthlyStats[] = [
                 'month' => $row['month'],
                 'sales_count' => $row['count'],
-                'revenue' => (float) $row['revenue']
+                'revenue' => (float) $row['revenue'],
             ];
         }
         $stats['monthly'] = $monthlyStats;
 
         // Vendas hoje
-        $stmt = $salesDb->query("SELECT COUNT(*) as today FROM sales WHERE deleted_at IS NULL AND DATE(sale_date) = CURDATE()");
+        $stmt = $salesDb->query('SELECT COUNT(*) as today FROM sales WHERE deleted_at IS NULL AND DATE(sale_date) = CURDATE()');
         $stats['sales_today'] = $stmt->fetch()['today'];
 
         return $stats;
     }
 }
-

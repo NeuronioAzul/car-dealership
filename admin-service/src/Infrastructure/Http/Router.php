@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Infrastructure\Http;
 
 use App\Presentation\Controllers\AdminController;
@@ -22,7 +24,7 @@ class Router
             'GET /reports/sales' => [$this->adminController, 'getSalesReport'],
             'GET /reports/customers' => [$this->adminController, 'getCustomerReport'],
             'GET /reports/vehicles' => [$this->adminController, 'getVehicleReport'],
-            'GET /health' => [$this->adminController, 'health']
+            'GET /health' => [$this->adminController, 'health'],
         ];
     }
 
@@ -30,9 +32,10 @@ class Router
     {
         $method = $_SERVER['REQUEST_METHOD'];
         $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-        
+
         // Remover prefixos desnecessários
         $path = preg_replace('#^\/api\/v1\/admin#', '', $path);
+
         if ($path === '') {
             $path = '/dashboard';
         }
@@ -41,7 +44,7 @@ class Router
 
         if (isset($this->routes[$route])) {
             [$controller, $action] = $this->routes[$route];
-            
+
             try {
                 $controller->$action();
             } catch (\Exception $e) {
@@ -56,11 +59,11 @@ class Router
     {
         $code = $e->getCode() ?: 500;
         http_response_code($code);
-        
+
         echo json_encode([
             'error' => true,
             'message' => $e->getMessage(),
-            'code' => $code
+            'code' => $code,
         ]);
     }
 
@@ -70,8 +73,7 @@ class Router
         echo json_encode([
             'error' => true,
             'message' => 'Rota não encontrada',
-            'code' => 404
+            'code' => 404,
         ]);
     }
 }
-
