@@ -1,7 +1,6 @@
 # Cardealership - Sistema de Concessionária de Veículos
 
 **Versão:** 1.0.0
-**Data:** 13 de junho de 2025
 **Autor:** Mauro Rocha Tavares
 
 ## Tecnologias Utilizadas
@@ -494,31 +493,37 @@ composer install
 
 ### Estrutura do Projeto
 
-```
+```text
 car-dealership/
+│
+├── api-gateway/            # Configuração do Kong API Gateway
+│
+├── admin-service/          # Microserviço administrativo
 ├── auth-service/           # Microserviço de autenticação
 ├── customer-service/       # Microserviço de clientes
-├── vehicle-service/        # Microserviço de veículos
-├── reservation-service/    # Microserviço de reservas
 ├── payment-service/        # Microserviço de pagamentos
+├── reservation-service/    # Microserviço de reservas
 ├── sales-service/          # Microserviço de vendas
-├── admin-service/          # Microserviço administrativo
-├── saga-orchestrator/      # Orquestrador SAGA
-├── api-gateway/           # Configuração do Kong
-├── shared/                # Recursos compartilhados
-├── tests/                 # Testes do sistema
-├── docs/                  # Documentação
-└── docker-compose.yml     # Orquestração Docker
+├── vehicle-service/        # Microserviço de veículos
+│
+├── saga-orchestrator/      # Orquestrador de transações SAGA
+│
+├── docs/                   # Documentação do projeto
+├── docker-compose.yml      # Orquestração dos serviços com Docker
+├── shared/                 # Recursos compartilhados entre serviços
+└── tests/                  # Testes automatizados do sistema
+
 ```
 
 ## Licença
+
+MIT License (MIT)
 
 Este projeto é desenvolvido para Fase final da Pós Graduação FIAP de Software Archtecture.
 
 ---
 
 **Versão:** 1.0.0  
-**Última atualização:** 13 de junho de 2025  
 **Contato:** Mauro Rocha Tavares
 
 
