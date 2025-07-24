@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Infrastructure\Http;
 
 use App\Presentation\Controllers\PaymentController;
@@ -21,7 +23,7 @@ class Router
             'POST /' => [$this->paymentController, 'processPayment'],
             'POST /create' => [$this->paymentController, 'createPayment'],
             'GET /my-payments' => [$this->paymentController, 'listCustomerPayments'],
-            'GET /health' => [$this->paymentController, 'health']
+            'GET /health' => [$this->paymentController, 'health'],
         ];
     }
 
@@ -29,9 +31,10 @@ class Router
     {
         $method = $_SERVER['REQUEST_METHOD'];
         $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-        
+
         // Remover prefixos desnecessários
         $path = preg_replace('/^\/payments/', '', $path);
+
         if ($path === '') {
             $path = '/';
         }
@@ -43,6 +46,7 @@ class Router
             } catch (\Exception $e) {
                 $this->handleError($e);
             }
+
             return;
         }
 
@@ -50,7 +54,7 @@ class Router
 
         if (isset($this->routes[$route])) {
             [$controller, $action] = $this->routes[$route];
-            
+
             try {
                 $controller->$action();
             } catch (\Exception $e) {
@@ -65,11 +69,11 @@ class Router
     {
         $code = $e->getCode() ?: 500;
         http_response_code($code);
-        
+
         echo json_encode([
             'error' => true,
             'message' => $e->getMessage(),
-            'code' => $code
+            'code' => $code,
         ]);
     }
 
@@ -79,8 +83,7 @@ class Router
         echo json_encode([
             'error' => true,
             'message' => 'Rota não encontrada',
-            'code' => 404
+            'code' => 404,
         ]);
     }
 }
-

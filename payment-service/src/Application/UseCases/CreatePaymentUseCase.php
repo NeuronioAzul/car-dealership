@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Application\UseCases;
 
 use App\Domain\Entities\Payment;
@@ -24,12 +26,14 @@ class CreatePaymentUseCase
     ): array {
         // Verificar se já existe pagamento para este código
         $existingPayment = $this->paymentRepository->findByPaymentCode($paymentCode);
+
         if ($existingPayment) {
             return $existingPayment->toArray();
         }
 
         // Verificar se já existe pagamento para esta reserva
         $existingReservationPayment = $this->paymentRepository->findByReservationId($reservationId);
+
         if ($existingReservationPayment) {
             throw new \Exception('Já existe um pagamento para esta reserva', 409);
         }
@@ -40,6 +44,7 @@ class CreatePaymentUseCase
         }
 
         $validMethods = ['credit_card', 'debit_card', 'pix', 'bank_transfer'];
+
         if (!in_array($method, $validMethods)) {
             throw new \Exception('Método de pagamento inválido', 400);
         }
@@ -62,4 +67,3 @@ class CreatePaymentUseCase
         return $payment->toArray();
     }
 }
-

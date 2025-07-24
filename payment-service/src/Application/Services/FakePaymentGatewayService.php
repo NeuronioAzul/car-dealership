@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Application\Services;
 
 class FakePaymentGatewayService
@@ -30,8 +32,8 @@ class FakePaymentGatewayService
                     'timestamp' => date('Y-m-d H:i:s'),
                     'amount' => $amount,
                     'method' => $method,
-                    'authorization_code' => strtoupper(substr(md5($paymentCode), 0, 8))
-                ])
+                    'authorization_code' => strtoupper(substr(md5($paymentCode), 0, 8)),
+                ]),
             ];
         } else {
             $errors = [
@@ -40,7 +42,7 @@ class FakePaymentGatewayService
                 'Cartão expirado',
                 'Dados do cartão inválidos',
                 'Transação não autorizada',
-                'Limite de crédito excedido'
+                'Limite de crédito excedido',
             ];
 
             return [
@@ -53,8 +55,8 @@ class FakePaymentGatewayService
                     'timestamp' => date('Y-m-d H:i:s'),
                     'amount' => $amount,
                     'method' => $method,
-                    'error_code' => 'ERR_' . rand(1000, 9999)
-                ])
+                    'error_code' => 'ERR_' . rand(1000, 9999),
+                ]),
             ];
         }
     }
@@ -74,8 +76,8 @@ class FakePaymentGatewayService
                 'gateway' => 'FakePaymentGateway',
                 'timestamp' => date('Y-m-d H:i:s'),
                 'original_transaction' => $transactionId,
-                'refund_amount' => $amount
-            ])
+                'refund_amount' => $amount,
+            ]),
         ];
     }
 
@@ -85,8 +87,7 @@ class FakePaymentGatewayService
         return [
             'transaction_id' => $transactionId,
             'status' => 'completed',
-            'timestamp' => date('Y-m-d H:i:s')
+            'timestamp' => date('Y-m-d H:i:s'),
         ];
     }
 }
-

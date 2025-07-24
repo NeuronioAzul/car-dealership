@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Application\UseCases;
 
 use App\Domain\Repositories\PaymentRepositoryInterface;
@@ -16,7 +18,7 @@ class GetPaymentStatusUseCase
     public function execute(string $paymentCode, string $customerId): array
     {
         $payment = $this->paymentRepository->findByPaymentCode($paymentCode);
-        
+
         if (!$payment) {
             throw new \Exception('Pagamento não encontrado', 404);
         }
@@ -32,4 +34,3 @@ class GetPaymentStatusUseCase
         return $payment->toArray();
     }
 }
-

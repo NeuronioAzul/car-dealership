@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\Entities;
 
-use Ramsey\Uuid\Uuid;
 use DateTime;
+use Ramsey\Uuid\Uuid;
 
 class Payment
 {
@@ -122,7 +124,7 @@ class Payment
     {
         $this->status = $status;
         $this->updatedAt = new DateTime();
-        
+
         if (in_array($status, ['completed', 'failed', 'refunded'])) {
             $this->processedAt = new DateTime();
         }
@@ -176,16 +178,17 @@ class Payment
         $this->setStatus('processing');
     }
 
-    public function markAsCompleted(string $transactionId, string $gatewayResponse = null): void
+    public function markAsCompleted(string $transactionId, ?string $gatewayResponse = null): void
     {
         $this->setTransactionId($transactionId);
+
         if ($gatewayResponse) {
             $this->setGatewayResponse($gatewayResponse);
         }
         $this->setStatus('completed');
     }
 
-    public function markAsFailed(string $gatewayResponse = null): void
+    public function markAsFailed(?string $gatewayResponse = null): void
     {
         if ($gatewayResponse) {
             $this->setGatewayResponse($gatewayResponse);
@@ -193,7 +196,7 @@ class Payment
         $this->setStatus('failed');
     }
 
-    public function refund(string $gatewayResponse = null): void
+    public function refund(?string $gatewayResponse = null): void
     {
         if ($gatewayResponse) {
             $this->setGatewayResponse($gatewayResponse);
@@ -223,8 +226,7 @@ class Payment
             'created_at' => $this->createdAt->format('Y-m-d H:i:s'),
             'updated_at' => $this->updatedAt->format('Y-m-d H:i:s'),
             'processed_at' => $this->processedAt?->format('Y-m-d H:i:s'),
-            'deleted_at' => $this->deletedAt?->format('Y-m-d H:i:s')
+            'deleted_at' => $this->deletedAt?->format('Y-m-d H:i:s'),
         ];
     }
 }
-
