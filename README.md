@@ -1,6 +1,10 @@
 # Cardealership - Sistema de Concessionária de Veículos
 
-**Versão:** 1.0.0
+[![GitHub Release](https://img.shields.io/github/v/release/NeuronioAzul/car-dealership?style=for-the-badge&logo=github&color=blue)](https://github.com/NeuronioAzul/car-dealership/releases)
+[![Last Commit](https://img.shields.io/github/last-commit/NeuronioAzul/car-dealership?style=for-the-badge&logo=git&color=green)](https://github.com/NeuronioAzul/car-dealership/commits/main)
+[![License](https://img.shields.io/github/license/NeuronioAzul/car-dealership?style=for-the-badge&color=orange)](LICENSE)
+[![PHP Version](https://img.shields.io/badge/PHP-8.4-777BB4?style=for-the-badge&logo=php)](https://www.php.net/)
+
 **Autor:** Mauro Rocha Tavares
 
 ## Tecnologias Utilizadas
@@ -526,6 +530,4 @@ Este projeto é desenvolvido para Fase final da Pós Graduação FIAP de Softwar
 **Versão:** 1.0.0  
 **Contato:** Mauro Rocha Tavares
 
-
-incluir documentação do kong Deck
-https://github.com/kong/deck/?tab=readme-ov-file#documentation
+Para mais informações sobre Kong Deck, consulte a [documentação oficial](https://github.com/kong/deck/?tab=readme-ov-file#documentation).
