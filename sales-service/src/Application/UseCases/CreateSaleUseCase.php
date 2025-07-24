@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Application\UseCases;
 
+use App\Application\Services\PDFGeneratorService;
 use App\Domain\Entities\Sale;
 use App\Domain\Repositories\SaleRepositoryInterface;
-use App\Application\Services\PDFGeneratorService;
 use App\Infrastructure\Messaging\EventPublisher;
 
 class CreateSaleUseCase
@@ -34,12 +36,14 @@ class CreateSaleUseCase
     ): array {
         // Verificar se já existe venda para esta reserva
         $existingSale = $this->saleRepository->findByReservationId($reservationId);
+
         if ($existingSale) {
             throw new \Exception('Já existe uma venda para esta reserva', 409);
         }
 
         // Verificar se já existe venda para este pagamento
         $existingPaymentSale = $this->saleRepository->findByPaymentId($paymentId);
+
         if ($existingPaymentSale) {
             throw new \Exception('Já existe uma venda para este pagamento', 409);
         }
@@ -90,18 +94,17 @@ class CreateSaleUseCase
                 'sale_price' => $sale->getSalePrice(),
                 'contract_pdf' => $contractFilename,
                 'invoice_pdf' => $invoiceFilename,
-                'timestamp' => date('Y-m-d H:i:s')
+                'timestamp' => date('Y-m-d H:i:s'),
             ]);
 
             return [
                 'sale' => $sale->toArray(),
                 'documents' => [
                     'contract' => $contractFilename,
-                    'invoice' => $invoiceFilename
+                    'invoice' => $invoiceFilename,
                 ],
-                'message' => 'Venda criada com sucesso'
+                'message' => 'Venda criada com sucesso',
             ];
-
         } catch (\Exception $e) {
             // Em caso de erro na geração dos PDFs, cancelar a venda
             $sale->cancel();
@@ -111,4 +114,3 @@ class CreateSaleUseCase
         }
     }
 }
-

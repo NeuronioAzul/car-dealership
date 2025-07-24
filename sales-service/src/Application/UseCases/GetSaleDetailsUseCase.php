@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Application\UseCases;
 
 use App\Domain\Repositories\SaleRepositoryInterface;
@@ -16,7 +18,7 @@ class GetSaleDetailsUseCase
     public function execute(string $saleId, string $customerId): array
     {
         $sale = $this->saleRepository->findById($saleId);
-        
+
         if (!$sale) {
             throw new \Exception('Venda não encontrada', 404);
         }
@@ -32,4 +34,3 @@ class GetSaleDetailsUseCase
         return $sale->toArray();
     }
 }
-

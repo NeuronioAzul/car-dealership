@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\Entities;
 
-use Ramsey\Uuid\Uuid;
 use DateTime;
+use Ramsey\Uuid\Uuid;
 
 class Sale
 {
@@ -191,8 +193,7 @@ class Sale
             'sale_date' => $this->saleDate->format('Y-m-d H:i:s'),
             'created_at' => $this->createdAt->format('Y-m-d H:i:s'),
             'updated_at' => $this->updatedAt->format('Y-m-d H:i:s'),
-            'deleted_at' => $this->deletedAt?->format('Y-m-d H:i:s')
+            'deleted_at' => $this->deletedAt?->format('Y-m-d H:i:s'),
         ];
     }
 }
-

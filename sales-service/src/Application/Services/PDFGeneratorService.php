@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Application\Services;
 
 use FPDF;
@@ -11,10 +13,10 @@ class PDFGeneratorService
     public function __construct()
     {
         $this->storagePath = $_ENV['PDF_STORAGE_PATH'] ?? '/var/www/html/storage/pdfs';
-        
+
         // Criar diretório se não existir
         if (!is_dir($this->storagePath)) {
-            mkdir($this->storagePath, 0755, true);
+            mkdir($this->storagePath, 0o755, true);
         }
     }
 
@@ -46,6 +48,7 @@ class PDFGeneratorService
         $pdf->Cell(0, 6, 'CPF: ' . $customerData['cpf'], 0, 1);
         $pdf->Cell(0, 6, 'Email: ' . $customerData['email'], 0, 1);
         $pdf->Cell(0, 6, 'Telefone: ' . $customerData['phone'], 0, 1);
+
         if (isset($customerData['address'])) {
             $pdf->Cell(0, 6, 'Endereço: ' . $customerData['address'], 0, 1);
         }
@@ -76,14 +79,14 @@ class PDFGeneratorService
         $pdf->SetFont('Arial', 'B', 12);
         $pdf->Cell(0, 8, 'CLÁUSULAS:', 0, 1);
         $pdf->SetFont('Arial', '', 9);
-        
+
         $clauses = [
             '1. O veículo descrito acima é vendido no estado em que se encontra.',
             '2. O comprador declara ter examinado o veículo e estar ciente de suas condições.',
             '3. A transferência de propriedade será efetivada após a quitação total do valor.',
             '4. O vendedor se responsabiliza pela documentação até a data da venda.',
             '5. Eventuais multas anteriores à data da venda são de responsabilidade do vendedor.',
-            '6. Este contrato é válido para todos os fins de direito.'
+            '6. Este contrato é válido para todos os fins de direito.',
         ];
 
         foreach ($clauses as $clause) {
@@ -192,4 +195,3 @@ class PDFGeneratorService
         return $this->storagePath . '/' . $filename;
     }
 }
-

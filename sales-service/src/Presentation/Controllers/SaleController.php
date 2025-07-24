@@ -1,13 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Presentation\Controllers;
 
+use App\Application\Services\PDFGeneratorService;
 use App\Application\UseCases\CreateSaleUseCase;
 use App\Application\UseCases\GetSaleDetailsUseCase;
 use App\Application\UseCases\ListCustomerSalesUseCase;
 use App\Infrastructure\Database\DatabaseConfig;
 use App\Infrastructure\Database\SaleRepository;
-use App\Application\Services\PDFGeneratorService;
 use App\Infrastructure\Messaging\EventPublisher;
 use App\Presentation\Middleware\AuthMiddleware;
 
@@ -37,7 +39,7 @@ class SaleController
         try {
             $user = $this->authMiddleware->requireCustomer();
             $input = json_decode(file_get_contents('php://input'), true);
-            
+
             $requiredFields = ['vehicle_id', 'reservation_id', 'payment_id', 'sale_price', 'customer_data', 'vehicle_data'];
             foreach ($requiredFields as $field) {
                 if (!isset($input[$field])) {
@@ -54,19 +56,18 @@ class SaleController
                 $input['customer_data'],
                 $input['vehicle_data']
             );
-            
+
             http_response_code(201);
             echo json_encode([
                 'success' => true,
-                'data' => $result
+                'data' => $result,
             ]);
-            
         } catch (\Exception $e) {
             $code = $e->getCode() ?: 500;
             http_response_code($code);
             echo json_encode([
                 'error' => true,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ]);
         }
     }
@@ -75,21 +76,20 @@ class SaleController
     {
         try {
             $user = $this->authMiddleware->requireCustomer();
-            
+
             $result = $this->listSalesUseCase->execute($user['user_id']);
-            
+
             http_response_code(200);
             echo json_encode([
                 'success' => true,
-                'data' => $result
+                'data' => $result,
             ]);
-            
         } catch (\Exception $e) {
             $code = $e->getCode() ?: 500;
             http_response_code($code);
             echo json_encode([
                 'error' => true,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ]);
         }
     }
@@ -107,19 +107,18 @@ class SaleController
             }
 
             $result = $this->getSaleDetailsUseCase->execute($saleId, $user['user_id']);
-            
+
             http_response_code(200);
             echo json_encode([
                 'success' => true,
-                'data' => $result
+                'data' => $result,
             ]);
-            
         } catch (\Exception $e) {
             $code = $e->getCode() ?: 500;
             http_response_code($code);
             echo json_encode([
                 'error' => true,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ]);
         }
     }
@@ -130,7 +129,7 @@ class SaleController
             $user = $this->authMiddleware->requireCustomer();
             $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
             $pathParts = explode('/', trim($path, '/'));
-            
+
             // Extrair sale_id e document_type da URL
             $saleId = $pathParts[count($pathParts) - 2];
             $documentType = end($pathParts);
@@ -154,6 +153,7 @@ class SaleController
 
             // Determinar arquivo
             $filename = null;
+
             if ($documentType === 'contract') {
                 $filename = $sale->getContractPdfPath();
             } elseif ($documentType === 'invoice') {
@@ -175,13 +175,12 @@ class SaleController
             header('Content-Disposition: attachment; filename="' . $filename . '"');
             header('Content-Length: ' . filesize($filepath));
             readfile($filepath);
-            
         } catch (\Exception $e) {
             $code = $e->getCode() ?: 500;
             http_response_code($code);
             echo json_encode([
                 'error' => true,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ]);
         }
     }
@@ -193,8 +192,7 @@ class SaleController
             'success' => true,
             'service' => 'sales-service',
             'status' => 'healthy',
-            'timestamp' => date('Y-m-d H:i:s')
+            'timestamp' => date('Y-m-d H:i:s'),
         ]);
     }
 }
-

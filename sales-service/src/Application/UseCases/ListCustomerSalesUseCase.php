@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Application\UseCases;
 
 use App\Domain\Repositories\SaleRepositoryInterface;
@@ -18,11 +20,10 @@ class ListCustomerSalesUseCase
         $sales = $this->saleRepository->findByCustomerId($customerId);
 
         return [
-            'sales' => array_map(function($sale) {
+            'sales' => array_map(function ($sale) {
                 return $sale->toArray();
             }, $sales),
-            'total' => count($sales)
+            'total' => count($sales),
         ];
     }
 }
-
