@@ -7,6 +7,9 @@
 
 **Autor:** Mauro Rocha Tavares
 
+<!-- Adicionar a imagem lado a lado -->
+![Logo do Projeto](docs/logo.png)
+
 ## Tecnologias Utilizadas
 
 ### Controle de Versão e Automação
