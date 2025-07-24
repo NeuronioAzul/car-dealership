@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Shared\Database\Seeder;
 
 use Faker\Factory;
@@ -8,31 +10,31 @@ use Faker\Generator;
 class AuthSeeder extends BaseSeeder
 {
     private Generator $faker;
-    
+
     public function __construct()
     {
         parent::__construct($this->getEnv('AUTH_DB_NAME', 'auth_db'));
         $this->faker = Factory::create('pt_BR');
     }
-    
+
     public function run(): void
     {
         echo "\n🔐 Iniciando seed do Auth Service...\n";
-        
+
         // Limpar tabelas
         $this->truncateTable('refresh_tokens');
         $this->truncateTable('users');
-        
+
         // Criar usuários
         $this->createUsers();
-        
+
         echo "✅ Seed do Auth Service concluído!\n\n";
     }
-    
+
     private function createUsers(): void
     {
         $users = [];
-        
+
         // Admin padrão
         $users[] = [
             'id' => $this->generateUuid(),
@@ -52,9 +54,9 @@ class AuthSeeder extends BaseSeeder
             'accept_privacy' => 1,
             'accept_communications' => 1,
             'created_at' => $this->getCurrentTimestamp(),
-            'updated_at' => $this->getCurrentTimestamp()
+            'updated_at' => $this->getCurrentTimestamp(),
         ];
-        
+
         // Clientes
         $customersCount = (int) $this->getEnv('SEED_CUSTOMERS_COUNT', 50);
         for ($i = 1; $i <= $customersCount; $i++) {
@@ -76,13 +78,12 @@ class AuthSeeder extends BaseSeeder
                 'accept_privacy' => 1,
                 'accept_communications' => 1,
                 'created_at' => $this->faker->dateTimeBetween('-2 years', 'now')->format('Y-m-d H:i:s'),
-                'updated_at' => $this->getCurrentTimestamp()
+                'updated_at' => $this->getCurrentTimestamp(),
             ];
         }
-        
+
         $this->insertBatch('users', $users);
 
         echo "📊 Criados: 1 admin + {$customersCount} clientes\n";
     }
 }
-

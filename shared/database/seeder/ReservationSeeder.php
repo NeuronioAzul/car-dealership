@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Shared\Database\Seeder;
 
 use Faker\Factory;
@@ -72,7 +74,7 @@ class ReservationSeeder extends BaseSeeder
                 'notes' => $this->faker->optional(0.4)->sentence(8),
                 'cancellation_reason' => $status === 'cancelled' ? $this->faker->sentence(6) : null,
                 'created_at' => $createdAt->format('Y-m-d H:i:s'),
-                'updated_at' => $this->getCurrentTimestamp()
+                'updated_at' => $this->getCurrentTimestamp(),
             ];
 
             // Código de pagamento para reservas ativas ou completadas
@@ -95,7 +97,7 @@ class ReservationSeeder extends BaseSeeder
                     'payment_method' => $this->faker->randomElement(['credit_card', 'debit_card', 'pix', 'bank_transfer']),
                     'instructions' => $this->faker->optional(0.5)->sentence(10),
                     'created_at' => $createdAt->format('Y-m-d H:i:s'),
-                    'updated_at' => $this->getCurrentTimestamp()
+                    'updated_at' => $this->getCurrentTimestamp(),
                 ];
             }
 
@@ -107,7 +109,7 @@ class ReservationSeeder extends BaseSeeder
                 'new_status' => 'active',
                 'changed_by' => $customer['id'],
                 'change_reason' => 'Reserva criada pelo cliente',
-                'changed_at' => $createdAt->format('Y-m-d H:i:s')
+                'changed_at' => $createdAt->format('Y-m-d H:i:s'),
             ];
 
             // Se não é ativa, adicionar mudança de status
@@ -120,7 +122,7 @@ class ReservationSeeder extends BaseSeeder
                     'new_status' => $status,
                     'changed_by' => $customer['id'],
                     'change_reason' => $this->getChangeReason($status),
-                    'changed_at' => $statusChangeDate->format('Y-m-d H:i:s')
+                    'changed_at' => $statusChangeDate->format('Y-m-d H:i:s'),
                 ];
             }
         }
@@ -147,7 +149,7 @@ class ReservationSeeder extends BaseSeeder
         $reasons = [
             'expired' => 'Reserva expirou automaticamente após ' . $this->getEnv('RESERVATION_EXPIRY_HOURS', 24) . ' horas',
             'cancelled' => 'Cancelada pelo cliente',
-            'completed' => 'Reserva convertida em venda'
+            'completed' => 'Reserva convertida em venda',
         ];
 
         return $reasons[$status] ?? 'Mudança de status';

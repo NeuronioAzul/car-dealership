@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Shared\Database\Seeder;
 
 use Faker\Factory;
@@ -16,7 +18,7 @@ class VehicleSeeder extends BaseSeeder
         'Chevrolet' => ['Cruze', 'Malibu', 'Equinox', 'Onix', 'Prisma', 'Tracker', 'S10'],
         'Nissan' => ['Sentra', 'Altima', 'X-Trail', 'Kicks', 'March', 'Versa', 'Frontier'],
         'Hyundai' => ['Elantra', 'Sonata', 'Tucson', 'Creta', 'HB20', 'Azera', 'Santa Fe'],
-        'Fiat' => ['Cronos', 'Toro', 'Argo', 'Mobi', 'Strada', 'Pulse', 'Fastback']
+        'Fiat' => ['Cronos', 'Toro', 'Argo', 'Mobi', 'Strada', 'Pulse', 'Fastback'],
     ];
 
     private array $colors = ['Branco', 'Preto', 'Prata', 'Cinza', 'Vermelho', 'Azul',
@@ -104,7 +106,7 @@ class VehicleSeeder extends BaseSeeder
                 'Sensor de estacionamento',
                 'Central multimídia',
                 'Bluetooth',
-                'Controle de cruzeiro'
+                'Controle de cruzeiro',
             ];
 
             $vehicles[] = [
@@ -132,7 +134,7 @@ class VehicleSeeder extends BaseSeeder
                 'renavam' => strtoupper($this->faker->bothify('??######')),
                 'created_at' => $this->faker->dateTimeBetween('-1 year', 'now')->format('Y-m-d H:i:s'),
                 'updated_at' => $this->getCurrentTimestamp(),
-                'deleted_at' => $this->faker->boolean(0.1) ? $this->getCurrentTimestamp() : null
+                'deleted_at' => $this->faker->boolean(0.1) ? $this->getCurrentTimestamp() : null,
             ];
 
             // Gerar imagens para o veículo
@@ -173,7 +175,7 @@ class VehicleSeeder extends BaseSeeder
                     'display_order' => $j,
                     'alt_text' => "{$brand} {$model} {$year} - " . ($j === 1 ? 'Foto Principal' : "Foto {$j}"),
                     'created_at' => $this->getCurrentTimestamp(),
-                    'updated_at' => $this->getCurrentTimestamp()
+                    'updated_at' => $this->getCurrentTimestamp(),
                 ];
             }
         }
@@ -194,15 +196,15 @@ class VehicleSeeder extends BaseSeeder
             'airbag duplo',
             'freios ABS',
             'som original',
-            'rodas de liga leve'
+            'rodas de liga leve',
         ];
 
         $selectedFeatures = $this->faker->randomElements($features, $this->faker->numberBetween(3, 6));
 
         return "Excelente {$brand} {$model} {$year} na cor {$color}. Veículo em ótimo estado de conservação, " .
-            "com " . implode(', ', $selectedFeatures) . ". " .
-            "Ideal para quem busca conforto, economia e segurança. " .
-            "Documentação em dia, pronto para transferência.";
+            'com ' . implode(', ', $selectedFeatures) . '. ' .
+            'Ideal para quem busca conforto, economia e segurança. ' .
+            'Documentação em dia, pronto para transferência.';
     }
 
     private function generateChassisNumber(): string
@@ -231,5 +233,4 @@ class VehicleSeeder extends BaseSeeder
         return $letters[mt_rand(0, 25)] . $letters[mt_rand(0, 25)] . $letters[mt_rand(0, 25)] .
             $numbers[mt_rand(0, 9)] . $letters[mt_rand(0, 25)] . $numbers[mt_rand(0, 9)] . $numbers[mt_rand(0, 9)];
     }
-
 }

@@ -1,44 +1,45 @@
 <?php
 
+declare(strict_types=1);
+
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-use Shared\Database\Seeder\AuthSeeder;
-use Shared\Database\Seeder\VehicleSeeder;
-use Shared\Database\Seeder\CustomerSeeder;
-use Shared\Database\Seeder\ReservationSeeder;
-use Shared\Database\Seeder\PaymentSeeder;
-use Shared\Database\Seeder\SalesSeeder;
 use Shared\Database\Seeder\AdminSeeder;
+use Shared\Database\Seeder\AuthSeeder;
+use Shared\Database\Seeder\CustomerSeeder;
+use Shared\Database\Seeder\PaymentSeeder;
+use Shared\Database\Seeder\ReservationSeeder;
 use Shared\Database\Seeder\SagaSeeder;
+use Shared\Database\Seeder\SalesSeeder;
+use Shared\Database\Seeder\VehicleSeeder;
 
 try {
-
     $startTime = microtime(true);
 
     switch ($selectedOption) {
         case '1':
-            (new AuthSeeder())->run();
+            new AuthSeeder()->run();
             break;
         case '2':
-            (new VehicleSeeder())->run();
+            new VehicleSeeder()->run();
             break;
         case '3':
-            (new CustomerSeeder())->run();
+            new CustomerSeeder()->run();
             break;
         case '4':
-            (new ReservationSeeder())->run();
+            new ReservationSeeder()->run();
             break;
         case '5':
-            (new PaymentSeeder())->run();
+            new PaymentSeeder()->run();
             break;
         case '6':
-            (new SalesSeeder())->run();
+            new SalesSeeder()->run();
             break;
         case '7':
-            (new AdminSeeder())->run();
+            new AdminSeeder()->run();
             break;
         case '8':
-            (new SagaSeeder())->run();
+            new SagaSeeder()->run();
             break;
         case '9':
             // Ordem de execução dos seeders (respeitando dependências)
@@ -50,7 +51,7 @@ try {
                 new PaymentSeeder(),        // 5. Pagamentos (depende de reservations)
                 new SalesSeeder(),          // 6. Vendas (depende de payments)
                 new AdminSeeder(),          // 7. Dados administrativos (independente)
-                new SagaSeeder()            // 8. Transações SAGA (depende de sales)
+                new SagaSeeder(),            // 8. Transações SAGA (depende de sales)
             ];
             foreach ($seeders as $seeder) {
                 $seeder->run();
@@ -85,7 +86,6 @@ try {
     $salesCount = $_ENV['SEED_SALES_COUNT'] ?? 15;
     $sagaCount = $_ENV['SEED_SAGA_TRANSACTIONS_COUNT'] ?? 10;
 
-
     echo "📊 RESUMO DOS DADOS CRIADOS:\n";
     echo "============================\n";
     // Exibe resumo apenas dos dados realmente gerados conforme a opção selecionada
@@ -106,8 +106,8 @@ try {
             "💳 Pagamentos: {$paymentsCount} transações com detalhes do gateway\n",
             "📄 Vendas: {$salesCount} vendas com documentos e itens adicionais\n",
             "⚙️  Admin: Configurações, logs, relatórios e notificações\n",
-            "🔄 SAGA: {$sagaCount} transações distribuídas com passos e eventos\n"
-        ]
+            "🔄 SAGA: {$sagaCount} transações distribuídas com passos e eventos\n",
+        ],
     ];
 
     if (isset($summaryOptions[$selectedOption])) {
@@ -120,22 +120,22 @@ try {
 
     echo "🔑 CREDENCIAIS DE ACESSO:\n";
     echo "=========================\n";
-    echo "👨‍💼 Admin: " . ($_ENV['ADMIN_EMAIL'] ?? 'admin@concessionaria.com') . " / " . ($_ENV['ADMIN_PASSWORD'] ?? 'admin123') . "\n";
-    echo "👤 Cliente: Use qualquer email gerado / " . ($_ENV['CUSTOMER_PASSWORD'] ?? 'cliente123') . "\n\n";
+    echo '👨‍💼 Admin: ' . ($_ENV['ADMIN_EMAIL'] ?? 'admin@concessionaria.com') . ' / ' . ($_ENV['ADMIN_PASSWORD'] ?? 'admin123') . "\n";
+    echo '👤 Cliente: Use qualquer email gerado / ' . ($_ENV['CUSTOMER_PASSWORD'] ?? 'cliente123') . "\n\n";
 
     if (in_array($selectedOption, ['7', '9'])) {
         echo "⚙️  CONFIGURAÇÕES APLICADAS:\n";
         echo "============================\n";
-        echo "🏢 Empresa: " . ($_ENV['COMPANY_NAME'] ?? 'Concessionária M&D Ultra Max') . "\n";
-        echo "⏰ Expiração de reserva: " . ($_ENV['RESERVATION_EXPIRY_HOURS'] ?? '24') . " horas\n";
-        echo "📊 Taxa do gateway: " . ($_ENV['GATEWAY_FEE_PERCENTAGE'] ?? '3.5') . "%\n";
-        echo "🌍 Timezone: " . ($_ENV['TIMEZONE'] ?? 'America/Sao_Paulo') . "\n\n";
+        echo '🏢 Empresa: ' . ($_ENV['COMPANY_NAME'] ?? 'Concessionária M&D Ultra Max') . "\n";
+        echo '⏰ Expiração de reserva: ' . ($_ENV['RESERVATION_EXPIRY_HOURS'] ?? '24') . " horas\n";
+        echo '📊 Taxa do gateway: ' . ($_ENV['GATEWAY_FEE_PERCENTAGE'] ?? '3.5') . "%\n";
+        echo '🌍 Timezone: ' . ($_ENV['TIMEZONE'] ?? 'America/Sao_Paulo') . "\n\n";
     }
 
     echo "✅ Sistema pronto para uso com UUID v6 e configurações do .env!\n";
 } catch (Exception $e) {
-    echo "❌ ERRO DURANTE O SEED: " . $e->getMessage() . "\n";
-    echo "📍 Arquivo: " . $e->getFile() . " (linha " . $e->getLine() . ")\n";
+    echo '❌ ERRO DURANTE O SEED: ' . $e->getMessage() . "\n";
+    echo '📍 Arquivo: ' . $e->getFile() . ' (linha ' . $e->getLine() . ")\n";
     echo "🔍 Stack trace:\n" . $e->getTraceAsString() . "\n";
     exit(1);
 }

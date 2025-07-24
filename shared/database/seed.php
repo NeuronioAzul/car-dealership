@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 // filepath: /home/mauro/projects/car-dealership/shared/database/seed.php
 
 echo "\n🌱 SEEDERS DO SISTEMA DE CONCESSIONÁRIA\n";
@@ -6,6 +8,7 @@ echo "=======================================\n";
 
 // Verificar se o autoload existe
 $autoloadPath = __DIR__ . '/../vendor/autoload.php';
+
 if (!file_exists($autoloadPath)) {
     echo "❌ Autoload não encontrado. Execute 'composer install' primeiro.\n";
     exit(1);
@@ -23,11 +26,12 @@ $menuOptions = [
     '7' => '🛠️ Executar Seeder Administrativo',
     '8' => '🔄 Executar Seeder SAGA',
     '9' => '🌱 Executar Todos os Seeders',
-    '0' => '❌ Sair'
+    '0' => '❌ Sair',
 ];
 
 // Função para exibir o menu
-function displayMenu($options) {
+function displayMenu($options)
+{
     echo "\nEscolha uma opção:\n";
     foreach ($options as $key => $value) {
         echo "[$key] $value\n";
@@ -52,7 +56,6 @@ while ($selectedOption === null) {
     }
 }
 
-
 // Caminho do seeder principal
 $seederPath = __DIR__ . '/seeder/DatabaseSeeder.php';
 
@@ -61,9 +64,7 @@ if (!file_exists($seederPath)) {
     exit(1);
 }
 
-
 // Executar o seeder principal
 echo "\n\n🌱 Executando seeders...\n\n";
 
 require_once $seederPath;
-

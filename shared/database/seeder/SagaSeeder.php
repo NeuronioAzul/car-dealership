@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Shared\Database\Seeder;
 
 use Faker\Factory;
@@ -66,7 +68,7 @@ class SagaSeeder extends BaseSeeder
                 'error_message' => $status === 'failed' ? $this->generateErrorMessage() : null,
                 'retry_count' => $status === 'failed' ? $this->faker->numberBetween(0, 3) : 0,
                 'created_at' => $createdAt->format('Y-m-d H:i:s'),
-                'updated_at' => $this->getCurrentTimestamp()
+                'updated_at' => $this->getCurrentTimestamp(),
             ];
 
             // Passos da SAGA
@@ -94,7 +96,7 @@ class SagaSeeder extends BaseSeeder
                     'error_message' => $stepStatus === 'failed' ? $this->generateStepError($stepName) : null,
                     'retry_count' => $stepStatus === 'failed' ? $this->faker->numberBetween(0, 2) : 0,
                     'created_at' => $createdAt->format('Y-m-d H:i:s'),
-                    'updated_at' => $this->getCurrentTimestamp()
+                    'updated_at' => $this->getCurrentTimestamp(),
                 ];
 
                 // Eventos para cada passo
@@ -105,7 +107,7 @@ class SagaSeeder extends BaseSeeder
                         'saga_step_id' => $stepId,
                         'event_type' => 'step_started',
                         'event_data' => json_encode(['step' => $stepName, 'order' => $index + 1], JSON_UNESCAPED_UNICODE),
-                        'created_at' => $stepStarted->format('Y-m-d H:i:s')
+                        'created_at' => $stepStarted->format('Y-m-d H:i:s'),
                     ];
                 }
 
@@ -116,7 +118,7 @@ class SagaSeeder extends BaseSeeder
                         'saga_step_id' => $stepId,
                         'event_type' => 'step_completed',
                         'event_data' => json_encode(['step' => $stepName, 'result' => 'success'], JSON_UNESCAPED_UNICODE),
-                        'created_at' => $stepCompleted->format('Y-m-d H:i:s')
+                        'created_at' => $stepCompleted->format('Y-m-d H:i:s'),
                     ];
                 }
 
@@ -127,7 +129,7 @@ class SagaSeeder extends BaseSeeder
                         'saga_step_id' => $stepId,
                         'event_type' => 'step_failed',
                         'event_data' => json_encode(['step' => $stepName, 'error' => $this->generateStepError($stepName)], JSON_UNESCAPED_UNICODE),
-                        'created_at' => $stepStarted ? $stepStarted->format('Y-m-d H:i:s') : $createdAt->format('Y-m-d H:i:s')
+                        'created_at' => $stepStarted ? $stepStarted->format('Y-m-d H:i:s') : $createdAt->format('Y-m-d H:i:s'),
                     ];
                 }
             }
@@ -139,7 +141,7 @@ class SagaSeeder extends BaseSeeder
                 'saga_step_id' => null,
                 'event_type' => 'saga_started',
                 'event_data' => json_encode(['type' => 'vehicle_purchase', 'customer_id' => $sale['customer_id']], JSON_UNESCAPED_UNICODE),
-                'created_at' => $createdAt->format('Y-m-d H:i:s')
+                'created_at' => $createdAt->format('Y-m-d H:i:s'),
             ];
 
             // Evento de conclusão se aplicável
@@ -150,7 +152,7 @@ class SagaSeeder extends BaseSeeder
                     'saga_step_id' => null,
                     'event_type' => $status === 'completed' ? 'saga_completed' : 'saga_failed',
                     'event_data' => json_encode(['final_status' => $status], JSON_UNESCAPED_UNICODE),
-                    'created_at' => $completedAt->format('Y-m-d H:i:s')
+                    'created_at' => $completedAt->format('Y-m-d H:i:s'),
                 ];
             }
         }
@@ -159,7 +161,7 @@ class SagaSeeder extends BaseSeeder
         $this->insertBatch('saga_steps', $steps);
         $this->insertBatch('saga_events', $events);
 
-        echo "📊 Criadas: " . count($transactions) . " transações SAGA com passos e eventos\n";
+        echo '📊 Criadas: ' . count($transactions) . " transações SAGA com passos e eventos\n";
     }
 
     private function getSagaSteps(): array
@@ -169,7 +171,7 @@ class SagaSeeder extends BaseSeeder
             'generate_payment_code',
             'process_payment',
             'create_sale',
-            'update_vehicle_status'
+            'update_vehicle_status',
         ];
     }
 
@@ -233,7 +235,7 @@ class SagaSeeder extends BaseSeeder
             'generate_payment_code' => 'reservation-service',
             'process_payment' => 'payment-service',
             'create_sale' => 'sales-service',
-            'update_vehicle_status' => 'vehicle-service'
+            'update_vehicle_status' => 'vehicle-service',
         ];
 
         return $mapping[$stepName] ?? 'unknown-service';
@@ -246,7 +248,7 @@ class SagaSeeder extends BaseSeeder
             'vehicle_id' => $sale['vehicle_id'],
             'sale_id' => $sale['id'],
             'amount' => $sale['total_amount'],
-            'payment_method' => $sale['payment_method']
+            'payment_method' => $sale['payment_method'],
         ], JSON_UNESCAPED_UNICODE);
     }
 
@@ -255,26 +257,26 @@ class SagaSeeder extends BaseSeeder
         $data = [
             'create_reservation' => [
                 'customer_id' => $sale['customer_id'],
-                'vehicle_id' => $sale['vehicle_id']
+                'vehicle_id' => $sale['vehicle_id'],
             ],
             'generate_payment_code' => [
                 'reservation_id' => $this->generateUuid(),
-                'amount' => $sale['total_amount']
+                'amount' => $sale['total_amount'],
             ],
             'process_payment' => [
                 'payment_code' => 'PAY' . mt_rand(100000, 999999),
                 'amount' => $sale['total_amount'],
-                'method' => $sale['payment_method']
+                'method' => $sale['payment_method'],
             ],
             'create_sale' => [
                 'customer_id' => $sale['customer_id'],
                 'vehicle_id' => $sale['vehicle_id'],
-                'payment_id' => $this->generateUuid()
+                'payment_id' => $this->generateUuid(),
             ],
             'update_vehicle_status' => [
                 'vehicle_id' => $sale['vehicle_id'],
-                'status' => 'sold'
-            ]
+                'status' => 'sold',
+            ],
         ];
 
         return json_encode($data[$stepName] ?? [], JSON_UNESCAPED_UNICODE);
@@ -285,25 +287,25 @@ class SagaSeeder extends BaseSeeder
         $data = [
             'create_reservation' => [
                 'reservation_id' => $this->generateUuid(),
-                'expires_at' => date('Y-m-d H:i:s', strtotime('+' . $this->getEnv('RESERVATION_EXPIRY_HOURS', 24) . ' hours'))
+                'expires_at' => date('Y-m-d H:i:s', strtotime('+' . $this->getEnv('RESERVATION_EXPIRY_HOURS', 24) . ' hours')),
             ],
             'generate_payment_code' => [
-                'payment_code' => 'PAY' . mt_rand(100000, 999999)
+                'payment_code' => 'PAY' . mt_rand(100000, 999999),
             ],
             'process_payment' => [
                 'payment_id' => $this->generateUuid(),
                 'status' => 'completed',
-                'authorization_code' => 'AUTH' . mt_rand(100000, 999999)
+                'authorization_code' => 'AUTH' . mt_rand(100000, 999999),
             ],
             'create_sale' => [
                 'sale_id' => $this->generateUuid(),
-                'sale_number' => 'VND' . mt_rand(100000, 999999)
+                'sale_number' => 'VND' . mt_rand(100000, 999999),
             ],
             'update_vehicle_status' => [
                 'vehicle_id' => $this->generateUuid(),
                 'previous_status' => 'available',
-                'new_status' => 'sold'
-            ]
+                'new_status' => 'sold',
+            ],
         ];
 
         return json_encode($data[$stepName] ?? [], JSON_UNESCAPED_UNICODE);
@@ -314,24 +316,24 @@ class SagaSeeder extends BaseSeeder
         $data = [
             'create_reservation' => [
                 'action' => 'cancel_reservation',
-                'endpoint' => '/reservations/{id}/cancel'
+                'endpoint' => '/reservations/{id}/cancel',
             ],
             'generate_payment_code' => [
                 'action' => 'invalidate_payment_code',
-                'endpoint' => '/payment-codes/{code}/invalidate'
+                'endpoint' => '/payment-codes/{code}/invalidate',
             ],
             'process_payment' => [
                 'action' => 'refund_payment',
-                'endpoint' => '/payments/{id}/refund'
+                'endpoint' => '/payments/{id}/refund',
             ],
             'create_sale' => [
                 'action' => 'cancel_sale',
-                'endpoint' => '/sales/{id}/cancel'
+                'endpoint' => '/sales/{id}/cancel',
             ],
             'update_vehicle_status' => [
                 'action' => 'restore_vehicle_status',
-                'endpoint' => '/vehicles/{id}/status'
-            ]
+                'endpoint' => '/vehicles/{id}/status',
+            ],
         ];
 
         return json_encode($data[$stepName] ?? [], JSON_UNESCAPED_UNICODE);
@@ -344,7 +346,7 @@ class SagaSeeder extends BaseSeeder
             'Veículo não disponível para reserva',
             'Falha na validação dos dados do cliente',
             'Erro interno do gateway de pagamento',
-            'Limite de reservas atingido para o cliente'
+            'Limite de reservas atingido para o cliente',
         ];
 
         return $this->faker->randomElement($errors);
@@ -357,10 +359,9 @@ class SagaSeeder extends BaseSeeder
             'generate_payment_code' => 'Falha ao gerar código único de pagamento',
             'process_payment' => 'Pagamento recusado pelo banco emissor',
             'create_sale' => 'Erro ao gerar documentos de venda',
-            'update_vehicle_status' => 'Falha ao atualizar status no banco de dados'
+            'update_vehicle_status' => 'Falha ao atualizar status no banco de dados',
         ];
 
         return $errors[$stepName] ?? 'Erro desconhecido no passo';
     }
 }
-

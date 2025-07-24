@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Shared\Database\Seeder;
 
 use Faker\Factory;
@@ -8,36 +10,36 @@ use Faker\Generator;
 class PaymentSeeder extends BaseSeeder
 {
     private Generator $faker;
-    
+
     public function __construct()
     {
         parent::__construct($this->getEnv('PAYMENT_DB_NAME', 'payment_db'));
         $this->faker = Factory::create('pt_BR');
     }
-    
+
     public function run(): void
     {
         echo "💳 Iniciando seed do Payment Service...\n";
-        
+
         // Limpar tabelas
         $this->truncateTable('gateway_transactions');
         $this->truncateTable('payments');
-        
+
         // Criar pagamentos
         $this->createPayments();
-        
+
         echo "✅ Seed do Payment Service concluído!\n\n";
     }
-    
+
     private function createPayments(): void
     {
         $payments = [];
         $transactions = [];
-        
+
         // Buscar códigos de pagamento
         $reservationConnection = $this->getDbConnection($this->getEnv('RESERVATION_DB_NAME', 'reservation_db'));
         $paymentsCount = (int) $this->getEnv('SEED_PAYMENTS_COUNT', 25);
-        
+
         $paymentCodes = $reservationConnection->query("
             SELECT pc.*, r.customer_id, r.id as reservation_id
             FROM payment_codes pc 
@@ -74,7 +76,7 @@ class PaymentSeeder extends BaseSeeder
                 'payment_method' => $paymentMethod,
                 'timestamp' => date('c'),
                 'gateway_id' => 'GW' . mt_rand(1000, 9999),
-                'processing_time_ms' => mt_rand(500, 3000)
+                'processing_time_ms' => mt_rand(500, 3000),
             ], JSON_UNESCAPED_UNICODE);
 
             // Tentativas
@@ -117,7 +119,7 @@ class PaymentSeeder extends BaseSeeder
                 'notes' => $notes,
                 'failure_reason' => $failureReason,
                 'created_at' => $createdAt->format('Y-m-d H:i:s'),
-                'updated_at' => $this->getCurrentTimestamp()
+                'updated_at' => $this->getCurrentTimestamp(),
             ];
 
             // Transação do gateway
@@ -133,51 +135,51 @@ class PaymentSeeder extends BaseSeeder
                 'amount' => $code['amount'],
                 'fee' => $gatewayFee,
                 'sent_at' => $createdAt->format('Y-m-d H:i:s'),
-                'received_at' => $processedAt ? $processedAt->format('Y-m-d H:i:s') : null
+                'received_at' => $processedAt ? $processedAt->format('Y-m-d H:i:s') : null,
             ];
         }
-        
+
         $this->insertBatch('payments', $payments);
         $this->insertBatch('gateway_transactions', $transactions);
-        
-        echo "📊 Criados: " . count($payments) . " pagamentos com transações do gateway\n";
+
+        echo '📊 Criados: ' . count($payments) . " pagamentos com transações do gateway\n";
     }
-    
+
     private function calculateGatewayFee(float $amount, string $paymentMethod): float
     {
         $defaultRate = (float) $this->getEnv('GATEWAY_FEE_PERCENTAGE', 3.5) / 100;
-        
+
         $rates = [
             'credit_card' => $defaultRate,
             'debit_card' => $defaultRate * 0.7,
             'pix' => $defaultRate * 0.3,
-            'bank_transfer' => $defaultRate * 0.5
+            'bank_transfer' => $defaultRate * 0.5,
         ];
-        
+
         $rate = $rates[$paymentMethod] ?? $defaultRate;
+
         return round($amount * $rate, 2);
     }
-    
+
     private function getCardLastFour(): string
     {
         return str_pad(mt_rand(1, 9999), 4, '0', STR_PAD_LEFT);
     }
-    
+
     private function getCardBrand(): string
     {
         return $this->faker->randomElement(['Visa', 'Mastercard', 'Elo', 'American Express']);
     }
-    
+
     private function getGatewayName(string $paymentMethod): string
     {
         $gateways = [
             'credit_card' => $this->faker->randomElement(['PagSeguro', 'Mercado Pago', 'Cielo', 'Rede']),
             'debit_card' => $this->faker->randomElement(['PagSeguro', 'Mercado Pago', 'Cielo']),
             'pix' => $this->faker->randomElement(['Banco Central', 'PagSeguro', 'Mercado Pago']),
-            'bank_transfer' => $this->faker->randomElement(['Itaú', 'Bradesco', 'Banco do Brasil', 'Santander'])
+            'bank_transfer' => $this->faker->randomElement(['Itaú', 'Bradesco', 'Banco do Brasil', 'Santander']),
         ];
-        
+
         return $gateways[$paymentMethod] ?? 'Gateway Genérico';
     }
 }
-

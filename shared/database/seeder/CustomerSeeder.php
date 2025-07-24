@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Shared\Database\Seeder;
 
 use Faker\Factory;
@@ -8,37 +10,36 @@ use Faker\Generator;
 class CustomerSeeder extends BaseSeeder
 {
     private Generator $faker;
-    
+
     public function __construct()
     {
         parent::__construct($this->getEnv('CUSTOMER_DB_NAME', 'customer_db'));
         $this->faker = Factory::create('pt_BR');
     }
-    
+
     public function run(): void
     {
         echo "\n👥 Iniciando seed do Customer Service...\n";
-        
+
         // Limpar tabelas
         $this->truncateTable('customer_profiles');
-        
+
         // Criar perfis de clientes
         $this->createCustomerProfiles();
-        
+
         echo "✅ Seed do Customer Service concluído!\n\n";
     }
-    
+
     private function createCustomerProfiles(): void
     {
         $profiles = [];
-        
+
         // Buscar usuários clientes do auth_db
         $authConnection = $this->getDbConnection($this->getEnv('AUTH_DB_NAME', 'auth_db'));
         $stmt = $authConnection->query("SELECT id as user_id, name, email, phone FROM auth_db.users WHERE role = 'customer'");
         $customers = $stmt->fetchAll();
-        
+
         foreach ($customers as $customer) {
-            
             // Perfil do cliente
             $profiles[] = [
                 'id' => $this->faker->uuid(),
@@ -49,7 +50,7 @@ class CustomerSeeder extends BaseSeeder
                 'rg' => $this->faker->optional(0.5)->regexify('[0-9]{2}\.[0-9]{3}\.[0-9]{3}-[0-9]{2}'),
                 'gender' => $this->faker->randomElement(['M', 'F', 'Other']),
                 'marital_status' => $this->faker->randomElement(['Single', 'Married', 'Divorced', 'Widowed', 'Common Law']),
-                
+
                 'email' => $customer['email'],
                 'phone' => $customer['phone'],
                 'mobile' => $this->faker->optional(0.5)->phoneNumber(),
@@ -80,14 +81,12 @@ class CustomerSeeder extends BaseSeeder
 
                 'created_at' => $this->getCurrentTimestamp(),
                 'updated_at' => $this->getCurrentTimestamp(),
-                'deleted_at' => ($this->faker->boolean(0.5)) ? $this->getCurrentTimestamp() : null
+                'deleted_at' => ($this->faker->boolean(0.5)) ? $this->getCurrentTimestamp() : null,
             ];
         }
-        
+
         $this->insertBatch('customer_profiles', $profiles);
 
-        echo "📊 Criados: " . count($profiles) . " perfis de clientes\n";
+        echo '📊 Criados: ' . count($profiles) . " perfis de clientes\n";
     }
-
 }
-

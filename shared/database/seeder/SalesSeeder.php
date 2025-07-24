@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Shared\Database\Seeder;
 
 use Faker\Factory;
@@ -8,49 +10,49 @@ use Faker\Generator;
 class SalesSeeder extends BaseSeeder
 {
     private Generator $faker;
-    
+
     public function __construct()
     {
         parent::__construct($this->getEnv('SALES_DB_NAME', 'sales_db'));
         $this->faker = Factory::create('pt_BR');
     }
-    
+
     public function run(): void
     {
         echo "📄 Iniciando seed do Sales Service...\n";
-        
+
         // Limpar tabelas
         $this->truncateTable('sale_items');
         $this->truncateTable('sale_documents');
         $this->truncateTable('sales');
-        
+
         // Criar vendas
         $this->createSales();
-        
+
         echo "✅ Seed do Sales Service concluído!\n\n";
     }
-    
+
     private function createSales(): void
     {
         $sales = [];
         $documents = [];
         $items = [];
-        
+
         // Buscar dados necessários
         $paymentConnection = $this->getDbConnection($this->getEnv('PAYMENT_DB_NAME', 'payment_db'));
         $authConnection = $this->getDbConnection($this->getEnv('AUTH_DB_NAME', 'auth_db'));
         $vehicleConnection = $this->getDbConnection($this->getEnv('VEHICLE_DB_NAME', 'vehicle_db'));
         $reservationConnection = $this->getDbConnection($this->getEnv('RESERVATION_DB_NAME', 'reservation_db'));
-        
+
         $salesCount = (int) $this->getEnv('SEED_SALES_COUNT', 15);
-        
+
         $completedPayments = $paymentConnection->query("
             SELECT * FROM payments WHERE status = 'completed' LIMIT {$salesCount}
         ")->fetchAll();
-                
+
         foreach ($completedPayments as $payment) {
             $saleId = $this->generateUuid();
-            
+
             // Buscar informações do veículo via reservation
             $reservation = $reservationConnection->query("
                 SELECT 
@@ -62,16 +64,21 @@ class SalesSeeder extends BaseSeeder
                 WHERE pc.payment_code = '{$payment['payment_code']}' 
                 LIMIT 1
             ")->fetch();
-            
-            if (!$reservation) continue;
-            
+
+            if (!$reservation) {
+                continue;
+            }
+
             $vehicle = $vehicleConnection->query("
                 SELECT * FROM vehicles WHERE id = '{$reservation['vehicle_id']}' LIMIT 1
             ")->fetch();
-            
-            if (!$vehicle) continue;
-            
+
+            if (!$vehicle) {
+                continue;
+            }
+
             $saleDate = null;
+
             if (!empty($payment['processed_at'])) {
                 $saleDate = $this->faker->dateTimeBetween($payment['processed_at'], 'now');
             } else {
@@ -84,9 +91,9 @@ class SalesSeeder extends BaseSeeder
             $subtotal = $vehiclePrice - $discount;
             $taxes = $subtotal * 0.05; // 5% de impostos
             $totalAmount = $subtotal + $taxes;
-            
+
             $status = $this->faker->randomElement(['pending', 'completed', 'cancelled']);
-            
+
             $deliveryDate = $this->faker->optional(0.8)->dateTimeBetween($saleDate, '+30 days');
             $contract_signed_at = $this->faker->optional(0.8)->dateTimeBetween($saleDate, 'now');
 
@@ -113,9 +120,9 @@ class SalesSeeder extends BaseSeeder
                 'terms_conditions' => $this->faker->text(200),
 
                 'created_at' => $saleDate ? $saleDate->format('Y-m-d H:i:s') : $this->getCurrentTimestamp(),
-                'updated_at' => $this->getCurrentTimestamp()
+                'updated_at' => $this->getCurrentTimestamp(),
             ];
-            
+
             // Documentos da venda
             $documents[] = [
                 'id' => $this->generateUuid(),
@@ -127,9 +134,9 @@ class SalesSeeder extends BaseSeeder
                 'mime_type' => 'application/pdf',
                 'generated_at' => $saleDate ? $saleDate->format('Y-m-d H:i:s') : $this->getCurrentTimestamp(),
                 'updated_at' => $this->getCurrentTimestamp(),
-                'deleted_at' => null
+                'deleted_at' => null,
             ];
-            
+
             $documents[] = [
                 'id' => $this->generateUuid(),
                 'sale_id' => $saleId,
@@ -140,9 +147,9 @@ class SalesSeeder extends BaseSeeder
                 'mime_type' => 'application/pdf',
                 'generated_at' => $saleDate ? $saleDate->format('Y-m-d H:i:s') : $this->getCurrentTimestamp(),
                 'updated_at' => $this->getCurrentTimestamp(),
-                'deleted_at' => null
+                'deleted_at' => null,
             ];
-            
+
             // Itens adicionais da venda
             $additionalItems = $this->faker->numberBetween(0, 3);
             for ($i = 0; $i < $additionalItems; $i++) {
@@ -158,23 +165,23 @@ class SalesSeeder extends BaseSeeder
                     'total_price' => $itemPrice,
                     'created_at' => $saleDate ? $saleDate->format('Y-m-d H:i:s') : $this->getCurrentTimestamp(),
                     'updated_at' => $this->getCurrentTimestamp(),
-                    'deleted_at' => null
+                    'deleted_at' => null,
                 ];
             }
         }
-        
+
         $this->insertBatch('sales', $sales);
         $this->insertBatch('sale_documents', $documents);
         $this->insertBatch('sale_items', $items);
-        
-        echo "📊 Criadas: " . count($sales) . " vendas com documentos e itens\n";
+
+        echo '📊 Criadas: ' . count($sales) . " vendas com documentos e itens\n";
     }
-    
+
     private function generateSaleNumber(): string
     {
         return 'VND' . date('Y') . str_pad(mt_rand(1, 99999), 5, '0', STR_PAD_LEFT);
     }
-    
+
     private function generateItemName(): string
     {
         $items = [
@@ -187,10 +194,9 @@ class SalesSeeder extends BaseSeeder
             'Engate para Reboque',
             'Revisão Programada',
             'Proteção de Carter',
-            'Kit GNV Completo'
+            'Kit GNV Completo',
         ];
-        
+
         return $this->faker->randomElement($items);
     }
 }
-

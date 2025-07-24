@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Shared\Database\Seeder;
 
 use Faker\Factory;
@@ -47,7 +49,7 @@ class AdminSeeder extends BaseSeeder
                 'is_public' => true,
                 'is_editable' => true,
                 'created_at' => $this->getCurrentTimestamp(),
-                'updated_at' => $this->getCurrentTimestamp()
+                'updated_at' => $this->getCurrentTimestamp(),
             ],
             [
                 'id' => $this->generateUuid(),
@@ -59,7 +61,7 @@ class AdminSeeder extends BaseSeeder
                 'is_public' => true,
                 'is_editable' => true,
                 'created_at' => $this->getCurrentTimestamp(),
-                'updated_at' => $this->getCurrentTimestamp()
+                'updated_at' => $this->getCurrentTimestamp(),
             ],
             [
                 'id' => $this->generateUuid(),
@@ -71,7 +73,7 @@ class AdminSeeder extends BaseSeeder
                 'is_public' => true,
                 'is_editable' => true,
                 'created_at' => $this->getCurrentTimestamp(),
-                'updated_at' => $this->getCurrentTimestamp()
+                'updated_at' => $this->getCurrentTimestamp(),
             ],
             [
                 'id' => $this->generateUuid(),
@@ -83,7 +85,7 @@ class AdminSeeder extends BaseSeeder
                 'is_public' => true,
                 'is_editable' => true,
                 'created_at' => $this->getCurrentTimestamp(),
-                'updated_at' => $this->getCurrentTimestamp()
+                'updated_at' => $this->getCurrentTimestamp(),
             ],
             [
                 'id' => $this->generateUuid(),
@@ -95,7 +97,7 @@ class AdminSeeder extends BaseSeeder
                 'is_public' => true,
                 'is_editable' => true,
                 'created_at' => $this->getCurrentTimestamp(),
-                'updated_at' => $this->getCurrentTimestamp()
+                'updated_at' => $this->getCurrentTimestamp(),
             ],
             [
                 'id' => $this->generateUuid(),
@@ -107,7 +109,7 @@ class AdminSeeder extends BaseSeeder
                 'is_public' => false ? 0 : 1,
                 'is_editable' => true,
                 'created_at' => $this->getCurrentTimestamp(),
-                'updated_at' => $this->getCurrentTimestamp()
+                'updated_at' => $this->getCurrentTimestamp(),
             ],
             [
                 'id' => $this->generateUuid(),
@@ -119,7 +121,7 @@ class AdminSeeder extends BaseSeeder
                 'is_public' => false ? 0 : 1,
                 'is_editable' => true,
                 'created_at' => $this->getCurrentTimestamp(),
-                'updated_at' => $this->getCurrentTimestamp()
+                'updated_at' => $this->getCurrentTimestamp(),
             ],
             [
                 'id' => $this->generateUuid(),
@@ -131,7 +133,7 @@ class AdminSeeder extends BaseSeeder
                 'is_public' => false ? 0 : 1,
                 'is_editable' => true,
                 'created_at' => $this->getCurrentTimestamp(),
-                'updated_at' => $this->getCurrentTimestamp()
+                'updated_at' => $this->getCurrentTimestamp(),
             ],
             [
                 'id' => $this->generateUuid(),
@@ -143,7 +145,7 @@ class AdminSeeder extends BaseSeeder
                 'is_public' => false ? 0 : 1,
                 'is_editable' => true,
                 'created_at' => $this->getCurrentTimestamp(),
-                'updated_at' => $this->getCurrentTimestamp()
+                'updated_at' => $this->getCurrentTimestamp(),
             ],
             [
                 'id' => $this->generateUuid(),
@@ -155,8 +157,8 @@ class AdminSeeder extends BaseSeeder
                 'is_public' => false ? 0 : 1,
                 'is_editable' => true,
                 'created_at' => $this->getCurrentTimestamp(),
-                'updated_at' => $this->getCurrentTimestamp()
-            ]
+                'updated_at' => $this->getCurrentTimestamp(),
+            ],
         ];
 
         $this->insertBatch('system_settings', $settings);
@@ -182,7 +184,7 @@ class AdminSeeder extends BaseSeeder
             'payment_processed',
             'sale_created',
             'settings_updated',
-            'report_generated'
+            'report_generated',
         ];
 
         $logsCount = (int) $this->getEnv('SEED_AUDIT_LOGS_COUNT', 100);
@@ -206,7 +208,7 @@ class AdminSeeder extends BaseSeeder
                 'ip_address' => $this->faker->ipv4(),
                 'user_agent' => $this->faker->userAgent(),
                 'request_id' => $this->generateUuid(),
-                'created_at' => $this->faker->dateTimeBetween('-6 months', 'now')->format('Y-m-d H:i:s')
+                'created_at' => $this->faker->dateTimeBetween('-6 months', 'now')->format('Y-m-d H:i:s'),
             ];
         }
 
@@ -246,7 +248,7 @@ class AdminSeeder extends BaseSeeder
                 'schedule_config' => json_encode($this->faker->boolean(25) ? ['frequency' => $this->faker->randomElement(['daily', 'weekly', 'monthly']), 'time' => $this->faker->time('H:i')] : null, JSON_UNESCAPED_UNICODE),
                 'last_generated_at' => $this->faker->boolean(70) ? $this->faker->dateTimeBetween('-2 months', 'now')->format('Y-m-d H:i:s') : null,
                 'created_at' => $this->getCurrentTimestamp(),
-                'updated_at' => $this->getCurrentTimestamp()
+                'updated_at' => $this->getCurrentTimestamp(),
             ];
         }
 
@@ -271,7 +273,7 @@ class AdminSeeder extends BaseSeeder
             'Novo cliente cadastrado',
             'Venda realizada com sucesso',
             'Reserva expirada automaticamente',
-            'Relatório mensal gerado'
+            'Relatório mensal gerado',
         ];
 
         $notificationsCount = (int) $this->getEnv('SEED_NOTIFICATIONS_COUNT', 30);
@@ -329,7 +331,7 @@ class AdminSeeder extends BaseSeeder
                 'created_by' => $admin['id'],
                 'created_at' => $this->getCurrentTimestamp(),
                 'updated_at' => $this->getCurrentTimestamp(),
-                'deleted_at' => null
+                'deleted_at' => null,
             ];
         }
 
@@ -352,7 +354,7 @@ class AdminSeeder extends BaseSeeder
             'payment_processed' => 'payment',
             'sale_created' => 'sale',
             'settings_updated' => 'setting',
-            'report_generated' => 'report'
+            'report_generated' => 'report',
         ];
 
         return $mapping[$action] ?? 'unknown';
@@ -368,7 +370,7 @@ class AdminSeeder extends BaseSeeder
             'name' => $this->faker->name(),
             'email' => $this->faker->email(),
             'status' => 'active',
-            'price' => $this->faker->numberBetween(50000, 100000)
+            'price' => $this->faker->numberBetween(50000, 100000),
         ];
 
         return json_encode($values, JSON_UNESCAPED_UNICODE);
@@ -380,7 +382,7 @@ class AdminSeeder extends BaseSeeder
             'name' => $this->faker->name(),
             'email' => $this->faker->email(),
             'status' => $this->faker->randomElement(['active', 'inactive', 'pending']),
-            'price' => $this->faker->numberBetween(50000, 100000)
+            'price' => $this->faker->numberBetween(50000, 100000),
         ];
 
         return json_encode($values, JSON_UNESCAPED_UNICODE);
@@ -393,7 +395,7 @@ class AdminSeeder extends BaseSeeder
             'customers' => 'Relatório de Clientes - ' . $this->faker->date('Y-m'),
             'vehicles' => 'Relatório de Estoque - ' . $this->faker->date('Y-m-d'),
             'payments' => 'Relatório Financeiro - ' . $this->faker->monthName(),
-            'reservations' => 'Relatório de Reservas - Semanal'
+            'reservations' => 'Relatório de Reservas - Semanal',
         ];
 
         return $names[$type] ?? 'Relatório Personalizado';
@@ -405,7 +407,7 @@ class AdminSeeder extends BaseSeeder
             'info' => 'Informação do sistema: ' . $title . '. Nenhuma ação necessária.',
             'warning' => 'Atenção: ' . $title . '. Verifique se alguma ação é necessária.',
             'error' => 'Erro detectado: ' . $title . '. Ação imediata requerida.',
-            'success' => 'Sucesso: ' . $title . '. Operação concluída com êxito.'
+            'success' => 'Sucesso: ' . $title . '. Operação concluída com êxito.',
         ];
 
         return $messages[$type] ?? 'Notificação do sistema.';
