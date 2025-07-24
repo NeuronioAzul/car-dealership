@@ -281,6 +281,6 @@ echo "\n";
 log_success('🎉 Sistema de banco de dados configurado com sucesso!');
 echo "\n";
 echo "📋 Próximos passos:\n";
-echo "  1. Execute: make seeder-sql (para dados de exemplo)\n";
+echo "  1. Execute: make seeder (para dados de exemplo)\n";
 echo "  2. Teste os endpoints da API\n";
 echo "\n";

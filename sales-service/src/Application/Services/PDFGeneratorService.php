@@ -16,7 +16,7 @@ class PDFGeneratorService
 
         // Criar diretório se não existir
         if (!is_dir($this->storagePath)) {
-            mkdir($this->storagePath, 0o755, true);
+            mkdir($this->storagePath, 0755, true);
         }
     }
 

@@ -90,7 +90,7 @@ try {
     echo "============================\n";
     // Exibe resumo apenas dos dados realmente gerados conforme a opção selecionada
     $summaryOptions = [
-        '1' => ["👥 Usuários: 1 admin + {$customersCount} clientes\n"],
+        '1' => ["🙍🏻 Usuários: 1 admin + {$customersCount} clientes\n"],
         '2' => ["🚗 Veículos: {$vehiclesCount} veículos com imagens\n"],
         '3' => ["📋 Perfis: {$customersCount} perfis de clientes com endereços e preferências\n"],
         '4' => ["📅 Reservas: {$reservationsCount} reservas com códigos de pagamento\n"],
@@ -99,7 +99,7 @@ try {
         '7' => ["⚙️  Admin: Configurações, logs, relatórios e notificações\n"],
         '8' => ["🔄 SAGA: {$sagaCount} transações distribuídas com passos e eventos\n"],
         '9' => [
-            "👥 Usuários: 1 admin + {$customersCount} clientes\n",
+            "🙍🏻 Usuários: 1 admin + {$customersCount} clientes\n",
             "🚗 Veículos: {$vehiclesCount} veículos com imagens\n",
             "📋 Perfis: {$customersCount} perfis de clientes com endereços e preferências\n",
             "📅 Reservas: {$reservationsCount} reservas com códigos de pagamento\n",
@@ -121,7 +121,7 @@ try {
     echo "🔑 CREDENCIAIS DE ACESSO:\n";
     echo "=========================\n";
     echo '👨‍💼 Admin: ' . ($_ENV['ADMIN_EMAIL'] ?? 'admin@concessionaria.com') . ' / ' . ($_ENV['ADMIN_PASSWORD'] ?? 'admin123') . "\n";
-    echo '👤 Cliente: Use qualquer email gerado / ' . ($_ENV['CUSTOMER_PASSWORD'] ?? 'cliente123') . "\n\n";
+    echo '🧑🏻‍🦲 Cliente: Use qualquer email gerado / ' . ($_ENV['CUSTOMER_PASSWORD'] ?? 'cliente123') . "\n\n";
 
     if (in_array($selectedOption, ['7', '9'])) {
         echo "⚙️  CONFIGURAÇÕES APLICADAS:\n";
@@ -132,7 +132,7 @@ try {
         echo '🌍 Timezone: ' . ($_ENV['TIMEZONE'] ?? 'America/Sao_Paulo') . "\n\n";
     }
 
-    echo "✅ Sistema pronto para uso com UUID v6 e configurações do .env!\n";
+    echo "✅ Sistema pronto para uso!\n";
 } catch (Exception $e) {
     echo '❌ ERRO DURANTE O SEED: ' . $e->getMessage() . "\n";
     echo '📍 Arquivo: ' . $e->getFile() . ' (linha ' . $e->getLine() . ")\n";
