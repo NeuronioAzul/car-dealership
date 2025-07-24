@@ -5,18 +5,27 @@ declare(strict_types=1);
 $finder = PhpCsFixer\Finder::create()
     ->in([
         __DIR__ . '/admin-service/src',
+        __DIR__ . '/admin-service/public',
         __DIR__ . '/auth-service/src',
+        __DIR__ . '/auth-service/public',
         __DIR__ . '/customer-service/src',
+        __DIR__ . '/customer-service/public',
         __DIR__ . '/vehicle-service/src',
+        __DIR__ . '/vehicle-service/public',
         __DIR__ . '/payment-service/src',
+        __DIR__ . '/payment-service/public',
         __DIR__ . '/reservation-service/src',
+        __DIR__ . '/reservation-service/public',
         __DIR__ . '/sales-service/src',
+        __DIR__ . '/sales-service/public',
         __DIR__ . '/saga-orchestrator/src',
-        __DIR__ . '/shared/src',
+        __DIR__ . '/saga-orchestrator/public',
+        __DIR__ . '/shared/database',
+        __DIR__ . '/shared/rabbitmq',
     ])
     ->name('*.php')
-    ->ignoreDotFiles(true)
-    ->ignoreVCS(true);
+    ->ignoreDotFiles(true) # Ignore dot files
+    ->ignoreVCS(true); # Ignore version control files
 
 return (new PhpCsFixer\Config())
     ->setFinder($finder)
