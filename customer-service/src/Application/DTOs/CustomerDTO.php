@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Application\DTOs;
 
-use Ramsey\Uuid\Uuid;
-use DateTime;
 use App\Domain\ValueObjects\CustomerAddress;
+use DateTime;
+use Ramsey\Uuid\Uuid;
 
 class CustomerDTO
 {
@@ -110,62 +112,282 @@ class CustomerDTO
     }
 
     // Getters
-    public function getId(): string {return $this->id;}
-    public function getUserId(): ?string {return $this->userId;}
-    public function getFullName(): string {return $this->fullName;}
-    public function getEmail(): string {return $this->email;}
-    public function getCpf(): string {return $this->cpf;}
-    public function getRg(): ?string {return $this->rg;}
-    public function getBirthDate(): ?DateTime {return $this->birthDate;}
-    public function getGender(): ?string {return $this->gender;}
-    public function getMaritalStatus(): ?string {return $this->maritalStatus;}
-    public function getPhone(): ?string {return $this->phone;}
-    public function getMobile(): ?string {return $this->mobile;}
-    public function getWhatsapp(): ?string {return $this->whatsapp;}
-    public function getAddress(): CustomerAddress {return $this->address;}
-    public function getOccupation(): ?string {return $this->occupation;}
-    public function getCompany(): ?string {return $this->company;}
-    public function getMonthlyIncome(): ?float {return $this->monthlyIncome;}
-    public function getPreferredContact(): string {return $this->preferredContact;}
-    public function isNewsletterSubscription(): bool {return $this->newsletterSubscription;}
-    public function isSmsNotifications(): bool {return $this->smsNotifications;}
-    public function getTotalPurchases(): int {return $this->totalPurchases;}
-    public function getTotalSpent(): float {return $this->totalSpent;}
-    public function getLastPurchaseDate(): ?DateTime {return $this->lastPurchaseDate;}
-    public function getCustomerScore(): int {return $this->customerScore;}
-    public function getCustomerTier(): string {return $this->customerTier;}
-    public function getCreatedAt(): DateTime {return $this->createdAt;}
-    public function getUpdatedAt(): DateTime {return $this->updatedAt;}
-    public function getDeletedAt(): ?DateTime {return $this->deletedAt;}
+    public function getId(): string
+    {
+        return $this->id;
+    }
+
+    public function getUserId(): ?string
+    {
+        return $this->userId;
+    }
+
+    public function getFullName(): string
+    {
+        return $this->fullName;
+    }
+
+    public function getEmail(): string
+    {
+        return $this->email;
+    }
+
+    public function getCpf(): string
+    {
+        return $this->cpf;
+    }
+
+    public function getRg(): ?string
+    {
+        return $this->rg;
+    }
+
+    public function getBirthDate(): ?DateTime
+    {
+        return $this->birthDate;
+    }
+
+    public function getGender(): ?string
+    {
+        return $this->gender;
+    }
+
+    public function getMaritalStatus(): ?string
+    {
+        return $this->maritalStatus;
+    }
+
+    public function getPhone(): ?string
+    {
+        return $this->phone;
+    }
+
+    public function getMobile(): ?string
+    {
+        return $this->mobile;
+    }
+
+    public function getWhatsapp(): ?string
+    {
+        return $this->whatsapp;
+    }
+
+    public function getAddress(): CustomerAddress
+    {
+        return $this->address;
+    }
+
+    public function getOccupation(): ?string
+    {
+        return $this->occupation;
+    }
+
+    public function getCompany(): ?string
+    {
+        return $this->company;
+    }
+
+    public function getMonthlyIncome(): ?float
+    {
+        return $this->monthlyIncome;
+    }
+
+    public function getPreferredContact(): string
+    {
+        return $this->preferredContact;
+    }
+
+    public function isNewsletterSubscription(): bool
+    {
+        return $this->newsletterSubscription;
+    }
+
+    public function isSmsNotifications(): bool
+    {
+        return $this->smsNotifications;
+    }
+
+    public function getTotalPurchases(): int
+    {
+        return $this->totalPurchases;
+    }
+
+    public function getTotalSpent(): float
+    {
+        return $this->totalSpent;
+    }
+
+    public function getLastPurchaseDate(): ?DateTime
+    {
+        return $this->lastPurchaseDate;
+    }
+
+    public function getCustomerScore(): int
+    {
+        return $this->customerScore;
+    }
+
+    public function getCustomerTier(): string
+    {
+        return $this->customerTier;
+    }
+
+    public function getCreatedAt(): DateTime
+    {
+        return $this->createdAt;
+    }
+
+    public function getUpdatedAt(): DateTime
+    {
+        return $this->updatedAt;
+    }
+
+    public function getDeletedAt(): ?DateTime
+    {
+        return $this->deletedAt;
+    }
 
     // Setters (exemplo para alguns campos)
 
-
     // Pega o ID do usuário a partir do token JWT, se aplicável
     // Se não houver usuário associado, retorna null
-    public function setUserId(?string $userId): void { $this->userId = $userId; $this->updatedAt = new DateTime(); }
-    public function setFullName(string $fullName): void { $this->fullName = $fullName; $this->updatedAt = new DateTime(); }
-    public function setEmail(string $email): void { $this->email = $email; $this->updatedAt = new DateTime(); }
-    public function setCpf(string $cpf): void { $this->cpf = $cpf; $this->updatedAt = new DateTime(); }
-    public function setRg(?string $rg): void { $this->rg = $rg; $this->updatedAt = new DateTime(); }
-    public function setBirthDate(?DateTime $birthDate): void { $this->birthDate = $birthDate; $this->updatedAt = new DateTime(); }
-    public function setGender(?string $gender): void { $this->gender = $gender; $this->updatedAt = new DateTime(); }
-    public function setMaritalStatus(?string $maritalStatus): void { $this->maritalStatus = $maritalStatus; $this->updatedAt = new DateTime(); }
-    public function setPhone(?string $phone): void { $this->phone = $phone; $this->updatedAt = new DateTime(); }
-    public function setMobile(?string $mobile): void { $this->mobile = $mobile; $this->updatedAt = new DateTime(); }
-    public function setWhatsapp(?string $whatsapp): void { $this->whatsapp = $whatsapp; $this->updatedAt = new DateTime(); }
-    public function setAddress(CustomerAddress $address): void { $this->address = $address; $this->updatedAt = new DateTime(); }
-    public function setOccupation(?string $occupation): void { $this->occupation = $occupation; $this->updatedAt = new DateTime(); }
-    public function setCompany(?string $company): void { $this->company = $company; $this->updatedAt = new DateTime(); }
-    public function setMonthlyIncome(?float $monthlyIncome): void { $this->monthlyIncome = $monthlyIncome; $this->updatedAt = new DateTime(); }
-    public function setPreferredContact(string $preferredContact): void { $this->preferredContact = $preferredContact; $this->updatedAt = new DateTime(); }
-    public function setNewsletterSubscription(bool $newsletterSubscription): void { $this->newsletterSubscription = $newsletterSubscription; $this->updatedAt = new DateTime(); }
-    public function setSmsNotifications(bool $smsNotifications): void { $this->smsNotifications = $smsNotifications; $this->updatedAt = new DateTime(); }
-    public function setTotalPurchases(int $totalPurchases): void { $this->totalPurchases = $totalPurchases; $this->updatedAt = new DateTime(); }
-    public function setTotalSpent(float $totalSpent): void { $this->totalSpent = $totalSpent; $this->updatedAt = new DateTime(); }
-    public function setLastPurchaseDate(?DateTime $lastPurchaseDate): void { $this->lastPurchaseDate = $lastPurchaseDate; $this->updatedAt = new DateTime(); }
-    public function setCustomerScore(int $customerScore): void { $this->customerScore = $customerScore; $this->updatedAt = new DateTime(); }
-    public function setCustomerTier(string $customerTier): void { $this->customerTier = $customerTier; $this->updatedAt = new DateTime(); }
+    public function setUserId(?string $userId): void
+    {
+        $this->userId = $userId;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setFullName(string $fullName): void
+    {
+        $this->fullName = $fullName;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setEmail(string $email): void
+    {
+        $this->email = $email;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setCpf(string $cpf): void
+    {
+        $this->cpf = $cpf;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setRg(?string $rg): void
+    {
+        $this->rg = $rg;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setBirthDate(?DateTime $birthDate): void
+    {
+        $this->birthDate = $birthDate;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setGender(?string $gender): void
+    {
+        $this->gender = $gender;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setMaritalStatus(?string $maritalStatus): void
+    {
+        $this->maritalStatus = $maritalStatus;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setPhone(?string $phone): void
+    {
+        $this->phone = $phone;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setMobile(?string $mobile): void
+    {
+        $this->mobile = $mobile;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setWhatsapp(?string $whatsapp): void
+    {
+        $this->whatsapp = $whatsapp;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setAddress(CustomerAddress $address): void
+    {
+        $this->address = $address;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setOccupation(?string $occupation): void
+    {
+        $this->occupation = $occupation;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setCompany(?string $company): void
+    {
+        $this->company = $company;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setMonthlyIncome(?float $monthlyIncome): void
+    {
+        $this->monthlyIncome = $monthlyIncome;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setPreferredContact(string $preferredContact): void
+    {
+        $this->preferredContact = $preferredContact;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setNewsletterSubscription(bool $newsletterSubscription): void
+    {
+        $this->newsletterSubscription = $newsletterSubscription;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setSmsNotifications(bool $smsNotifications): void
+    {
+        $this->smsNotifications = $smsNotifications;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setTotalPurchases(int $totalPurchases): void
+    {
+        $this->totalPurchases = $totalPurchases;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setTotalSpent(float $totalSpent): void
+    {
+        $this->totalSpent = $totalSpent;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setLastPurchaseDate(?DateTime $lastPurchaseDate): void
+    {
+        $this->lastPurchaseDate = $lastPurchaseDate;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setCustomerScore(int $customerScore): void
+    {
+        $this->customerScore = $customerScore;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setCustomerTier(string $customerTier): void
+    {
+        $this->customerTier = $customerTier;
+        $this->updatedAt = new DateTime();
+    }
 
     // Métodos de manipulação do cliente
     public function restore(): void
@@ -214,10 +436,10 @@ class CustomerDTO
             'customer_tier' => $this->customerTier,
             'created_at' => $this->createdAt->format('Y-m-d H:i:s'),
             'updated_at' => $this->updatedAt->format('Y-m-d H:i:s'),
-            'deleted_at' => $this->deletedAt?->format('Y-m-d H:i:s')
+            'deleted_at' => $this->deletedAt?->format('Y-m-d H:i:s'),
         ];
     }
-    
+
     public static function fromArray(array $data): self
     {
         $address = CustomerAddress::fromArray($data['address']);

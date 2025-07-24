@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Infrastructure\Http;
 
 use App\Presentation\Controllers\CustomerController;
@@ -22,7 +24,7 @@ class Router
             'GET /profile' => [$this->customerController, 'getProfile'],
             'PUT /profile' => [$this->customerController, 'updateProfile'],
             'DELETE /profile' => [$this->customerController, 'deleteProfile'],
-            'GET /health' => [$this->customerController, 'health']
+            'GET /health' => [$this->customerController, 'health'],
         ];
     }
 
@@ -30,9 +32,10 @@ class Router
     {
         $method = $_SERVER['REQUEST_METHOD'];
         $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-        
+
         // Remover prefixos desnecessários
         $path = preg_replace('#^\/api\/v1\/customer#', '', $path);
+
         if ($path === '') {
             $path = '/';
         }
@@ -41,7 +44,7 @@ class Router
 
         if (isset($this->routes[$route])) {
             [$controller, $action] = $this->routes[$route];
-            
+
             try {
                 $controller->$action();
             } catch (\Exception $e) {
@@ -56,11 +59,11 @@ class Router
     {
         $code = $e->getCode() ?: 500;
         http_response_code($code);
-        
+
         echo json_encode([
             'error' => true,
             'message' => $e->getMessage(),
-            'code' => $code
+            'code' => $code,
         ]);
     }
 
@@ -70,8 +73,7 @@ class Router
         echo json_encode([
             'error' => true,
             'message' => 'Rota não encontrada',
-            'code' => 404
+            'code' => 404,
         ]);
     }
 }
-

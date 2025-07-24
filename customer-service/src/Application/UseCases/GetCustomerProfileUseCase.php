@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Application\UseCases;
 
 use App\Domain\Repositories\CustomerRepositoryInterface;
@@ -28,4 +30,3 @@ class GetCustomerProfileUseCase
         return $customer->toArray();
     }
 }
-

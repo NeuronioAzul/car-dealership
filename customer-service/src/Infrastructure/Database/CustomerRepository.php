@@ -1,13 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Infrastructure\Database;
 
 use App\Application\DTOs\CustomerDTO;
-use App\Domain\ValueObjects\CustomerAddress;
 use App\Domain\Repositories\CustomerRepositoryInterface;
-use PDO;
+use App\Domain\ValueObjects\CustomerAddress;
 use DateTime;
 use DateTimeZone;
+use PDO;
 
 class CustomerRepository implements CustomerRepositoryInterface
 {
@@ -20,7 +22,7 @@ class CustomerRepository implements CustomerRepositoryInterface
 
     public function save(CustomerDTO $customer): bool
     {
-        $sql = "
+        $sql = '
             INSERT INTO customer_profiles (
                 id, user_id, full_name, email, cpf, rg, birth_date, gender, marital_status,
                 phone, mobile, whatsapp,
@@ -40,7 +42,7 @@ class CustomerRepository implements CustomerRepositoryInterface
                 :customer_score, :customer_tier,
                 :created_at, :updated_at
             )
-        ";
+        ';
 
         $stmt = $this->connection->prepare($sql);
 
@@ -76,13 +78,13 @@ class CustomerRepository implements CustomerRepositoryInterface
             'customer_score' => $customer->getCustomerScore(),
             'customer_tier' => $customer->getCustomerTier(),
             'created_at' => $customer->getCreatedAt()->format('Y-m-d H:i:s'),
-            'updated_at' => $customer->getUpdatedAt()->format('Y-m-d H:i:s')
+            'updated_at' => $customer->getUpdatedAt()->format('Y-m-d H:i:s'),
         ]);
     }
 
     public function findById(string $id): ?CustomerDTO
     {
-        $sql = "SELECT * FROM customer_profiles WHERE id = :id AND deleted_at IS NULL";
+        $sql = 'SELECT * FROM customer_profiles WHERE id = :id AND deleted_at IS NULL';
         $stmt = $this->connection->prepare($sql);
         $stmt->execute(['id' => $id]);
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -92,7 +94,7 @@ class CustomerRepository implements CustomerRepositoryInterface
 
     public function findByUserId(string $id): ?CustomerDTO
     {
-        $sql = "SELECT * FROM customer_profiles WHERE user_id = :id AND deleted_at IS NULL";
+        $sql = 'SELECT * FROM customer_profiles WHERE user_id = :id AND deleted_at IS NULL';
         $stmt = $this->connection->prepare($sql);
         $stmt->execute(['id' => $id]);
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -102,7 +104,7 @@ class CustomerRepository implements CustomerRepositoryInterface
 
     public function findByEmail(string $email): ?CustomerDTO
     {
-        $sql = "SELECT * FROM customer_profiles WHERE email = :email AND deleted_at IS NULL";
+        $sql = 'SELECT * FROM customer_profiles WHERE email = :email AND deleted_at IS NULL';
         $stmt = $this->connection->prepare($sql);
         $stmt->execute(['email' => $email]);
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -113,7 +115,7 @@ class CustomerRepository implements CustomerRepositoryInterface
 
     public function findAll(): array
     {
-        $sql = "SELECT * FROM customer_profiles WHERE deleted_at IS NULL ORDER BY created_at DESC";
+        $sql = 'SELECT * FROM customer_profiles WHERE deleted_at IS NULL ORDER BY created_at DESC';
         $stmt = $this->connection->query($sql);
 
         $customers = [];
@@ -126,7 +128,7 @@ class CustomerRepository implements CustomerRepositoryInterface
 
     public function update(CustomerDTO $customer): bool
     {
-        $sql = "
+        $sql = '
             UPDATE customer_profiles SET
                 user_id = :user_id,
                 full_name = :full_name,
@@ -159,7 +161,7 @@ class CustomerRepository implements CustomerRepositoryInterface
                 customer_tier = :customer_tier,
                 updated_at = :updated_at
             WHERE id = :id
-        ";
+        ';
 
         $stmt = $this->connection->prepare($sql);
 
@@ -194,13 +196,13 @@ class CustomerRepository implements CustomerRepositoryInterface
             'last_purchase_date' => $customer->getLastPurchaseDate() ? $customer->getLastPurchaseDate()->format('Y-m-d H:i:s') : null,
             'customer_score' => $customer->getCustomerScore(),
             'customer_tier' => $customer->getCustomerTier(),
-            'updated_at' => $customer->getUpdatedAt()->format('Y-m-d H:i:s')
+            'updated_at' => $customer->getUpdatedAt()->format('Y-m-d H:i:s'),
         ]);
     }
 
     public function delete(string $id): bool
     {
-        $sql = "UPDATE customer_profiles SET deleted_at = NOW(), updated_at = NOW() WHERE id = :id";
+        $sql = 'UPDATE customer_profiles SET deleted_at = NOW(), updated_at = NOW() WHERE id = :id';
         $stmt = $this->connection->prepare($sql);
 
         return $stmt->execute(['id' => $id]);
@@ -208,7 +210,7 @@ class CustomerRepository implements CustomerRepositoryInterface
 
     public function existsByEmail(string $email): bool
     {
-        $sql = "SELECT COUNT(*) FROM customer_profiles WHERE email = :email AND deleted_at IS NULL";
+        $sql = 'SELECT COUNT(*) FROM customer_profiles WHERE email = :email AND deleted_at IS NULL';
         $stmt = $this->connection->prepare($sql);
         $stmt->execute(['email' => $email]);
 
@@ -252,8 +254,8 @@ class CustomerRepository implements CustomerRepositoryInterface
             customerScore: $data['customer_score'] ?? 0,
             customerTier: $data['customer_tier'] ?? 'bronze',
             #formato pt_BR
-            createdAt: isset($data['created_at']) ? new DateTime($data['created_at'], new DateTimeZone('America/Sao_Paulo')) : "",
-            updatedAt: isset($data['updated_at']) ? new DateTime($data['updated_at'], new DateTimeZone('America/Sao_Paulo')) : ""
+            createdAt: isset($data['created_at']) ? new DateTime($data['created_at'], new DateTimeZone('America/Sao_Paulo')) : '',
+            updatedAt: isset($data['updated_at']) ? new DateTime($data['updated_at'], new DateTimeZone('America/Sao_Paulo')) : ''
         );
 
         // Reflection para setar propriedades privadas (id, createdAt, updatedAt, deletedAt)

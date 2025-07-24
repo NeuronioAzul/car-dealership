@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Infrastructure\Messaging;
 
-use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Channel\AMQPChannel;
+use PhpAmqpLib\Connection\AMQPStreamConnection;
 
 class RabbitMQConnection
 {
@@ -23,7 +25,7 @@ class RabbitMQConnection
 
         if (self::$channel === null) {
             self::$channel = self::$connection->channel();
-            
+
             // Declarar exchange
             self::$channel->exchange_declare(
                 'car.dealership.events',
@@ -50,4 +52,3 @@ class RabbitMQConnection
         }
     }
 }
-

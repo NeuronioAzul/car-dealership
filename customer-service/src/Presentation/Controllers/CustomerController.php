@@ -1,17 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Presentation\Controllers;
 
+use App\Application\DTOs\CustomerDTO;
+use App\Application\Requests\RequestCustomer;
+use App\Application\UseCases\CreateCustomerProfileUseCase;
 use App\Application\UseCases\GetCustomerProfileUseCase;
 use App\Application\UseCases\UpdateCustomerProfileUseCase;
-use App\Application\UseCases\CreateCustomerProfileUseCase;
-use App\Infrastructure\Database\DatabaseConfig;
+use App\Domain\ValueObjects\CustomerAddress;
 use App\Infrastructure\Database\CustomerRepository;
+use App\Infrastructure\Database\DatabaseConfig;
 use App\Infrastructure\Messaging\EventPublisher;
 use App\Presentation\Middleware\AuthMiddleware;
-use App\Application\DTOs\CustomerDTO;
-use App\Domain\ValueObjects\CustomerAddress;
-use App\Application\Requests\RequestCustomer;
 
 class CustomerController
 {
@@ -60,8 +62,9 @@ class CustomerController
                 echo json_encode([
                     'error' => true,
                     'message' => 'Erro de validação.',
-                    'errors' => $request->errors()
+                    'errors' => $request->errors(),
                 ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+
                 return;
             }
 
@@ -108,18 +111,17 @@ class CustomerController
             echo json_encode([
                 'success' => true,
                 'data' => $customer,
-                'message' => 'Cliente criado com sucesso'
+                'message' => 'Cliente criado com sucesso',
             ]);
         } catch (\Exception $e) {
-            $code = (int)$e->getCode() ?: 500;
+            $code = (int) $e->getCode() ?: 500;
             http_response_code($code);
             echo json_encode([
                 'error' => true,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ]);
         }
     }
-        
 
     public function getProfile(): void
     {
@@ -131,14 +133,14 @@ class CustomerController
             http_response_code(200);
             echo json_encode([
                 'success' => true,
-                'data' => $profile
+                'data' => $profile,
             ]);
         } catch (\Exception $e) {
             $code = $e->getCode() ?: 500;
             http_response_code($code);
             echo json_encode([
                 'error' => true,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ]);
         }
     }
@@ -159,14 +161,14 @@ class CustomerController
             echo json_encode([
                 'success' => true,
                 'data' => $profile,
-                'message' => 'Perfil atualizado com sucesso'
+                'message' => 'Perfil atualizado com sucesso',
             ]);
         } catch (\Exception $e) {
             $code = $e->getCode() ?: 500;
             http_response_code($code);
             echo json_encode([
                 'error' => true,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ]);
         }
     }
@@ -187,20 +189,20 @@ class CustomerController
             $eventPublisher = new EventPublisher();
             $eventPublisher->publish('customer.profile_deleted', [
                 'customer_id' => $user['user_id'],
-                'timestamp' => date('Y-m-d H:i:s')
+                'timestamp' => date('Y-m-d H:i:s'),
             ]);
 
             http_response_code(200);
             echo json_encode([
                 'success' => true,
-                'message' => 'Perfil excluído com sucesso'
+                'message' => 'Perfil excluído com sucesso',
             ]);
         } catch (\Exception $e) {
             $code = $e->getCode() ?: 500;
             http_response_code($code);
             echo json_encode([
                 'error' => true,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ]);
         }
     }
@@ -212,7 +214,7 @@ class CustomerController
             'success' => true,
             'service' => 'customer-service',
             'status' => 'healthy',
-            'timestamp' => date('Y-m-d H:i:s')
+            'timestamp' => date('Y-m-d H:i:s'),
         ]);
     }
 }

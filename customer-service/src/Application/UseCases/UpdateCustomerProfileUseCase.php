@@ -1,10 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Application\UseCases;
 
-use App\Application\DTOs\CustomerDTO;
-use App\Domain\ValueObjects\CustomerAddress;
 use App\Domain\Repositories\CustomerRepositoryInterface;
+use App\Domain\ValueObjects\CustomerAddress;
 use App\Infrastructure\Messaging\EventPublisher;
 use DateTime;
 
@@ -19,7 +20,8 @@ class UpdateCustomerProfileUseCase
     public function __construct(
         private readonly CustomerRepositoryInterface $customerRepository,
         private readonly EventPublisher $eventPublisher
-    ) {}
+    ) {
+    }
 
     public function execute(string $customerId, array $updateData): array
     {
@@ -41,6 +43,7 @@ class UpdateCustomerProfileUseCase
         if (isset($updateData['email'])) {
             // Verificar se email já existe para outro cliente
             $existingCustomer = $this->customerRepository->findByEmail($updateData['email']);
+
             if ($existingCustomer && $existingCustomer->getId() !== $customerId) {
                 throw new \Exception('Email já está em uso por outro cliente', 409);
             }
@@ -78,7 +81,7 @@ class UpdateCustomerProfileUseCase
             'customer_id' => $customer->getId(),
             'email' => $customer->getEmail(),
             'name' => $customer->getFullName(),
-            'timestamp' => date('Y-m-d H:i:s')
+            'timestamp' => date('Y-m-d H:i:s'),
         ]);
 
         return $customer->toArray();

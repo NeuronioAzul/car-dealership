@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\ValueObjects;
 
 class CustomerAddress
@@ -79,7 +81,7 @@ class CustomerAddress
             'complement' => $this->complement,
             'city' => $this->city,
             'state' => $this->state,
-            'zip_code' => $this->zipCode
+            'zip_code' => $this->zipCode,
         ];
     }
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Application\Requests;
 
 use App\Application\Validation\RequestValidator;
@@ -49,7 +51,7 @@ class RequestCustomer
             'accept_privacy' => 'required|numeric|in:1,0',
             'accept_communications' => 'required|numeric|in:1,0',
         ]);
-        
+
         if (!$validator->validate($this->data)) {
             $this->errors = $validator->errors();
         }
