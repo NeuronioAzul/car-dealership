@@ -1,15 +1,58 @@
-# Sistema de Concessionária de Veículos
+# Cardealership - Sistema de Concessionária de Veículos
 
 **Versão:** 1.0.0
 **Data:** 13 de junho de 2025
 **Autor:** Mauro Rocha Tavares
-**Tecnologias:** Github, laravel 11, PHP8.4, Arquitetura Limpa ou (Clean Architecture), MySQL 8, RabbitMQ 3, orquestração SAGA, Kong API Gateway community, Dockerfile, docker-compose.yml, Makefile e Swagger
+
+## Tecnologias Utilizadas
+
+### Controle de Versão e Automação
+
+- **Git:** Controle de versionamento de código-fonte.
+- **Makefile:** Automação de tarefas comuns do projeto.
+
+### Backend e Frameworks
+
+- **Laravel 11:** Framework PHP moderno para desenvolvimento web.
+- **PHP 8.4 (PSR-12):** Linguagem principal seguindo padrão de codificação PSR-12.
+- **PHPUnit:** Framework para testes automatizados em PHP.
+- **PHP CS Fixer:** Ferramenta para padronização e formatação automática do código.
+
+### Arquitetura e Padrões
+
+- **Clean Architecture:** Organização do código em camadas independentes para maior manutenibilidade.
+- **Orquestração SAGA:** Gerenciamento de transações distribuídas entre microserviços.
+
+### Banco de Dados e Mensageria
+
+- **MySQL 8:** Banco de dados relacional para persistência de dados.
+- **RabbitMQ 3:** Message broker para comunicação assíncrona entre serviços.
+
+### APIs e Documentação
+
+- **Swagger/OpenAPI:** Documentação interativa e padronizada das APIs.
+- **Documentação OpenAPI:** Especificação formal dos endpoints da API.
+
+### Segurança
+
+- **Autenticação JWT:** Autenticação baseada em tokens seguros e stateless.
+
+### Infraestrutura e Deploy
+
+- **Docker:** Contêinerização dos serviços para ambientes isolados.
+- **Docker Compose:** Orquestração de múltiplos contêineres Docker.
+- **Dockerfile:** Definição de imagens customizadas para cada serviço.
+
+### API Gateway e Gerenciamento
+
+- **Kong API Gateway (Community):** Gateway para roteamento, autenticação e rate limiting das APIs.
+- **Kong Deck:** Ferramenta para gerenciar configurações do Kong via código ([documentação](https://github.com/kong/deck/?tab=readme-ov-file#documentation)).
 
 ---
 
 ## Visão Geral
 
-O Sistema de Concessionária de Veículos contém o básico para gestão de concessionárias.
+O Cardealership - Sistema de Concessionária de Veículos contém o básico para gestão de concessionárias.
 Desenvolvido usando a arquitetura de microserviços e Clean Architecture.
 O sistema oferece a gestão de catálogo de veículos até processamento de vendas e geração automática de documentação.
 
@@ -25,7 +68,8 @@ O sistema oferece a gestão de catálogo de veículos até processamento de vend
 🔐 **Segurança**
 
 - Autenticação JWT com refresh tokens
-- Controle de acesso baseado em roles (RBAC)
+- Controle de acesso baseado em roles (RBAC) Role Based Access Control
+- Proteção contra CSRF e XSS
 - Rate limiting e proteção contra abuso
 - Validação de dados
 
@@ -70,18 +114,18 @@ O sistema oferece a gestão de catálogo de veículos até processamento de vend
 
 ### Pré-requisitos
 
-- Sistema Linux Ubuntu ou wsl2 no windows ( testado e recomendado )
+- Sistema Linux Ubuntu ou wsl2 no windows ( testado )
 - Docker
 - Docker Compose
 - Git
-- 8GB RAM disponível
+- 4GB RAM disponível
 - 20GB espaço em disco
 
 ### Instalação Rápida
 
 ```bash
 # 1. Clone o repositório
-git clone <repository-url>
+git clone <[repository-url](https://github.com/NeuronioAzul/car-dealership.git)>
 cd car-dealership
 
 # 2. Use o Makefile para instalar e configurar o ambiente
@@ -92,7 +136,7 @@ make setup
 
 ```bash
 # 1. Clone o repositório
-git clone <repository-url>
+git clone <[repository-url](https://github.com/NeuronioAzul/car-dealership.git)>
 cd car-dealership
 
 # 2. Certifique-se de que o Docker e o Docker Compose estão instalados
@@ -132,7 +176,7 @@ Acesse os seguintes URLs para verificar se tudo está funcionando:
 
 - **API Gateway:** <http://localhost:8000/api/v1/auth/health>
 - **Documentação Swagger:** <http://localhost:8089>
-- **phpMyAdmin:** <http://localhost:8090> (root/rootpassword)
+- **phpMyAdmin:** <http://localhost:8090> (root/rootpassword123)
 - **RabbitMQ Management:** <http://localhost:15672> (admin/admin123)
 
 ## Uso da API
@@ -245,31 +289,34 @@ curl -X POST http://localhost:8000/api/v1/saga/purchase \
 
 ## Testes
 
-### Executar Todos os Testes
+### Executar Testes nos Microsserviços
 
 ```bash
-cd tests/
-./run_tests.sh
+cd <serviço>/
+./vendor/bin/phpunit
 ```
 
 ### Testes Específicos
 
 ```bash
 # Apenas testes unitários
-./run_tests.sh --unit
+./vendor/bin/phpunit --testsuite Unit
+
+# Apenas testes de feature
+./vendor/bin/phpunit --testsuite Feature
 
 # Apenas testes de integração
-./run_tests.sh --integration
+./vendor/bin/phpunit --testsuite Integration
 
 # Testes com relatório de cobertura
-./run_tests.sh --coverage
+./vendor/bin/phpunit --coverage-html coverage-report
 ```
 
 ### Estrutura de Testes
 
 - **Unit Tests:** Testam entidades e serviços isoladamente
-- **Integration Tests:** Testam comunicação entre serviços
 - **Feature Tests:** Testam fluxos completos end-to-end
+- **Integration Tests:** Testam comunicação entre serviços
 
 ## Painel Administrativo
 
@@ -336,7 +383,7 @@ DB_PASSWORD=secure-database-password
 RABBITMQ_PASSWORD=secure-rabbitmq-password
 KONG_ADMIN_TOKEN=secure-kong-admin-token
 ```
-
+<!-- 
 ### Deploy de Produção
 
 ```bash
@@ -358,9 +405,9 @@ docker exec mysql mysqldump -u root -p --all-databases > backup.sql
 
 # Backup de volumes
 docker run --rm -v car-dealership_mysql_data:/data -v $(pwd):/backup alpine tar czf /backup/mysql_backup.tar.gz /data
-```
+``` -->
 
-## Solução de Problemas
+<!-- ## Solução de Problemas
 
 ### Problemas Comuns
 
@@ -398,9 +445,9 @@ docker-compose exec auth-service env | grep JWT
 
 # Verificar logs do Auth Service
 docker-compose logs auth-service
-```
+``` -->
 
-### Logs Detalhados
+<!-- ### Logs Detalhados
 
 ```bash
 # Habilitar debug
@@ -409,7 +456,7 @@ docker-compose restart
 
 # Ver logs em tempo real
 docker-compose logs -f --tail=100
-```
+``` -->
 
 ## Documentação Adicional
 
@@ -434,7 +481,7 @@ Para reportar bugs ou solicitar funcionalidades:
 
 ```bash
 # Configurar ambiente de desenvolvimento
-git clone <repository-url>
+git clone <[repository-url](https://github.com/NeuronioAzul/car-dealership.git)>
 cd car-dealership
 
 # Instalar dependências de teste
