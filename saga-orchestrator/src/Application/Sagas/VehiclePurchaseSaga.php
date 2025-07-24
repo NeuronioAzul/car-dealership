@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Application\Sagas;
 
+use App\Application\Services\MicroserviceClient;
 use App\Domain\Entities\SagaTransaction;
 use App\Domain\Repositories\SagaTransactionRepositoryInterface;
-use App\Application\Services\MicroserviceClient;
 use App\Infrastructure\Messaging\EventPublisher;
 
 class VehiclePurchaseSaga
@@ -29,7 +31,7 @@ class VehiclePurchaseSaga
         $transaction = new SagaTransaction($customerId, $vehicleId, 'purchase_vehicle');
         $transaction->addToContext('customer_data', $customerData);
         $transaction->addToContext('auth_token', $authToken);
-        
+
         // Buscar dados do veículo
         try {
             $vehicleResponse = $this->microserviceClient->getVehicleDetails($vehicleId);
@@ -39,6 +41,7 @@ class VehiclePurchaseSaga
         } catch (\Exception $e) {
             $transaction->failStep('get_vehicle_details', 'Erro ao obter dados do veículo: ' . $e->getMessage());
             $this->transactionRepository->save($transaction);
+
             throw $e;
         }
 
@@ -55,7 +58,7 @@ class VehiclePurchaseSaga
             'customer_id' => $customerId,
             'vehicle_id' => $vehicleId,
             'type' => 'purchase_vehicle',
-            'timestamp' => date('Y-m-d H:i:s')
+            'timestamp' => date('Y-m-d H:i:s'),
         ]);
 
         return $transaction;
@@ -64,7 +67,7 @@ class VehiclePurchaseSaga
     public function processNextStep(SagaTransaction $transaction): void
     {
         $currentStep = $transaction->getCurrentStep();
-        
+
         if (!$currentStep) {
             return;
         }
@@ -74,39 +77,38 @@ class VehiclePurchaseSaga
                 case 'create_reservation':
                     $this->executeCreateReservation($transaction);
                     break;
-                    
+
                 case 'generate_payment_code':
                     $this->executeGeneratePaymentCode($transaction);
                     break;
-                    
+
                 case 'process_payment':
                     $this->executeProcessPayment($transaction);
                     break;
-                    
+
                 case 'create_sale':
                     $this->executeCreateSale($transaction);
                     break;
-                    
+
                 case 'update_vehicle_status':
                     $this->executeUpdateVehicleStatus($transaction);
                     break;
-                    
+
                 default:
                     throw new \Exception("Passo desconhecido: {$currentStep}");
             }
-            
+
             $this->transactionRepository->update($transaction);
-            
         } catch (\Exception $e) {
             $transaction->failStep($currentStep, $e->getMessage());
             $this->transactionRepository->update($transaction);
-            
+
             // Publicar evento de falha
             $this->eventPublisher->publish('saga.step_failed', [
                 'transaction_id' => $transaction->getId(),
                 'step' => $currentStep,
                 'error' => $e->getMessage(),
-                'timestamp' => date('Y-m-d H:i:s')
+                'timestamp' => date('Y-m-d H:i:s'),
             ]);
         }
     }
@@ -122,7 +124,7 @@ class VehiclePurchaseSaga
 
         $transaction->completeStep('create_reservation', [
             'reservation_id' => $reservationData['id'],
-            'expires_at' => $reservationData['expires_at']
+            'expires_at' => $reservationData['expires_at'],
         ]);
     }
 
@@ -135,7 +137,7 @@ class VehiclePurchaseSaga
         $paymentCodeData = $response['data']['data'];
 
         $transaction->completeStep('generate_payment_code', [
-            'payment_code' => $paymentCodeData['payment_code']
+            'payment_code' => $paymentCodeData['payment_code'],
         ]);
     }
 
@@ -150,7 +152,12 @@ class VehiclePurchaseSaga
 
         // Criar pagamento
         $createResponse = $this->microserviceClient->createPayment(
-            $customerId, $reservationId, $vehicleId, $paymentCode, $amount, $authToken
+            $customerId,
+            $reservationId,
+            $vehicleId,
+            $paymentCode,
+            $amount,
+            $authToken
         );
 
         // Processar pagamento
@@ -164,7 +171,7 @@ class VehiclePurchaseSaga
         $transaction->completeStep('process_payment', [
             'payment_id' => $paymentResult['data']['payment']['id'],
             'transaction_id' => $paymentResult['data']['payment']['transaction_id'],
-            'amount_paid' => $paymentResult['data']['payment']['amount']
+            'amount_paid' => $paymentResult['data']['payment']['amount'],
         ]);
     }
 
@@ -180,15 +187,21 @@ class VehiclePurchaseSaga
         $authToken = $transaction->getFromContext('auth_token');
 
         $response = $this->microserviceClient->createSale(
-            $customerId, $vehicleId, $reservationId, $paymentId, $salePrice, 
-            $customerData, $vehicleData, $authToken
+            $customerId,
+            $vehicleId,
+            $reservationId,
+            $paymentId,
+            $salePrice,
+            $customerData,
+            $vehicleData,
+            $authToken
         );
         $saleData = $response['data']['data'];
 
         $transaction->completeStep('create_sale', [
             'sale_id' => $saleData['sale']['id'],
             'contract_pdf' => $saleData['documents']['contract'],
-            'invoice_pdf' => $saleData['documents']['invoice']
+            'invoice_pdf' => $saleData['documents']['invoice'],
         ]);
     }
 
@@ -200,7 +213,7 @@ class VehiclePurchaseSaga
 
         $transaction->completeStep('update_vehicle_status', [
             'vehicle_status' => 'sold',
-            'updated_at' => date('Y-m-d H:i:s')
+            'updated_at' => date('Y-m-d H:i:s'),
         ]);
 
         // Publicar evento de transação completada
@@ -209,17 +222,18 @@ class VehiclePurchaseSaga
             'customer_id' => $transaction->getCustomerId(),
             'vehicle_id' => $transaction->getVehicleId(),
             'sale_id' => $transaction->getFromContext('create_sale_data')['sale_id'],
-            'timestamp' => date('Y-m-d H:i:s')
+            'timestamp' => date('Y-m-d H:i:s'),
         ]);
     }
 
     public function compensateTransaction(SagaTransaction $transaction): void
     {
         $compensationStep = $transaction->getNextCompensationStep();
-        
+
         if (!$compensationStep) {
             $transaction->completeCompensation();
             $this->transactionRepository->update($transaction);
+
             return;
         }
 
@@ -228,23 +242,22 @@ class VehiclePurchaseSaga
                 case 'update_vehicle_status':
                     $this->compensateUpdateVehicleStatus($transaction);
                     break;
-                    
+
                 case 'create_sale':
                     $this->compensateCreateSale($transaction);
                     break;
-                    
+
                 case 'process_payment':
                     $this->compensateProcessPayment($transaction);
                     break;
-                    
+
                 case 'create_reservation':
                     $this->compensateCreateReservation($transaction);
                     break;
             }
-            
+
             $transaction->completeStep($compensationStep . '_compensated');
             $this->transactionRepository->update($transaction);
-            
         } catch (\Exception $e) {
             // Log erro de compensação mas continue tentando
             error_log("Erro na compensação {$compensationStep}: " . $e->getMessage());
@@ -278,4 +291,3 @@ class VehiclePurchaseSaga
         $this->microserviceClient->cancelReservation($reservationId, $authToken);
     }
 }
-

@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Infrastructure\Database;
 
 use App\Domain\Entities\SagaTransaction;
 use App\Domain\Repositories\SagaTransactionRepositoryInterface;
-use PDO;
 use DateTime;
+use PDO;
 
 class SagaTransactionRepository implements SagaTransactionRepositoryInterface
 {
@@ -18,7 +20,7 @@ class SagaTransactionRepository implements SagaTransactionRepositoryInterface
 
     public function save(SagaTransaction $transaction): bool
     {
-        $sql = "INSERT INTO saga_transactions (
+        $sql = 'INSERT INTO saga_transactions (
                 id,
                 transaction_type,
                 status,
@@ -45,7 +47,7 @@ class SagaTransactionRepository implements SagaTransactionRepositoryInterface
                 :customer_name, :customer_email, :vehicle_id, :vehicle_info, :started_at,
                 :completed_at, :failed_at, :error_message, :error_details, :retry_count,
                 :max_retries, :next_retry_at, :created_at, :updated_at, :deleted_at
-            )";
+            )';
 
         $stmt = $this->connection->prepare($sql);
 
@@ -75,7 +77,7 @@ class SagaTransactionRepository implements SagaTransactionRepositoryInterface
 
     public function findById(string $id): ?SagaTransaction
     {
-        $sql = "SELECT * FROM saga_transactions WHERE id = :id";
+        $sql = 'SELECT * FROM saga_transactions WHERE id = :id';
         $stmt = $this->connection->prepare($sql);
         $stmt->execute(['id' => $id]);
 
@@ -86,7 +88,7 @@ class SagaTransactionRepository implements SagaTransactionRepositoryInterface
 
     public function findByCustomerId(string $customerId): array
     {
-        $sql = "SELECT * FROM saga_transactions WHERE customer_id = :customer_id ORDER BY created_at DESC";
+        $sql = 'SELECT * FROM saga_transactions WHERE customer_id = :customer_id ORDER BY created_at DESC';
         $stmt = $this->connection->prepare($sql);
         $stmt->execute(['customer_id' => $customerId]);
 
@@ -100,7 +102,7 @@ class SagaTransactionRepository implements SagaTransactionRepositoryInterface
 
     public function findByStatus(string $status): array
     {
-        $sql = "SELECT * FROM saga_transactions WHERE status = :status ORDER BY created_at ASC";
+        $sql = 'SELECT * FROM saga_transactions WHERE status = :status ORDER BY created_at ASC';
         $stmt = $this->connection->prepare($sql);
         $stmt->execute(['status' => $status]);
 
@@ -127,7 +129,7 @@ class SagaTransactionRepository implements SagaTransactionRepositoryInterface
 
     public function update(SagaTransaction $transaction): bool
     {
-        $sql = "
+        $sql = '
             UPDATE saga_transactions SET
                 customer_id = :customer_id,
                 vehicle_id = :vehicle_id,
@@ -142,7 +144,7 @@ class SagaTransactionRepository implements SagaTransactionRepositoryInterface
                 updated_at = :updated_at,
                 completed_at = :completed_at
             WHERE id = :id
-        ";
+        ';
 
         $stmt = $this->connection->prepare($sql);
 
@@ -159,13 +161,13 @@ class SagaTransactionRepository implements SagaTransactionRepositoryInterface
             'failure_reason' => $transaction->getFailureReason(),
             'context' => json_encode($transaction->getContext()),
             'updated_at' => $transaction->getUpdatedAt()->format('Y-m-d H:i:s'),
-            'completed_at' => $transaction->getCompletedAt()?->format('Y-m-d H:i:s')
+            'completed_at' => $transaction->getCompletedAt()?->format('Y-m-d H:i:s'),
         ]);
     }
 
     public function delete(string $id): bool
     {
-        $sql = "DELETE FROM saga_transactions WHERE id = :id";
+        $sql = 'DELETE FROM saga_transactions WHERE id = :id';
         $stmt = $this->connection->prepare($sql);
 
         return $stmt->execute(['id' => $id]);

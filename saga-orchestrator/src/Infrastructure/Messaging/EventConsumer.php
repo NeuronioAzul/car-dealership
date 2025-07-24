@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Infrastructure\Messaging;
 
 use PhpAmqpLib\Connection\AMQPStreamConnection;
@@ -19,7 +21,7 @@ class EventConsumer
             $_ENV['RABBITMQ_PASS']
         );
         $this->channel = $this->connection->channel();
-        
+
         // Declarar filas se não existirem
         $this->setupQueues();
     }
@@ -28,13 +30,13 @@ class EventConsumer
     {
         // Fila para eventos de pagamento
         $this->channel->queue_declare('saga.payment.events', false, true, false, false);
-        
+
         // Fila para eventos de reserva
         $this->channel->queue_declare('saga.reservation.events', false, true, false, false);
-        
+
         // Fila para eventos de venda
         $this->channel->queue_declare('saga.sales.events', false, true, false, false);
-        
+
         // Fila para eventos de veículo
         $this->channel->queue_declare('saga.vehicle.events', false, true, false, false);
     }
@@ -54,7 +56,7 @@ class EventConsumer
                     $callback($data);
                     $msg->ack();
                 } catch (\Exception $e) {
-                    error_log("Erro ao processar evento de pagamento: " . $e->getMessage());
+                    error_log('Erro ao processar evento de pagamento: ' . $e->getMessage());
                     $msg->nack(false, true); // Rejeitar e recolocar na fila
                 }
             }
@@ -76,7 +78,7 @@ class EventConsumer
                     $callback($data);
                     $msg->ack();
                 } catch (\Exception $e) {
-                    error_log("Erro ao processar evento de reserva: " . $e->getMessage());
+                    error_log('Erro ao processar evento de reserva: ' . $e->getMessage());
                     $msg->nack(false, true);
                 }
             }
@@ -96,4 +98,3 @@ class EventConsumer
         $this->connection->close();
     }
 }
-

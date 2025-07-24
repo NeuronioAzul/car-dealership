@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Application\UseCases;
 
 use App\Domain\Repositories\SagaTransactionRepositoryInterface;
@@ -16,7 +18,7 @@ class GetTransactionStatusUseCase
     public function execute(string $transactionId, string $customerId): array
     {
         $transaction = $this->transactionRepository->findById($transactionId);
-        
+
         if (!$transaction) {
             throw new \Exception('Transação não encontrada', 404);
         }
@@ -28,4 +30,3 @@ class GetTransactionStatusUseCase
         return $transaction->toArray();
     }
 }
-

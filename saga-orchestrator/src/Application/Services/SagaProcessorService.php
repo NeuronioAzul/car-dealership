@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Application\Services;
 
-use App\Domain\Repositories\SagaTransactionRepositoryInterface;
 use App\Application\Sagas\VehiclePurchaseSaga;
+use App\Domain\Repositories\SagaTransactionRepositoryInterface;
 
 class SagaProcessorService
 {
@@ -29,13 +31,13 @@ class SagaProcessorService
                 $results[] = [
                     'transaction_id' => $transaction->getId(),
                     'status' => 'processed',
-                    'result' => $result
+                    'result' => $result,
                 ];
             } catch (\Exception $e) {
                 $results[] = [
                     'transaction_id' => $transaction->getId(),
                     'status' => 'error',
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ];
             }
         }
@@ -50,29 +52,29 @@ class SagaProcessorService
 
         if ($transaction->isCompensating()) {
             $this->vehiclePurchaseSaga->compensateTransaction($transaction);
-            
+
             // Recarregar transação para obter estado atualizado
             $updatedTransaction = $this->transactionRepository->findById($transaction->getId());
-            
+
             return [
                 'action' => 'compensation',
                 'initial_status' => $initialStatus,
                 'final_status' => $updatedTransaction->getStatus(),
-                'compensation_step' => $updatedTransaction->getNextCompensationStep()
+                'compensation_step' => $updatedTransaction->getNextCompensationStep(),
             ];
         } else {
             $this->vehiclePurchaseSaga->processNextStep($transaction);
-            
+
             // Recarregar transação para obter estado atualizado
             $updatedTransaction = $this->transactionRepository->findById($transaction->getId());
-            
+
             return [
                 'action' => 'step_execution',
                 'initial_status' => $initialStatus,
                 'final_status' => $updatedTransaction->getStatus(),
                 'initial_step' => $initialStep,
                 'current_step' => $updatedTransaction->getCurrentStep(),
-                'completed_steps' => $updatedTransaction->getCompletedSteps()
+                'completed_steps' => $updatedTransaction->getCompletedSteps(),
             ];
         }
     }
@@ -80,7 +82,7 @@ class SagaProcessorService
     public function retryFailedTransaction(string $transactionId): array
     {
         $transaction = $this->transactionRepository->findById($transactionId);
-        
+
         if (!$transaction) {
             throw new \Exception('Transação não encontrada', 404);
         }
@@ -110,7 +112,7 @@ class SagaProcessorService
             'failed' => 0,
             'compensated' => 0,
             'pending' => 0,
-            'success_rate' => 0
+            'success_rate' => 0,
         ];
 
         foreach ($allTransactions as $transaction) {
@@ -137,4 +139,3 @@ class SagaProcessorService
         return $stats;
     }
 }
-

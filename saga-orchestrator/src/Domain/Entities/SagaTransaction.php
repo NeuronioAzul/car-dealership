@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\Entities;
 
-use Ramsey\Uuid\Uuid;
 use DateTime;
+use Ramsey\Uuid\Uuid;
 
 class SagaTransaction
 {
@@ -119,7 +121,7 @@ class SagaTransaction
     {
         $this->status = $status;
         $this->updatedAt = new DateTime();
-        
+
         if (in_array($status, ['completed', 'failed', 'compensated'])) {
             $this->completedAt = new DateTime();
         }
@@ -164,6 +166,7 @@ class SagaTransaction
         }
 
         $nextStep = $this->getNextStep();
+
         if ($nextStep) {
             $this->setCurrentStep($nextStep);
         } else {
@@ -204,6 +207,7 @@ class SagaTransaction
                 return $step;
             }
         }
+
         return null;
     }
 
@@ -214,6 +218,7 @@ class SagaTransaction
                 return $step;
             }
         }
+
         return null;
     }
 
@@ -246,7 +251,7 @@ class SagaTransaction
                     'generate_payment_code',
                     'process_payment',
                     'create_sale',
-                    'update_vehicle_status'
+                    'update_vehicle_status',
                 ];
             default:
                 return [];
@@ -269,8 +274,7 @@ class SagaTransaction
             'context' => $this->context,
             'created_at' => $this->createdAt->format('Y-m-d H:i:s'),
             'updated_at' => $this->updatedAt->format('Y-m-d H:i:s'),
-            'completed_at' => $this->completedAt?->format('Y-m-d H:i:s')
+            'completed_at' => $this->completedAt?->format('Y-m-d H:i:s'),
         ];
     }
 }
-

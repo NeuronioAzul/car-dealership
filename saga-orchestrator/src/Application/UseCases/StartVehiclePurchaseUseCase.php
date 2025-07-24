@@ -1,10 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Application\UseCases;
 
-use App\Domain\Entities\SagaTransaction;
-use App\Domain\Repositories\SagaTransactionRepositoryInterface;
 use App\Application\Sagas\VehiclePurchaseSaga;
+use App\Domain\Repositories\SagaTransactionRepositoryInterface;
 
 class StartVehiclePurchaseUseCase
 {
@@ -24,7 +25,7 @@ class StartVehiclePurchaseUseCase
         // Verificar se já existe transação ativa para este cliente e veículo
         $existingTransactions = $this->transactionRepository->findByCustomerId($customerId);
         foreach ($existingTransactions as $transaction) {
-            if ($transaction->getVehicleId() === $vehicleId && 
+            if ($transaction->getVehicleId() === $vehicleId &&
                 in_array($transaction->getStatus(), ['started', 'in_progress'])) {
                 throw new \Exception('Já existe uma transação ativa para este veículo', 409);
             }
@@ -37,8 +38,7 @@ class StartVehiclePurchaseUseCase
             'transaction_id' => $transaction->getId(),
             'status' => $transaction->getStatus(),
             'current_step' => $transaction->getCurrentStep(),
-            'message' => 'Transação de compra iniciada com sucesso'
+            'message' => 'Transação de compra iniciada com sucesso',
         ];
     }
 }
-

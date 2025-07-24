@@ -1,13 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Presentation\Controllers;
 
-use App\Application\UseCases\StartVehiclePurchaseUseCase;
+use App\Application\Sagas\VehiclePurchaseSaga;
+use App\Application\Services\MicroserviceClient;
 use App\Application\UseCases\GetTransactionStatusUseCase;
+use App\Application\UseCases\StartVehiclePurchaseUseCase;
 use App\Infrastructure\Database\DatabaseConfig;
 use App\Infrastructure\Database\SagaTransactionRepository;
-use App\Application\Services\MicroserviceClient;
-use App\Application\Sagas\VehiclePurchaseSaga;
 use App\Infrastructure\Messaging\EventPublisher;
 use App\Presentation\Middleware\AuthMiddleware;
 
@@ -37,7 +39,7 @@ class SagaController
         try {
             $user = $this->authMiddleware->requireCustomer();
             $input = json_decode(file_get_contents('php://input'), true);
-            
+
             $requiredFields = ['vehicle_id', 'customer_data'];
             foreach ($requiredFields as $field) {
                 if (!isset($input[$field])) {
@@ -53,19 +55,18 @@ class SagaController
                 $input['customer_data'],
                 $authToken
             );
-            
+
             http_response_code(201);
             echo json_encode([
                 'success' => true,
-                'data' => $result
+                'data' => $result,
             ]);
-            
         } catch (\Exception $e) {
             $code = $e->getCode() ?: 500;
             http_response_code($code);
             echo json_encode([
                 'error' => true,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ]);
         }
     }
@@ -83,19 +84,18 @@ class SagaController
             }
 
             $result = $this->getStatusUseCase->execute($transactionId, $user['user_id']);
-            
+
             http_response_code(200);
             echo json_encode([
                 'success' => true,
-                'data' => $result
+                'data' => $result,
             ]);
-            
         } catch (\Exception $e) {
             $code = $e->getCode() ?: 500;
             http_response_code($code);
             echo json_encode([
                 'error' => true,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ]);
         }
     }
@@ -105,7 +105,7 @@ class SagaController
         try {
             // Buscar transações pendentes
             $pendingTransactions = $this->transactionRepository->findPendingTransactions();
-            
+
             $processed = 0;
             foreach ($pendingTransactions as $transaction) {
                 if ($transaction->isCompensating()) {
@@ -115,20 +115,19 @@ class SagaController
                 }
                 $processed++;
             }
-            
+
             http_response_code(200);
             echo json_encode([
                 'success' => true,
                 'message' => "Processadas {$processed} transações",
-                'processed_count' => $processed
+                'processed_count' => $processed,
             ]);
-            
         } catch (\Exception $e) {
             $code = $e->getCode() ?: 500;
             http_response_code($code);
             echo json_encode([
                 'error' => true,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ]);
         }
     }
@@ -140,8 +139,7 @@ class SagaController
             'success' => true,
             'service' => 'saga-orchestrator',
             'status' => 'healthy',
-            'timestamp' => date('Y-m-d H:i:s')
+            'timestamp' => date('Y-m-d H:i:s'),
         ]);
     }
 }
-
