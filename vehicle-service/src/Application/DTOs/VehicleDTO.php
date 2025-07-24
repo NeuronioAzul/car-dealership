@@ -1,12 +1,14 @@
 <?php
+
+declare(strict_types=1);
 # Create the Vehicle DTO class
+
 namespace App\Application\DTOs;
 
-use Symfony\Component\Validator\Constraints as Assert;
-use Ramsey\Uuid\Uuid;
 use DateTime;
 use DateTimeImmutable;
 use Ramsey\Uuid\Rfc4122\UuidV6;
+use Symfony\Component\Validator\Constraints as Assert;
 
 final class VehicleDTO
 {
@@ -101,21 +103,21 @@ final class VehicleDTO
         $this->id = $input['id'] ?? UuidV6::uuid6();
         $this->brand = trim($input['brand'] ?? '');
         $this->model = trim($input['model'] ?? '');
-        $this->year = (int)($input['year'] ?? 0);
+        $this->year = (int) ($input['year'] ?? 0);
         $this->color = trim($input['color'] ?? '');
         $this->fuelType = strtolower(trim($input['fuel_type'] ?? ''));
         $this->transmissionType = strtolower(trim($input['transmission_type'] ?? ''));
-        $this->mileage = (int)($input['mileage'] ?? 0);
-        $this->price = (float)($input['price'] ?? 0.0);
+        $this->mileage = (int) ($input['mileage'] ?? 0);
+        $this->price = (float) ($input['price'] ?? 0.0);
         $this->description = trim($input['description'] ?? '');
         $this->status = strtolower(trim($input['status'] ?? 'available'));
         $this->features = is_array($input['features']) ? $input['features'] : json_decode($input['features'], true) ?? [];
         $this->engineSize = isset($input['engine_size']) ? trim($input['engine_size']) : null;
-        $this->doors = isset($input['doors']) ? (int)$input['doors'] : null;
-        $this->seats = isset($input['seats']) ? (int)$input['seats'] : null;
-        $this->trunkCapacity = isset($input['trunk_capacity']) ? (int)$input['trunk_capacity'] : null;
-        $this->purchasePrice = isset($input['purchase_price']) ? (float)$input['purchase_price'] : null;
-        $this->profitMargin = isset($input['profit_margin']) ? (float)$input['profit_margin'] : null;
+        $this->doors = isset($input['doors']) ? (int) $input['doors'] : null;
+        $this->seats = isset($input['seats']) ? (int) $input['seats'] : null;
+        $this->trunkCapacity = isset($input['trunk_capacity']) ? (int) $input['trunk_capacity'] : null;
+        $this->purchasePrice = isset($input['purchase_price']) ? (float) $input['purchase_price'] : null;
+        $this->profitMargin = isset($input['profit_margin']) ? (float) $input['profit_margin'] : null;
         $this->supplier = isset($input['supplier']) ? trim($input['supplier']) : null;
         $this->chassisNumber = isset($input['chassis_number']) ? trim($input['chassis_number']) : null;
         $this->licensePlate = isset($input['license_plate']) ? strtoupper(trim($input['license_plate'])) : null;
@@ -163,7 +165,7 @@ final class VehicleDTO
             'renavam' => $this->renavam,
             'created_at' => $this->createdAt->format('Y-m-d H:i:s'),
             'updated_at' => $this->updatedAt->format('Y-m-d H:i:s'),
-            'deleted_at' => $this->deletedAt?->format('Y-m-d H:i:s')
+            'deleted_at' => $this->deletedAt?->format('Y-m-d H:i:s'),
         ];
     }
 

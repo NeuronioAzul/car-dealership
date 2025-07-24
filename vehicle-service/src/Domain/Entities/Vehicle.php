@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\Entities;
 
 use DateTime;
@@ -116,64 +118,302 @@ class Vehicle
     }
 
     // Getters
-    public function getId(): string { return $this->id; }
-    public function getBrand(): string { return $this->brand; }
-    public function getModel(): string { return $this->model; }
-    public function getYear(): int { return $this->year; }
-    public function getColor(): string { return $this->color; }
-    public function getFuelType(): string { return $this->fuelType; }
-    public function getTransmissionType(): string { return $this->transmissionType; }
-    public function getMileage(): int { return $this->mileage; }
-    public function getPrice(): float { return $this->price; }
-    public function getDescription(): string { return $this->description; }
-    public function getStatus(): string { return $this->status; }
-    public function getFeatures(): ?array { return $this->features; }
-    public function getEngineSize(): ?string { return $this->engineSize; }
-    public function getDoors(): ?int { return $this->doors; }
-    public function getSeats(): ?int { return $this->seats; }
-    public function getTrunkCapacity(): ?int { return $this->trunkCapacity; }
-    public function getPurchasePrice(): ?float { return $this->purchasePrice; }
-    public function getProfitMargin(): ?float { return $this->profitMargin; }
-    public function getSupplier(): ?string { return $this->supplier; }
-    public function getChassisNumber(): ?string { return $this->chassisNumber; }
-    public function getLicensePlate(): ?string { return $this->licensePlate; }
-    public function getRenavam(): ?string { return $this->renavam; }
-    public function getCreatedAt(): DateTime { return $this->createdAt; }
-    public function getUpdatedAt(): DateTime { return $this->updatedAt; }
-    public function getDeletedAt(): ?DateTime { return $this->deletedAt; }
+    public function getId(): string
+    {
+        return $this->id;
+    }
+
+    public function getBrand(): string
+    {
+        return $this->brand;
+    }
+
+    public function getModel(): string
+    {
+        return $this->model;
+    }
+
+    public function getYear(): int
+    {
+        return $this->year;
+    }
+
+    public function getColor(): string
+    {
+        return $this->color;
+    }
+
+    public function getFuelType(): string
+    {
+        return $this->fuelType;
+    }
+
+    public function getTransmissionType(): string
+    {
+        return $this->transmissionType;
+    }
+
+    public function getMileage(): int
+    {
+        return $this->mileage;
+    }
+
+    public function getPrice(): float
+    {
+        return $this->price;
+    }
+
+    public function getDescription(): string
+    {
+        return $this->description;
+    }
+
+    public function getStatus(): string
+    {
+        return $this->status;
+    }
+
+    public function getFeatures(): ?array
+    {
+        return $this->features;
+    }
+
+    public function getEngineSize(): ?string
+    {
+        return $this->engineSize;
+    }
+
+    public function getDoors(): ?int
+    {
+        return $this->doors;
+    }
+
+    public function getSeats(): ?int
+    {
+        return $this->seats;
+    }
+
+    public function getTrunkCapacity(): ?int
+    {
+        return $this->trunkCapacity;
+    }
+
+    public function getPurchasePrice(): ?float
+    {
+        return $this->purchasePrice;
+    }
+
+    public function getProfitMargin(): ?float
+    {
+        return $this->profitMargin;
+    }
+
+    public function getSupplier(): ?string
+    {
+        return $this->supplier;
+    }
+
+    public function getChassisNumber(): ?string
+    {
+        return $this->chassisNumber;
+    }
+
+    public function getLicensePlate(): ?string
+    {
+        return $this->licensePlate;
+    }
+
+    public function getRenavam(): ?string
+    {
+        return $this->renavam;
+    }
+
+    public function getCreatedAt(): DateTime
+    {
+        return $this->createdAt;
+    }
+
+    public function getUpdatedAt(): DateTime
+    {
+        return $this->updatedAt;
+    }
+
+    public function getDeletedAt(): ?DateTime
+    {
+        return $this->deletedAt;
+    }
 
     // Setters
-    public function setBrand(string $brand): void { $this->brand = $brand; $this->updatedAt = new DateTime(); }
-    public function setModel(string $model): void { $this->model = $model; $this->updatedAt = new DateTime(); }
-    public function setYear(int $year): void { $this->year = $year; $this->updatedAt = new DateTime(); }
-    public function setColor(string $color): void { $this->color = $color; $this->updatedAt = new DateTime(); }
-    public function setFuelType(string $fuelType): void { $this->fuelType = $fuelType; $this->updatedAt = new DateTime(); }
-    public function setTransmissionType(string $transmissionType): void { $this->transmissionType = $transmissionType; $this->updatedAt = new DateTime(); }
-    public function setMileage(int $mileage): void { $this->mileage = $mileage; $this->updatedAt = new DateTime(); }
-    public function setPrice(float $price): void { $this->price = $price; $this->updatedAt = new DateTime(); }
-    public function setDescription(string $description): void { $this->description = $description; $this->updatedAt = new DateTime(); }
-    public function setStatus(string $status): void { $this->status = $status; $this->updatedAt = new DateTime(); }
-    public function setFeatures(?array $features): void { $this->features = $features; $this->updatedAt = new DateTime(); }
-    public function setEngineSize(?string $engineSize): void { $this->engineSize = $engineSize; $this->updatedAt = new DateTime(); }
-    public function setDoors(?int $doors): void { $this->doors = $doors; $this->updatedAt = new DateTime(); }
-    public function setSeats(?int $seats): void { $this->seats = $seats; $this->updatedAt = new DateTime(); }
-    public function setTrunkCapacity(?int $trunkCapacity): void { $this->trunkCapacity = $trunkCapacity; $this->updatedAt = new DateTime(); }
-    public function setPurchasePrice(?float $purchasePrice): void { $this->purchasePrice = $purchasePrice; $this->updatedAt = new DateTime(); }
-    public function setProfitMargin(?float $profitMargin): void { $this->profitMargin = $profitMargin; $this->updatedAt = new DateTime(); }
-    public function setSupplier(?string $supplier): void { $this->supplier = $supplier; $this->updatedAt = new DateTime(); }
-    public function setChassisNumber(?string $chassisNumber): void { $this->chassisNumber = $chassisNumber; $this->updatedAt = new DateTime(); }
-    public function setLicensePlate(?string $licensePlate): void { $this->licensePlate = $licensePlate; $this->updatedAt = new DateTime(); }
-    public function setRenavam(?string $renavam): void { $this->renavam = $renavam; $this->updatedAt = new DateTime(); }
+    public function setBrand(string $brand): void
+    {
+        $this->brand = $brand;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setModel(string $model): void
+    {
+        $this->model = $model;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setYear(int $year): void
+    {
+        $this->year = $year;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setColor(string $color): void
+    {
+        $this->color = $color;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setFuelType(string $fuelType): void
+    {
+        $this->fuelType = $fuelType;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setTransmissionType(string $transmissionType): void
+    {
+        $this->transmissionType = $transmissionType;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setMileage(int $mileage): void
+    {
+        $this->mileage = $mileage;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setPrice(float $price): void
+    {
+        $this->price = $price;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setDescription(string $description): void
+    {
+        $this->description = $description;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setStatus(string $status): void
+    {
+        $this->status = $status;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setFeatures(?array $features): void
+    {
+        $this->features = $features;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setEngineSize(?string $engineSize): void
+    {
+        $this->engineSize = $engineSize;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setDoors(?int $doors): void
+    {
+        $this->doors = $doors;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setSeats(?int $seats): void
+    {
+        $this->seats = $seats;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setTrunkCapacity(?int $trunkCapacity): void
+    {
+        $this->trunkCapacity = $trunkCapacity;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setPurchasePrice(?float $purchasePrice): void
+    {
+        $this->purchasePrice = $purchasePrice;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setProfitMargin(?float $profitMargin): void
+    {
+        $this->profitMargin = $profitMargin;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setSupplier(?string $supplier): void
+    {
+        $this->supplier = $supplier;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setChassisNumber(?string $chassisNumber): void
+    {
+        $this->chassisNumber = $chassisNumber;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setLicensePlate(?string $licensePlate): void
+    {
+        $this->licensePlate = $licensePlate;
+        $this->updatedAt = new DateTime();
+    }
+
+    public function setRenavam(?string $renavam): void
+    {
+        $this->renavam = $renavam;
+        $this->updatedAt = new DateTime();
+    }
 
     // Métodos utilitários
-    public function reserve(): void { $this->status = 'reserved'; $this->updatedAt = new DateTime(); }
-    public function markAsSold(): void { $this->status = 'sold'; $this->updatedAt = new DateTime(); }
-    public function makeAvailable(): void { $this->status = 'available'; $this->updatedAt = new DateTime(); }
-    public function delete(): void { $this->deletedAt = new DateTime(); $this->updatedAt = new DateTime(); }
-    public function isDeleted(): bool { return $this->deletedAt !== null; }
-    public function isAvailable(): bool { return $this->status === 'available' && !$this->isDeleted(); }
-    public function isReserved(): bool { return $this->status === 'reserved' && !$this->isDeleted(); }
-    public function isSold(): bool { return $this->status === 'sold' && !$this->isDeleted(); }
+    public function reserve(): void
+    {
+        $this->status = 'reserved';
+        $this->updatedAt = new DateTime();
+    }
+
+    public function markAsSold(): void
+    {
+        $this->status = 'sold';
+        $this->updatedAt = new DateTime();
+    }
+
+    public function makeAvailable(): void
+    {
+        $this->status = 'available';
+        $this->updatedAt = new DateTime();
+    }
+
+    public function delete(): void
+    {
+        $this->deletedAt = new DateTime();
+        $this->updatedAt = new DateTime();
+    }
+
+    public function isDeleted(): bool
+    {
+        return $this->deletedAt !== null;
+    }
+
+    public function isAvailable(): bool
+    {
+        return $this->status === 'available' && !$this->isDeleted();
+    }
+
+    public function isReserved(): bool
+    {
+        return $this->status === 'reserved' && !$this->isDeleted();
+    }
+
+    public function isSold(): bool
+    {
+        return $this->status === 'sold' && !$this->isDeleted();
+    }
 
     public function toArray(): array
     {
@@ -202,7 +442,7 @@ class Vehicle
             'renavam' => $this->renavam,
             'created_at' => $this->createdAt->format('Y-m-d H:i:s'),
             'updated_at' => $this->updatedAt->format('Y-m-d H:i:s'),
-            'deleted_at' => $this->deletedAt?->format('Y-m-d H:i:s')
+            'deleted_at' => $this->deletedAt?->format('Y-m-d H:i:s'),
         ];
     }
 
@@ -212,21 +452,21 @@ class Vehicle
             $data['id'] ?? null,
             $data['brand'] ?? '',
             $data['model'] ?? '',
-            (int)$data['year'] ?? 0,
+            (int) $data['year'] ?? 0,
             $data['color'] ?? '',
             $data['fuel_type'] ?? '',
             $data['transmission_type'] ?? '',
-            (int)$data['mileage'] ?? 0,
-            (float)$data['price'] ?? 0.0,
+            (int) $data['mileage'] ?? 0,
+            (float) $data['price'] ?? 0.0,
             $data['description'] ?? '',
             $data['status'] ?? 'available',
             $data['features'] ?? [],
             $data['engine_size'] ?? null,
-            isset($data['doors']) ? (int)$data['doors'] : null,
-            isset($data['seats']) ? (int)$data['seats'] : null,
-            isset($data['trunk_capacity']) ? (int)$data['trunk_capacity'] : null,
-            isset($data['purchase_price']) ? (float)$data['purchase_price'] : null,
-            isset($data['profit_margin']) ? (float)$data['profit_margin'] : null,
+            isset($data['doors']) ? (int) $data['doors'] : null,
+            isset($data['seats']) ? (int) $data['seats'] : null,
+            isset($data['trunk_capacity']) ? (int) $data['trunk_capacity'] : null,
+            isset($data['purchase_price']) ? (float) $data['purchase_price'] : null,
+            isset($data['profit_margin']) ? (float) $data['profit_margin'] : null,
             $data['supplier'] ?? null,
             $data['chassis_number'] ?? null,
             $data['license_plate'] ?? null,

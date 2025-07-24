@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Infrastructure\Http;
 
 use App\Presentation\Controllers\VehicleController;
@@ -43,9 +45,10 @@ class Router
     {
         $method = $_SERVER['REQUEST_METHOD'];
         $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-        
+
         // Remover prefixos desnecessários
         $path = preg_replace('#^\/api\/v1\/vehicles#', '', $path);
+
         if ($path === '') {
             $path = '/';
         }
@@ -57,32 +60,35 @@ class Router
         if (isset($this->routes[$route])) {
             // Verificar middleware para rota exata
             $this->checkMiddleware($route);
-            
+
             [$controller, $action] = $this->routes[$route];
-            
+
             try {
                 $controller->$action();
             } catch (\Exception $e) {
                 $this->handleError($e);
             }
+
             return;
         }
 
         // Se não encontrou rota exata, procura por rotas com parâmetros
         foreach ($this->routes as $routePattern => $handler) {
             $routeParams = $this->matchRoute($routePattern, $route);
+
             if ($routeParams !== false) {
                 // Verificar middleware para rota com padrão
                 $this->checkMiddleware($routePattern);
-                
+
                 [$controller, $action] = $handler;
                 $params = $routeParams;
-                
+
                 try {
                     $controller->$action(...array_values($params));
                 } catch (\Exception $e) {
                     $this->handleError($e);
                 }
+
                 return;
             }
         }
@@ -123,22 +129,22 @@ class Router
         // Converter padrão de rota em regex
         $pattern = preg_replace('/\{([^}]+)\}/', '([^/]+)', $routePattern);
         $pattern = '#^' . $pattern . '$#';
-        
+
         if (preg_match($pattern, $actualRoute, $matches)) {
             array_shift($matches); // Remove o match completo
-            
+
             // Extrair nomes dos parâmetros do padrão original
             preg_match_all('/\{([^}]+)\}/', $routePattern, $paramNames);
             $paramNames = $paramNames[1];
-            
+
             $params = [];
             foreach ($paramNames as $index => $paramName) {
                 $params[$paramName] = $matches[$index] ?? null;
             }
-            
+
             return $params;
         }
-        
+
         return false;
     }
 
@@ -146,11 +152,11 @@ class Router
     {
         $code = $e->getCode() ?: 500;
         http_response_code($code);
-        
+
         echo json_encode([
             'error' => true,
             'message' => $e->getMessage(),
-            'code' => $code
+            'code' => $code,
         ]);
     }
 
@@ -158,11 +164,11 @@ class Router
     {
         $code = $e->getCode() ?: 401;
         http_response_code($code);
-        
+
         $response = [
             'error' => true,
             'message' => $e->getMessage(),
-            'code' => $code
+            'code' => $code,
         ];
 
         // Adicionar tipo de erro específico para o frontend
@@ -184,7 +190,7 @@ class Router
         echo json_encode([
             'error' => true,
             'message' => 'Rota não encontrada',
-            'code' => 404
+            'code' => 404,
         ]);
     }
 }

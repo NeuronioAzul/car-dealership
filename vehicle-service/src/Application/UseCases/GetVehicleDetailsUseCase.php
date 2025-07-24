@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Application\UseCases;
 
 use App\Domain\Repositories\VehicleRepositoryInterface;
@@ -16,7 +18,7 @@ class GetVehicleDetailsUseCase
     public function execute(string $vehicleId): array
     {
         $vehicle = $this->vehicleRepository->findById($vehicleId);
-        
+
         if (!$vehicle) {
             throw new \Exception('Veículo não encontrado', 404);
         }
@@ -28,4 +30,3 @@ class GetVehicleDetailsUseCase
         return $vehicle->toArray();
     }
 }
-

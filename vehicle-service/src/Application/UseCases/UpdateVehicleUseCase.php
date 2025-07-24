@@ -1,14 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Application\UseCases;
 
-use App\Infrastructure\Database\VehicleRepository;
 use App\Application\DTOs\VehicleDTO;
 use App\Domain\Repositories\VehicleRepositoryInterface;
 
 class UpdateVehicleUseCase
 {
-    public function __construct(private readonly VehicleRepositoryInterface $vehicleRepository){}
+    public function __construct(private readonly VehicleRepositoryInterface $vehicleRepository)
+    {
+    }
 
     public function execute(VehicleDTO $vehicleDTO): VehicleDTO
     {

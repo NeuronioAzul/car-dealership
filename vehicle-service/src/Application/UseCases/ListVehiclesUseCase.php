@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Application\UseCases;
 
 use App\Domain\Repositories\VehicleRepositoryInterface;
@@ -20,9 +22,8 @@ class ListVehiclesUseCase
             false => $vehicles = $this->vehicleRepository->findAll(),
         };
 
-        return array_map(function($vehicle) {
+        return array_map(function ($vehicle) {
             return $vehicle->toArray();
         }, $vehicles);
     }
 }
-

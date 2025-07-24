@@ -1,14 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Presentation\Controllers;
 
 use App\Application\DTOs\VehicleDTO;
 use App\Application\UseCases\CreateVehicleUseCase;
+use App\Application\UseCases\DeleteVehicleUseCase;
 use App\Application\UseCases\GetVehicleDetailsUseCase;
 use App\Application\UseCases\ListVehiclesUseCase;
 use App\Application\UseCases\SearchVehiclesUseCase;
 use App\Application\UseCases\UpdateVehicleUseCase;
-use App\Application\UseCases\DeleteVehicleUseCase;
 use App\Application\Validation\Requests\CreateVehicleRequest;
 use App\Application\Validation\Requests\UpdateVehicleRequest;
 use App\Infrastructure\Database\DatabaseConfig;

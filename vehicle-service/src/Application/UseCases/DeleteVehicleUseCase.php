@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Application\UseCases;
 
-use App\Infrastructure\Database\VehicleRepository;
 use App\Domain\Repositories\VehicleRepositoryInterface;
 use Ramsey\Uuid\Uuid;
 
