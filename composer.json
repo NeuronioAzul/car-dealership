@@ -10,20 +10,6 @@
         "symfony/var-dumper": "^7.3"
     },
     "license": "MIT",
-    "autoload": {
-        "psr-4": {
-            "CarDealership\\Admin\\": "admin-service/src/",
-            "CarDealership\\Auth\\": "auth-service/src/",
-            "CarDealership\\Customer\\": "customer-service/src/",
-            "CarDealership\\Vehicle\\": "vehicle-service/src/",
-            "CarDealership\\Order\\": "order-service/src/",
-            "CarDealership\\Payment\\": "payment-service/src/",
-            "CarDealership\\Reservation\\": "reservation-service/src/",
-            "CarDealership\\Sales\\": "sales-service/src/",
-            "CarDealership\\Saga\\": "saga-orchestrator/src/",
-            "CarDealership\\Shared\\": "shared/src/"
-        }
-    },
     "authors": [
         {
             "name": "Mauro Rocha",
