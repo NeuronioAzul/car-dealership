@@ -1,10 +1,5 @@
 # Sistema de Concessionária de Veículos - Guia de Instalação
 
-**Versão:** 1.0.0  
-**Data:** 13 de junho de 2025  
-**Autor:** Mauro Rocha Tavares 
-**Tecnologia:** PHP 8.4, MySQL 8, RabbitMQ 3, Kong API Gateway, Docker
-
 ---
 
 ## Visão Geral
@@ -94,8 +89,8 @@ docker-compose --version
 docker info
 
 # Criar diretório do projeto
-mkdir -p ~/projetos/car-dealership
-cd ~/projetos/car-dealership
+mkdir -p ~/car-dealership
+cd ~/car-dealership
 ```
 
 ### Passo 2: Obtenção do Código Fonte
@@ -104,23 +99,7 @@ Clone o repositório do projeto ou copie todos os arquivos fornecidos para o dir
 
 ```bash
 # Se usando Git (substitua pela URL real do repositório)
-git clone <repository-url> .
-
-# Ou copie manualmente todos os arquivos mantendo a estrutura:
-# car-dealership/
-# ├── auth-service/
-# ├── customer-service/
-# ├── vehicle-service/
-# ├── reservation-service/
-# ├── payment-service/
-# ├── sales-service/
-# ├── admin-service/
-# ├── saga-orchestrator/
-# ├── api-gateway/
-# ├── shared/
-# ├── docs/
-# ├── tests/
-# └── docker-compose.yml
+git clone https://github.com/NeuronioAzul/car-dealership.git .
 ```
 
 ### Passo 3: Configuração de Variáveis de Ambiente
@@ -443,4 +422,4 @@ docker-compose exec auth-service composer update
 docker-compose exec vehicle-service composer update
 ```
 
-Este guia de instalação fornece uma base sólida para implementação do Sistema de Concessionária de Veículos. Para questões específicas ou problemas não cobertos neste documento, consulte a documentação técnica detalhada ou entre em contato com a equipe de desenvolvimento.
+Este guia de instalação fornece uma base para implementação do Sistema de Concessionária de Veículos. Para questões específicas ou problemas não cobertos neste documento, entre em contato com a equipe de desenvolvimento.
