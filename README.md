@@ -125,7 +125,7 @@ O sistema oferece a gestão de catálogo de veículos até processamento de vend
 
 ```bash
 # 1. Clone o repositório
-git clone <https://github.com/NeuronioAzul/car-dealership.git>
+git clone https://github.com/NeuronioAzul/car-dealership.git
 cd car-dealership
 
 # 2. Use o Makefile para instalar e configurar o ambiente
@@ -136,7 +136,7 @@ make setup
 
 ```bash
 # 1. Clone o repositório
-git clone <https://github.com/NeuronioAzul/car-dealership.git>
+git clone https://github.com/NeuronioAzul/car-dealership.git
 cd car-dealership
 
 # 2. Certifique-se de que o Docker e o Docker Compose estão instalados
@@ -481,7 +481,7 @@ Para reportar bugs ou solicitar funcionalidades:
 
 ```bash
 # Configurar ambiente de desenvolvimento
-git clone <https://github.com/NeuronioAzul/car-dealership.git>
+git clone https://github.com/NeuronioAzul/car-dealership.git
 cd car-dealership
 
 # Instalar dependências de teste
