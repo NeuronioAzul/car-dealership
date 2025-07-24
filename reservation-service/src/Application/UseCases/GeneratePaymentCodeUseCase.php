@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Application\UseCases;
 
 use App\Domain\Repositories\ReservationRepositoryInterface;
@@ -21,7 +23,7 @@ class GeneratePaymentCodeUseCase
     public function execute(string $reservationId, string $customerId): array
     {
         $reservation = $this->reservationRepository->findById($reservationId);
-        
+
         if (!$reservation) {
             throw new \Exception('Reserva não encontrada', 404);
         }
@@ -34,12 +36,15 @@ class GeneratePaymentCodeUseCase
             if ($reservation->isExpired()) {
                 throw new \Exception('Reserva expirada', 410);
             }
+
             if ($reservation->isCancelled()) {
                 throw new \Exception('Reserva cancelada', 410);
             }
+
             if ($reservation->isPaid()) {
                 throw new \Exception('Reserva já foi paga', 409);
             }
+
             throw new \Exception('Reserva não está ativa', 409);
         }
 
@@ -48,7 +53,7 @@ class GeneratePaymentCodeUseCase
             return [
                 'reservation' => $reservation->toArray(),
                 'payment_code' => $reservation->getPaymentCode(),
-                'message' => 'Código de pagamento já existe'
+                'message' => 'Código de pagamento já existe',
             ];
         }
 
@@ -67,14 +72,13 @@ class GeneratePaymentCodeUseCase
             'vehicle_id' => $reservation->getVehicleId(),
             'payment_code' => $paymentCode,
             'expires_at' => $reservation->getExpiresAt()->format('Y-m-d H:i:s'),
-            'timestamp' => date('Y-m-d H:i:s')
+            'timestamp' => date('Y-m-d H:i:s'),
         ]);
 
         return [
             'reservation' => $reservation->toArray(),
             'payment_code' => $paymentCode,
-            'message' => 'Código de pagamento gerado com sucesso'
+            'message' => 'Código de pagamento gerado com sucesso',
         ];
     }
 }
-

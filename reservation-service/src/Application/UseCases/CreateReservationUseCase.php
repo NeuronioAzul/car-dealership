@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Application\UseCases;
 
 use App\Domain\Entities\Reservation;
@@ -23,12 +25,14 @@ class CreateReservationUseCase
     {
         // Verificar se já existe reserva ativa para este veículo
         $existingReservation = $this->reservationRepository->findActiveByVehicleId($vehicleId);
+
         if ($existingReservation) {
             throw new \Exception('Veículo já está reservado', 409);
         }
 
         // Verificar se o cliente já tem reservas ativas (limite de 1 por cliente)
         $customerActiveReservations = $this->reservationRepository->findActiveByCustomerId($customerId);
+
         if (count($customerActiveReservations) >= 3) { // Limite de 3 reservas ativas
             throw new \Exception('Limite de reservas ativas atingido', 409);
         }
@@ -47,10 +51,9 @@ class CreateReservationUseCase
             'customer_id' => $reservation->getCustomerId(),
             'vehicle_id' => $reservation->getVehicleId(),
             'expires_at' => $reservation->getExpiresAt()->format('Y-m-d H:i:s'),
-            'timestamp' => date('Y-m-d H:i:s')
+            'timestamp' => date('Y-m-d H:i:s'),
         ]);
 
         return $reservation->toArray();
     }
 }
-

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Application\UseCases;
 
 use App\Domain\Repositories\ReservationRepositoryInterface;
@@ -22,11 +24,10 @@ class ListCustomerReservationsUseCase
         }
 
         return [
-            'reservations' => array_map(function($reservation) {
+            'reservations' => array_map(function ($reservation) {
                 return $reservation->toArray();
             }, $reservations),
-            'total' => count($reservations)
+            'total' => count($reservations),
         ];
     }
 }
-

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Application\UseCases;
 
 use App\Domain\Repositories\ReservationRepositoryInterface;
@@ -21,7 +23,7 @@ class CancelReservationUseCase
     public function execute(string $reservationId, string $customerId): array
     {
         $reservation = $this->reservationRepository->findById($reservationId);
-        
+
         if (!$reservation) {
             throw new \Exception('Reserva não encontrada', 404);
         }
@@ -55,13 +57,12 @@ class CancelReservationUseCase
             'reservation_id' => $reservation->getId(),
             'customer_id' => $reservation->getCustomerId(),
             'vehicle_id' => $reservation->getVehicleId(),
-            'timestamp' => date('Y-m-d H:i:s')
+            'timestamp' => date('Y-m-d H:i:s'),
         ]);
 
         return [
             'reservation' => $reservation->toArray(),
-            'message' => 'Reserva cancelada com sucesso'
+            'message' => 'Reserva cancelada com sucesso',
         ];
     }
 }
-

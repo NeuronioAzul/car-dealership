@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Presentation\Controllers;
 
-use App\Application\UseCases\CreateReservationUseCase;
 use App\Application\UseCases\CancelReservationUseCase;
+use App\Application\UseCases\CreateReservationUseCase;
 use App\Application\UseCases\GeneratePaymentCodeUseCase;
 use App\Application\UseCases\ListCustomerReservationsUseCase;
 use App\Infrastructure\Database\DatabaseConfig;
@@ -37,26 +39,25 @@ class ReservationController
         try {
             $user = $this->authMiddleware->requireCustomer();
             $input = json_decode(file_get_contents('php://input'), true);
-            
+
             if (!isset($input['vehicle_id'])) {
                 throw new \Exception('ID do veículo é obrigatório', 400);
             }
 
             $result = $this->createReservationUseCase->execute($user['user_id'], $input['vehicle_id']);
-            
+
             http_response_code(201);
             echo json_encode([
                 'success' => true,
                 'data' => $result,
-                'message' => 'Reserva criada com sucesso'
+                'message' => 'Reserva criada com sucesso',
             ]);
-            
         } catch (\Exception $e) {
             $code = $e->getCode() ?: 500;
             http_response_code($code);
             echo json_encode([
                 'error' => true,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ]);
         }
     }
@@ -66,21 +67,20 @@ class ReservationController
         try {
             $user = $this->authMiddleware->requireCustomer();
             $activeOnly = isset($_GET['active_only']) && $_GET['active_only'] === 'true';
-            
+
             $result = $this->listReservationsUseCase->execute($user['user_id'], $activeOnly);
-            
+
             http_response_code(200);
             echo json_encode([
                 'success' => true,
-                'data' => $result
+                'data' => $result,
             ]);
-            
         } catch (\Exception $e) {
             $code = $e->getCode() ?: 500;
             http_response_code($code);
             echo json_encode([
                 'error' => true,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ]);
         }
     }
@@ -108,19 +108,18 @@ class ReservationController
             if ($reservation->getCustomerId() !== $user['user_id']) {
                 throw new \Exception('Acesso negado', 403);
             }
-            
+
             http_response_code(200);
             echo json_encode([
                 'success' => true,
-                'data' => $reservation->toArray()
+                'data' => $reservation->toArray(),
             ]);
-            
         } catch (\Exception $e) {
             $code = $e->getCode() ?: 500;
             http_response_code($code);
             echo json_encode([
                 'error' => true,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ]);
         }
     }
@@ -138,19 +137,18 @@ class ReservationController
             }
 
             $result = $this->cancelReservationUseCase->execute($reservationId, $user['user_id']);
-            
+
             http_response_code(200);
             echo json_encode([
                 'success' => true,
-                'data' => $result
+                'data' => $result,
             ]);
-            
         } catch (\Exception $e) {
             $code = $e->getCode() ?: 500;
             http_response_code($code);
             echo json_encode([
                 'error' => true,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ]);
         }
     }
@@ -160,25 +158,24 @@ class ReservationController
         try {
             $user = $this->authMiddleware->requireCustomer();
             $input = json_decode(file_get_contents('php://input'), true);
-            
+
             if (!isset($input['reservation_id'])) {
                 throw new \Exception('ID da reserva é obrigatório', 400);
             }
 
             $result = $this->generatePaymentCodeUseCase->execute($input['reservation_id'], $user['user_id']);
-            
+
             http_response_code(200);
             echo json_encode([
                 'success' => true,
-                'data' => $result
+                'data' => $result,
             ]);
-            
         } catch (\Exception $e) {
             $code = $e->getCode() ?: 500;
             http_response_code($code);
             echo json_encode([
                 'error' => true,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ]);
         }
     }
@@ -190,8 +187,7 @@ class ReservationController
             'success' => true,
             'service' => 'reservation-service',
             'status' => 'healthy',
-            'timestamp' => date('Y-m-d H:i:s')
+            'timestamp' => date('Y-m-d H:i:s'),
         ]);
     }
 }
-

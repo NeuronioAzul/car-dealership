@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\Entities;
 
-use Ramsey\Uuid\Uuid;
 use DateTime;
+use Ramsey\Uuid\Uuid;
 
 class Reservation
 {
@@ -152,6 +154,7 @@ class Reservation
         // Gerar código de pagamento único
         $code = 'PAY' . strtoupper(substr(md5($this->id . time()), 0, 10));
         $this->setPaymentCode($code);
+
         return $code;
     }
 
@@ -168,8 +171,7 @@ class Reservation
             'is_active' => $this->isActive(),
             'created_at' => $this->createdAt->format('Y-m-d H:i:s'),
             'updated_at' => $this->updatedAt->format('Y-m-d H:i:s'),
-            'deleted_at' => $this->deletedAt?->format('Y-m-d H:i:s')
+            'deleted_at' => $this->deletedAt?->format('Y-m-d H:i:s'),
         ];
     }
 }
-
