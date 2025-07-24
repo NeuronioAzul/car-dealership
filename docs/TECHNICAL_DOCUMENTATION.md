@@ -1604,7 +1604,7 @@ O sistema suporta múltiplas estratégias de deployment para diferentes ambiente
 **Deployment Local (Desenvolvimento):**
 ```bash
 # Clone do repositório
-git clone <repository-url>
+git clone https://github.com/NeuronioAzul/car-dealership.git
 cd car-dealership
 
 # Inicialização completa
