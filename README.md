@@ -14,9 +14,8 @@
 - **Git:** Controle de versionamento de código-fonte.
 - **Makefile:** Automação de tarefas comuns do projeto.
 
-### Backend e Frameworks
+### Backend Dev e Prod
 
-- **Laravel 11:** Framework PHP moderno para desenvolvimento web.
 - **PHP 8.4 (PSR-12):** Linguagem principal seguindo padrão de codificação PSR-12.
 - **PHPUnit:** Framework para testes automatizados em PHP.
 - **PHP CS Fixer:** Ferramenta para padronização e formatação automática do código.
