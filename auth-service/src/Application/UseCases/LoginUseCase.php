@@ -1,10 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Application\UseCases;
 
-use App\Domain\Entities\User;
-use App\Domain\Repositories\UserRepositoryInterface;
 use App\Application\Services\JWTService;
+use App\Domain\Repositories\UserRepositoryInterface;
 use App\Infrastructure\Messaging\EventPublisher;
 
 class LoginUseCase
@@ -13,7 +14,8 @@ class LoginUseCase
         private readonly UserRepositoryInterface $userRepository,
         private readonly JWTService $jwtService,
         private readonly EventPublisher $eventPublisher
-    ) {}
+    ) {
+    }
 
     public function execute(string $email, string $password): array
     {
@@ -42,7 +44,7 @@ class LoginUseCase
             'user_id' => $user->getId(),
             'email' => $user->getEmail(),
             'role' => $user->getRole(),
-            'timestamp' => date('Y-m-d H:i:s')
+            'timestamp' => date('Y-m-d H:i:s'),
         ]);
 
         return [
@@ -50,12 +52,12 @@ class LoginUseCase
                 'id' => $user->getId(),
                 'name' => $user->getName(),
                 'email' => $user->getEmail(),
-                'role' => $user->getRole()
+                'role' => $user->getRole(),
             ],
             'access_token' => $token,
             'refresh_token' => $refreshToken,
             'token_type' => 'Bearer',
-            'expires_in' => $_ENV['JWT_EXPIRATION']
+            'expires_in' => $_ENV['JWT_EXPIRATION'],
         ];
     }
 }

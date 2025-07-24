@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Application\UseCases;
 
 use App\Domain\Entities\User;
-use App\Domain\ValueObjects\Address;
 use App\Domain\Repositories\UserRepositoryInterface;
+use App\Domain\ValueObjects\Address;
 use App\Infrastructure\Messaging\EventPublisher;
 use DateTime;
 
@@ -13,7 +15,8 @@ class RegisterUseCase
     public function __construct(
         private readonly UserRepositoryInterface $userRepository,
         private readonly EventPublisher $eventPublisher
-    ) {}
+    ) {
+    }
 
     public function execute(array $userData): array
     {
@@ -60,7 +63,7 @@ class RegisterUseCase
             'email' => $user->getEmail(),
             'name' => $user->getName(),
             'role' => $user->getRole(),
-            'timestamp' => date('Y-m-d H:i:s')
+            'timestamp' => date('Y-m-d H:i:s'),
         ]);
 
         return [
@@ -68,9 +71,9 @@ class RegisterUseCase
                 'id' => $user->getId(),
                 'name' => $user->getName(),
                 'email' => $user->getEmail(),
-                'role' => $user->getRole()
+                'role' => $user->getRole(),
             ],
-            'message' => 'Usuário criado com sucesso'
+            'message' => 'Usuário criado com sucesso',
         ];
     }
 
@@ -84,7 +87,7 @@ class RegisterUseCase
             'birth_date',
             'address',
             'accept_terms',
-            'accept_privacy'
+            'accept_privacy',
         ];
 
         foreach ($required as $field) {

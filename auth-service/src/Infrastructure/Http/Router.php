@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Infrastructure\Http;
 
 use App\Presentation\Controllers\AuthController;
@@ -23,7 +25,7 @@ class Router
             'POST /refresh' => [$this->authController, 'refresh'],
             'GET /logout' => [$this->authController, 'logout'],
             'GET /validate' => [$this->authController, 'validate'],
-            'GET /health' => [$this->authController, 'health']
+            'GET /health' => [$this->authController, 'health'],
         ];
     }
 
@@ -34,6 +36,7 @@ class Router
 
         // Remover prefixos desnecessários
         $path = preg_replace('#^\/api\/v1\/auth#', '', $path);
+
         if ($path === '') {
             $path = '/';
         }
@@ -42,7 +45,7 @@ class Router
 
         if (isset($this->routes[$route])) {
             [$controller, $action] = $this->routes[$route];
-            
+
             try {
                 $controller->$action();
             } catch (\Exception $e) {
@@ -57,11 +60,11 @@ class Router
     {
         $code = $e->getCode() ?: 500;
         http_response_code($code);
-        
+
         echo json_encode([
             'error' => true,
             'message' => $e->getMessage(),
-            'code' => $code
+            'code' => $code,
         ]);
     }
 
@@ -71,8 +74,7 @@ class Router
         echo json_encode([
             'error' => true,
             'message' => 'Rota não encontrada',
-            'code' => 404
+            'code' => 404,
         ]);
     }
 }
-

@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Application\Services;
 
+use App\Domain\Entities\User;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
-use App\Domain\Entities\User;
 
 class JWTService
 {
@@ -29,7 +31,7 @@ class JWTService
             'email' => $user->getEmail(),
             'role' => $user->getRole(),
             'iat' => time(),
-            'exp' => time() + $this->expiration
+            'exp' => time() + $this->expiration,
         ];
 
         return JWT::encode($payload, $this->secret, $this->algorithm);
@@ -42,7 +44,7 @@ class JWTService
             'sub' => $user->getId(),
             'type' => 'refresh',
             'iat' => time(),
-            'exp' => time() + (7 * 24 * 60 * 60) // 7 dias
+            'exp' => time() + (7 * 24 * 60 * 60), // 7 dias
         ];
 
         return JWT::encode($payload, $this->secret, $this->algorithm);
@@ -57,6 +59,7 @@ class JWTService
             }
 
             $decoded = JWT::decode($token, new Key($this->secret, $this->algorithm));
+
             return (array) $decoded;
         } catch (\Exception $e) {
             throw new \Exception('Token inválido: ' . $e->getMessage(), 401);
@@ -67,7 +70,7 @@ class JWTService
     {
         try {
             $decoded = JWT::decode($refreshToken, new Key($this->secret, $this->algorithm));
-            
+
             if (!isset($decoded->type) || $decoded->type !== 'refresh') {
                 throw new \Exception('Token de refresh inválido', 401);
             }
@@ -77,11 +80,10 @@ class JWTService
                 'iss' => 'car-dealership-auth',
                 'sub' => $decoded->sub,
                 'iat' => time(),
-                'exp' => time() + $this->expiration
+                'exp' => time() + $this->expiration,
             ];
 
             return JWT::encode($payload, $this->secret, $this->algorithm);
-            
         } catch (\Exception $e) {
             throw new \Exception('Token de refresh inválido: ' . $e->getMessage(), 401);
         }
@@ -90,12 +92,14 @@ class JWTService
     public function extractUserIdFromToken(string $token): string
     {
         $decoded = $this->validateToken($token);
+
         return $decoded['sub'];
     }
 
     public function extractUserRoleFromToken(string $token): string
     {
         $decoded = $this->validateToken($token);
+
         return $decoded['role'] ?? 'customer';
     }
 
@@ -117,4 +121,3 @@ class JWTService
         return $this->blacklistService->isTokenRevoked($token);
     }
 }
-

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\ValueObjects;
 
 class Address
@@ -70,8 +72,7 @@ class Address
             'neighborhood' => $this->neighborhood,
             'city' => $this->city,
             'state' => $this->state,
-            'zip_code' => $this->zipCode
+            'zip_code' => $this->zipCode,
         ];
     }
 }
-

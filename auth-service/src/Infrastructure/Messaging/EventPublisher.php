@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Infrastructure\Messaging;
 
 use PhpAmqpLib\Message\AMQPMessage;
@@ -19,7 +21,7 @@ class EventPublisher
             json_encode($data),
             [
                 'content_type' => 'application/json',
-                'delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT
+                'delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT,
             ]
         );
 
@@ -30,4 +32,3 @@ class EventPublisher
         );
     }
 }
-

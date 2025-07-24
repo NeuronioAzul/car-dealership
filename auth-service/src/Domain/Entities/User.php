@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\Entities;
 
-use Ramsey\Uuid\Uuid;
-use DateTime;
 use App\Domain\ValueObjects\Address;
+use DateTime;
+use Ramsey\Uuid\Uuid;
 
 class User
 {
@@ -224,8 +226,7 @@ class User
             'accept_communications' => $this->acceptCommunications,
             'created_at' => $this->createdAt->format('Y-m-d H:i:s'),
             'updated_at' => $this->updatedAt->format('Y-m-d H:i:s'),
-            'deleted_at' => $this->deletedAt?->format('Y-m-d H:i:s')
+            'deleted_at' => $this->deletedAt?->format('Y-m-d H:i:s'),
         ];
     }
 }
-

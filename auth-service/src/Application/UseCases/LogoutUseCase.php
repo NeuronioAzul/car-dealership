@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Application\UseCases;
 
 use App\Application\Services\JWTService;
@@ -17,7 +19,7 @@ class LogoutUseCase
     {
         // Validar se o token é válido antes de revogar
         $this->jwtService->validateToken($token);
-        
+
         // Revogar o token
         $this->jwtService->revokeToken($token);
     }

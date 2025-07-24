@@ -1,17 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Presentation\Controllers;
 
-use App\Application\UseCases\LoginUseCase;
-use App\Application\UseCases\RegisterUseCase;
-use App\Application\UseCases\LogoutUseCase;
+use App\Application\Requests\RequestUser;
 use App\Application\Services\JWTService;
 use App\Application\Services\TokenBlacklistService;
+use App\Application\UseCases\LoginUseCase;
+use App\Application\UseCases\LogoutUseCase;
+use App\Application\UseCases\RegisterUseCase;
 use App\Infrastructure\Database\DatabaseConfig;
-use App\Infrastructure\Database\UserRepository;
 use App\Infrastructure\Database\TokenBlacklistRepository;
+use App\Infrastructure\Database\UserRepository;
 use App\Infrastructure\Messaging\EventPublisher;
-use App\Application\Requests\RequestUser;
 
 class AuthController
 {
@@ -26,7 +28,7 @@ class AuthController
         $database = DatabaseConfig::getConnection();
         $userRepository = new UserRepository($database);
         $eventPublisher = new EventPublisher();
-        
+
         // Inicializar serviços de token
         $blacklistRepository = new TokenBlacklistRepository($database);
         $this->blacklistService = new TokenBlacklistService($blacklistRepository);
@@ -51,14 +53,14 @@ class AuthController
             http_response_code(200);
             echo json_encode([
                 'success' => true,
-                'data' => $result
+                'data' => $result,
             ]);
         } catch (\Exception $e) {
             $code = $e->getCode() ?: 500;
             http_response_code($code);
             echo json_encode([
                 'error' => true,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ]);
         }
     }
@@ -78,8 +80,9 @@ class AuthController
                 echo json_encode([
                     'error' => true,
                     'message' => 'Erro de validação.',
-                    'errors' => $request->errors()
+                    'errors' => $request->errors(),
                 ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+
                 return;
             }
 
@@ -88,14 +91,14 @@ class AuthController
             http_response_code(201);
             echo json_encode([
                 'success' => true,
-                'data' => $result
+                'data' => $result,
             ]);
         } catch (\Exception $e) {
             $code = $e->getCode() ?: 500;
             http_response_code($code);
             echo json_encode([
                 'error' => true,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ]);
         }
     }
@@ -117,15 +120,15 @@ class AuthController
                 'data' => [
                     'access_token' => $newToken,
                     'token_type' => 'Bearer',
-                    'expires_in' => $_ENV['JWT_EXPIRATION']
-                ]
+                    'expires_in' => $_ENV['JWT_EXPIRATION'],
+                ],
             ]);
         } catch (\Exception $e) {
             $code = $e->getCode() ?: 500;
             http_response_code($code);
             echo json_encode([
                 'error' => true,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ]);
         }
     }
@@ -141,20 +144,21 @@ class AuthController
             }
 
             $token = substr($authHeader, 7);
-            
+
             // Usar o LogoutUseCase
             $this->logoutUseCase->execute($token);
 
             http_response_code(200);
             echo json_encode([
                 'success' => true,
-                'message' => 'Logout realizado com sucesso. Token invalidado.'
+                'message' => 'Logout realizado com sucesso. Token invalidado.',
             ]);
         } catch (\Exception $e) {
             $code = $e->getCode() ?: 500;
-            
+
             // Mensagens mais amigáveis para diferentes tipos de erro
             $message = $e->getMessage();
+
             if (str_contains($message, 'revogado')) {
                 $message = 'Token já foi invalidado anteriormente.';
             } elseif (str_contains($message, 'Expired token')) {
@@ -162,11 +166,11 @@ class AuthController
             } elseif (str_contains($message, 'Token inválido')) {
                 $message = 'Token inválido para logout.';
             }
-            
+
             http_response_code($code);
             echo json_encode([
                 'error' => true,
-                'message' => $message
+                'message' => $message,
             ]);
         }
     }
@@ -192,14 +196,15 @@ class AuthController
                     'user_id' => $decoded['sub'],
                     'email' => $decoded['email'] ?? null,
                     'role' => $decoded['role'] ?? 'customer',
-                    'expires_at' => $decoded['exp'] ?? null
-                ]
+                    'expires_at' => $decoded['exp'] ?? null,
+                ],
             ]);
         } catch (\Exception $e) {
             $code = $e->getCode() ?: 401;
-            
+
             // Mensagens mais amigáveis para diferentes tipos de erro
             $message = $e->getMessage();
+
             if (str_contains($message, 'revogado')) {
                 $message = 'Token foi invalidado. Faça login novamente.';
             } elseif (str_contains($message, 'Expired token')) {
@@ -207,12 +212,12 @@ class AuthController
             } elseif (str_contains($message, 'Token inválido')) {
                 $message = 'Token inválido. Faça login novamente.';
             }
-            
+
             http_response_code($code);
             echo json_encode([
                 'error' => true,
                 'message' => $message,
-                'valid' => false
+                'valid' => false,
             ]);
         }
     }
@@ -224,7 +229,7 @@ class AuthController
             'success' => true,
             'service' => 'auth-service',
             'status' => 'healthy',
-            'timestamp' => date('Y-m-d H:i:s')
+            'timestamp' => date('Y-m-d H:i:s'),
         ]);
     }
 }

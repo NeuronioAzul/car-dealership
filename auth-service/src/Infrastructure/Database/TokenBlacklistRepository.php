@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Infrastructure\Database;
 
 use PDO;
@@ -15,32 +17,32 @@ class TokenBlacklistRepository
 
     public function addToBlacklist(string $tokenHash, int $expiresAt): void
     {
-        $sql = "INSERT INTO token_blacklist (token_hash, expires_at, created_at) VALUES (:token_hash, :expires_at, NOW())";
-        
+        $sql = 'INSERT INTO token_blacklist (token_hash, expires_at, created_at) VALUES (:token_hash, :expires_at, NOW())';
+
         $stmt = $this->database->prepare($sql);
         $stmt->execute([
             'token_hash' => $tokenHash,
-            'expires_at' => date('Y-m-d H:i:s', $expiresAt)
+            'expires_at' => date('Y-m-d H:i:s', $expiresAt),
         ]);
     }
 
     public function isTokenBlacklisted(string $tokenHash): bool
     {
-        $sql = "SELECT COUNT(*) FROM token_blacklist WHERE token_hash = :token_hash AND expires_at > NOW()";
-        
+        $sql = 'SELECT COUNT(*) FROM token_blacklist WHERE token_hash = :token_hash AND expires_at > NOW()';
+
         $stmt = $this->database->prepare($sql);
         $stmt->execute(['token_hash' => $tokenHash]);
-        
+
         return $stmt->fetchColumn() > 0;
     }
 
     public function cleanExpiredTokens(): int
     {
-        $sql = "DELETE FROM token_blacklist WHERE expires_at <= NOW()";
-        
+        $sql = 'DELETE FROM token_blacklist WHERE expires_at <= NOW()';
+
         $stmt = $this->database->prepare($sql);
         $stmt->execute();
-        
+
         return $stmt->rowCount();
     }
 
