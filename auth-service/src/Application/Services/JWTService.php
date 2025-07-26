@@ -40,7 +40,7 @@ class JWTService
     public function generateRefreshToken(User $user): string
     {
         $payload = [
-            'iss' => 'car-dealership-auth',
+            'iss' => 'car-dealership-issuer',
             'sub' => $user->getId(),
             'type' => 'refresh',
             'iat' => time(),
@@ -77,7 +77,7 @@ class JWTService
 
             // Gerar novo token de acesso
             $payload = [
-                'iss' => 'car-dealership-auth',
+                'iss' => 'car-dealership-issuer',
                 'sub' => $decoded->sub,
                 'iat' => time(),
                 'exp' => time() + $this->expiration,

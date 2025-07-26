@@ -106,13 +106,16 @@ class AuthController
     public function refresh(): void
     {
         try {
+            // Ler o refresh token do body da requisição
             $input = json_decode(file_get_contents('php://input'), true);
-
-            if (!isset($input['refresh_token'])) {
-                throw new \Exception('Refresh token é obrigatório', 400);
+            
+            if (!isset($input['refresh_token']) || empty($input['refresh_token'])) {
+                throw new \Exception('Token de refresh não fornecido', 400);
             }
 
-            $newToken = $this->jwtService->refreshToken($input['refresh_token']);
+            $refreshToken = $input['refresh_token'];
+
+            $newToken = $this->jwtService->refreshToken($refreshToken);
 
             http_response_code(200);
             echo json_encode([

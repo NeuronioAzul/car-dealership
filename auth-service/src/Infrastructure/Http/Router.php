@@ -23,8 +23,8 @@ class Router
             'POST /login' => [$this->authController, 'login'],
             'POST /register' => [$this->authController, 'register'],
             'POST /refresh' => [$this->authController, 'refresh'],
-            'GET /logout' => [$this->authController, 'logout'],
-            'GET /validate' => [$this->authController, 'validate'],
+            'POST /logout' => [$this->authController, 'logout'],
+            'POST /validate' => [$this->authController, 'validate'],
             'GET /health' => [$this->authController, 'health'],
         ];
     }

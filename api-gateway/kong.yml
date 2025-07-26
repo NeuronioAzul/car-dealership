@@ -284,11 +284,6 @@ routes:
     methods:
       - POST
       - OPTIONS
-    plugins:
-      - name: jwt
-        config:
-          secret_is_base64: false
-          key_claim_name: iss
   
   - name: auth-logout
     service:
