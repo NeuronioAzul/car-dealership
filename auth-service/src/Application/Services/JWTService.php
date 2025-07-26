@@ -90,6 +90,7 @@ class JWTService
             if ($this->userRepository) {
                 try {
                     $user = $this->userRepository->findById($decoded->sub);
+
                     if ($user) {
                         $payload['email'] = $user->getEmail();
                         $payload['role'] = $user->getRole();

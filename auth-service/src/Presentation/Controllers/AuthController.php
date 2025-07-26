@@ -108,7 +108,7 @@ class AuthController
         try {
             // Ler o refresh token do body da requisição
             $input = json_decode(file_get_contents('php://input'), true);
-            
+
             if (!isset($input['refresh_token']) || empty($input['refresh_token'])) {
                 throw new \Exception('Token de refresh não fornecido', 400);
             }
