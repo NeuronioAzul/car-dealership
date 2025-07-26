@@ -136,12 +136,12 @@ class ReservationSeeder extends BaseSeeder
 
     private function generateReservationCode(): string
     {
-        return 'RES' . date('Y') . str_pad(mt_rand(1, 99999), 5, '0', STR_PAD_LEFT);
+        return 'RES' . date('Y') . str_pad((string) mt_rand(1, 99999), 5, '0', STR_PAD_LEFT);
     }
 
     private function generatePaymentCode(): string
     {
-        return 'PAY' . date('Ymd') . str_pad(mt_rand(1, 9999), 4, '0', STR_PAD_LEFT);
+        return 'PAY' . date('Ymd') . str_pad((string) mt_rand(1, 9999), 4, '0', STR_PAD_LEFT);
     }
 
     private function getChangeReason(string $status): string
