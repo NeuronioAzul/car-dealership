@@ -193,7 +193,7 @@ Acesse os seguintes URLs para verificar se tudo está funcionando:
 Todos os endpoints protegidos requerem autenticação JWT. Primeiro, registre um usuário e faça login:
 
 ```bash
-# Registrar usuário
+# 1. Registrar usuário
 curl -X POST http://localhost:8000/api/v1/auth/register \
   -H "Content-Type: application/json" \
   -d '{
@@ -216,14 +216,24 @@ curl -X POST http://localhost:8000/api/v1/auth/register \
   "accept_communications": true
 }'
 
-# Fazer login
-curl -X POST http://localhost:8000/api/v1/auth/login \
+# 2. Fazer login
+curl -X POST http://localhost:8081/api/v1/auth/login \
   -H "Content-Type: application/json" \
-  -d '{
-    "email": "joao@email.com",
-    "password": "senha123"
-  }'
+  -d '{"email":"maria@email.com","password":"senha123"}'
+
+# 2. Usar o refresh_token retornado
+curl -X POST http://localhost:8081/api/v1/auth/refresh \
+  -H "Authorization: Bearer <refresh_token>"
 ```
+
+> Login inicial: 09:00 - Recebe access + refresh tokens
+> Requests normais: 09:00-10:00 - Usa access token
+> Token expira: 10:00 - Access token inválido
+> Renovação automática: 10:01 - Frontend usa refresh token
+> Novo access token: 10:01 - Frontend continua funcionando
+> Usuário não percebe nada! 🎉
+
+
 
 ### Fluxo de Compra Completo
 
