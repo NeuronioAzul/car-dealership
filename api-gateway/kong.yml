@@ -371,6 +371,7 @@ routes:
       - /api/v1/vehicles/update
     methods:
       - PUT
+      - PATCH
       - OPTIONS
     plugins:
       - name: jwt
