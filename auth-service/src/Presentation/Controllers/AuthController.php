@@ -32,7 +32,7 @@ class AuthController
         // Inicializar serviços de token
         $blacklistRepository = new TokenBlacklistRepository($database);
         $this->blacklistService = new TokenBlacklistService($blacklistRepository);
-        $this->jwtService = new JWTService($this->blacklistService);
+        $this->jwtService = new JWTService($this->blacklistService, $userRepository);
 
         $this->loginUseCase = new LoginUseCase($userRepository, $this->jwtService, $eventPublisher);
         $this->registerUseCase = new RegisterUseCase($userRepository, $eventPublisher);

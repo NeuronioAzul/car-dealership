@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Application\Services;
 
 use App\Domain\Entities\User;
+use App\Domain\Repositories\UserRepositoryInterface;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
@@ -14,13 +15,15 @@ class JWTService
     private string $algorithm;
     private int $expiration;
     private ?TokenBlacklistService $blacklistService;
+    private ?UserRepositoryInterface $userRepository;
 
-    public function __construct(?TokenBlacklistService $blacklistService = null)
+    public function __construct(?TokenBlacklistService $blacklistService = null, ?UserRepositoryInterface $userRepository = null)
     {
         $this->secret = $_ENV['JWT_SECRET'];
         $this->algorithm = $_ENV['JWT_ALGORITHM'] ?? 'HS256';
         $this->expiration = (int) $_ENV['JWT_EXPIRATION'];
         $this->blacklistService = $blacklistService;
+        $this->userRepository = $userRepository;
     }
 
     public function generateToken(User $user): string
@@ -75,13 +78,27 @@ class JWTService
                 throw new \Exception('Token de refresh inválido', 401);
             }
 
-            // Gerar novo token de acesso
+            // Buscar informações atualizadas do usuário se o repositório estiver disponível
             $payload = [
                 'iss' => 'car-dealership-issuer',
                 'sub' => $decoded->sub,
                 'iat' => time(),
                 'exp' => time() + $this->expiration,
             ];
+
+            // Se temos acesso ao repositório de usuários, buscar informações atualizadas
+            if ($this->userRepository) {
+                try {
+                    $user = $this->userRepository->findById($decoded->sub);
+                    if ($user) {
+                        $payload['email'] = $user->getEmail();
+                        $payload['role'] = $user->getRole();
+                    }
+                } catch (\Exception $e) {
+                    // Se falhar ao buscar o usuário, gerar token apenas com sub
+                    // O token ainda será válido mas sem email/role
+                }
+            }
 
             return JWT::encode($payload, $this->secret, $this->algorithm);
         } catch (\Exception $e) {
