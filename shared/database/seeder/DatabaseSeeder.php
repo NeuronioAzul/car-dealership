@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
+echo "🌱 INICIANDO SEED DO SISTEMA DE CONCESSIONÁRIA\n";
+echo "=============================================\n\n";
+
 use Shared\Database\Seeder\AdminSeeder;
 use Shared\Database\Seeder\AuthSeeder;
 use Shared\Database\Seeder\CustomerSeeder;
@@ -65,8 +68,6 @@ try {
             exit(1);
     }
 
-    echo "🌱 INICIANDO SEED DO SISTEMA DE CONCESSIONÁRIA\n";
-    echo "=============================================\n\n";
 
     $endTime = microtime(true);
     $executionTime = round($endTime - $startTime, 2);
@@ -90,23 +91,23 @@ try {
     echo "============================\n";
     // Exibe resumo apenas dos dados realmente gerados conforme a opção selecionada
     $summaryOptions = [
-        '1' => ["🙍🏻 Usuários: 1 admin + {$customersCount} clientes\n"],
-        '2' => ["🚗 Veículos: {$vehiclesCount} veículos com imagens\n"],
-        '3' => ["📋 Perfis: {$customersCount} perfis de clientes com endereços e preferências\n"],
-        '4' => ["📅 Reservas: {$reservationsCount} reservas com códigos de pagamento\n"],
+        '1' => ["🙍🏻 Usuários:   1 admin + {$customersCount} clientes\n"],
+        '2' => ["🚗 Veículos:   {$vehiclesCount} veículos com imagens\n"],
+        '3' => ["📋 Perfis:     {$customersCount} perfis de clientes com endereços e preferências\n"],
+        '4' => ["📅 Reservas:   {$reservationsCount} reservas com códigos de pagamento\n"],
         '5' => ["💳 Pagamentos: {$paymentsCount} transações com detalhes do gateway\n"],
-        '6' => ["📄 Vendas: {$salesCount} vendas com documentos e itens adicionais\n"],
-        '7' => ["⚙️  Admin: Configurações, logs, relatórios e notificações\n"],
-        '8' => ["🔄 SAGA: {$sagaCount} transações distribuídas com passos e eventos\n"],
+        '6' => ["📄 Vendas:     {$salesCount} vendas com documentos e itens adicionais\n"],
+        '7' => ["⚙️ Admin:      Configurações, logs, relatórios e notificações\n"],
+        '8' => ["🔄 SAGA:       {$sagaCount} transações distribuídas com passos e eventos\n"],
         '9' => [
-            "🙍🏻 Usuários: 1 admin + {$customersCount} clientes\n",
-            "🚗 Veículos: {$vehiclesCount} veículos com imagens\n",
-            "📋 Perfis: {$customersCount} perfis de clientes com endereços e preferências\n",
-            "📅 Reservas: {$reservationsCount} reservas com códigos de pagamento\n",
-            "💳 Pagamentos: {$paymentsCount} transações com detalhes do gateway\n",
-            "📄 Vendas: {$salesCount} vendas com documentos e itens adicionais\n",
-            "⚙️  Admin: Configurações, logs, relatórios e notificações\n",
-            "🔄 SAGA: {$sagaCount} transações distribuídas com passos e eventos\n",
+                "🙍🏻 Usuários:   1 admin + {$customersCount} clientes\n",
+                "🚗 Veículos:   {$vehiclesCount} veículos com imagens\n",
+                "📋 Perfis:     {$customersCount} perfis de clientes com endereços e preferências\n",
+                "📅 Reservas:   {$reservationsCount} reservas com códigos de pagamento\n",
+                "💳 Pagamentos: {$paymentsCount} transações com detalhes do gateway\n",
+                "📄 Vendas:     {$salesCount} vendas com documentos e itens adicionais\n",
+                "⚙️ Admin:      Configurações, logs, relatórios e notificações\n",
+                "🔄 SAGA:       {$sagaCount} transações distribuídas com passos e eventos\n",
         ],
     ];
 
@@ -114,6 +115,7 @@ try {
         foreach ($summaryOptions[$selectedOption] as $line) {
             echo $line;
         }
+        echo "\n";
     } else {
         echo "Nenhum resumo disponível para a opção selecionada.\n";
     }
