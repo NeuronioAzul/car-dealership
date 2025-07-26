@@ -9,6 +9,7 @@ use App\Application\UseCases\CreateVehicleUseCase;
 use App\Application\UseCases\DeleteVehicleUseCase;
 use App\Application\UseCases\GetVehicleDetailsUseCase;
 use App\Application\UseCases\ListVehiclesUseCase;
+use App\Application\UseCases\PatchVehicleUseCase;
 use App\Application\UseCases\SearchVehiclesUseCase;
 use App\Application\UseCases\UpdateVehicleUseCase;
 use App\Application\Validation\Requests\CreateVehicleRequest;
@@ -22,6 +23,7 @@ class VehicleController
 {
     private CreateVehicleUseCase $createVehicleUseCase;
     private UpdateVehicleUseCase $updateVehicleUseCase;
+    private PatchVehicleUseCase $patchVehicleUseCase;
     private ListVehiclesUseCase $listVehiclesUseCase;
     private GetVehicleDetailsUseCase $getVehicleDetailsUseCase;
     private SearchVehiclesUseCase $searchVehiclesUseCase;
@@ -39,6 +41,7 @@ class VehicleController
         $this->searchVehiclesUseCase = new SearchVehiclesUseCase($vehicleRepository);
         $this->createVehicleUseCase = new CreateVehicleUseCase($vehicleRepository);
         $this->updateVehicleUseCase = new UpdateVehicleUseCase($vehicleRepository);
+        $this->patchVehicleUseCase = new PatchVehicleUseCase($vehicleRepository);
         $this->deleteVehicleUseCase = new DeleteVehicleUseCase($vehicleRepository);
     }
 
@@ -157,6 +160,87 @@ class VehicleController
             $response = [
                 'error' => true,
                 'message' => $e->getCode() . ' ' . $e->getMessage(),
+                'code' => $code,
+            ];
+
+            // Adicionar contexto adicional para erros de autenticação
+            if ($code === 401) {
+                $response['type'] = 'authentication_error';
+                $response['action'] = 'redirect_to_login';
+            } elseif ($code === 403) {
+                $response['type'] = 'authorization_error';
+                $response['action'] = 'insufficient_permissions';
+            }
+
+            echo json_encode($response);
+        }
+    }
+
+    public function patchVehicle(string $id): void
+    {
+        try {
+            $user = $this->authMiddleware->requireAdmin();
+
+            $inputData = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+
+            if (empty($inputData)) {
+                throw new Exception('Nenhum campo fornecido para atualização', 400);
+            }
+
+            // Adicionar ID para validação
+            $inputData['id'] = $id;
+
+            $request = new UpdateVehicleRequest($inputData);
+
+            if (!$request->validate()) {
+                http_response_code(422);
+                echo json_encode([
+                    'error' => true,
+                    'message' => 'Validation failed',
+                    'errors' => $request->errors(),
+                ]);
+
+                return;
+            }
+
+            // Remover o ID dos dados validados (será usado como parâmetro)
+            $validatedData = $request->validated();
+            unset($validatedData['id']);
+
+            // Filtrar apenas campos que foram fornecidos (não nulos)
+            $fieldsToUpdate = array_filter($validatedData, function($value) {
+                return $value !== null;
+            });
+
+            if (empty($fieldsToUpdate)) {
+                throw new Exception('Nenhum campo válido fornecido para atualização', 400);
+            }
+
+            $updatedVehicle = $this->patchVehicleUseCase->execute($id, $fieldsToUpdate);
+
+            http_response_code(200);
+            echo json_encode([
+                'success' => true,
+                'message' => 'Veículo atualizado parcialmente com sucesso',
+                'data' => $updatedVehicle->toArray(),
+                'updated_by' => $user['user_id'],
+                'fields_updated' => array_keys($fieldsToUpdate),
+            ]);
+        } catch (Exception $e) {
+            $code = $e->getCode();
+            
+            // Garantir que o código seja um inteiro válido
+            if (!is_numeric($code) || $code < 100 || $code > 599) {
+                $code = 500;
+            } else {
+                $code = (int) $code;
+            }
+            
+            http_response_code($code);
+
+            $response = [
+                'error' => true,
+                'message' => $e->getMessage(),
                 'code' => $code,
             ];
 

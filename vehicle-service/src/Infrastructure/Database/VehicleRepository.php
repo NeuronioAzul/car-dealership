@@ -197,6 +197,46 @@ class VehicleRepository implements VehicleRepositoryInterface
         return $stmt->execute($vehicleData);
     }
 
+    public function partialUpdate(string $id, array $fieldsToUpdate): bool
+    {
+        if (empty($fieldsToUpdate)) {
+            return true; // Nada para atualizar
+        }
+
+        // Construir query dinamicamente baseado nos campos fornecidos
+        $fields = [];
+        $params = ['id' => $id];
+        
+        foreach ($fieldsToUpdate as $field => $value) {
+            $fields[] = "{$field} = :{$field}";
+            
+            // Converter arrays para JSON (especialmente para o campo 'features')
+            if (is_array($value)) {
+                $params[$field] = json_encode($value);
+            } else {
+                $params[$field] = $value;
+            }
+        }
+        
+        // Sempre atualizar o updated_at
+        $fields[] = "updated_at = NOW()";
+        
+        $sql = "UPDATE vehicles SET " . implode(', ', $fields) . " WHERE id = :id";
+        
+        $stmt = $this->connection->prepare($sql);
+
+        // print generated SQL query for debugging
+        // $debugSql = $sql;
+        // foreach ($params as $key => $value) {
+        //     $escapedValue = is_null($value) ? 'NULL' : $this->connection->quote((string)(is_array($value) ? json_encode($value) : $value));
+        //     $debugSql = preg_replace('/:' . preg_quote($key, '/') . '\b/', $escapedValue, $debugSql);
+        // }
+        // echo '[DEBUG SQL] ' . $debugSql;
+        // die;
+
+        return $stmt->execute($params);
+    }
+
     public function delete(string $id): bool
     {
         $sql = 'UPDATE vehicles SET deleted_at = NOW(), updated_at = NOW() WHERE id = :id';

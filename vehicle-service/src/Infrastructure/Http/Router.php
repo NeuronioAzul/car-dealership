@@ -29,6 +29,7 @@ class Router
             'GET /health' => [$this->vehicleController, 'health'],
             'POST /create' => [$this->vehicleController, 'createVehicle'],
             'PUT /update/{id}' => [$this->vehicleController, 'updateVehicle'],
+            'PATCH /update/{id}' => [$this->vehicleController, 'patchVehicle'],
             'GET /details/{id}' => [$this->vehicleController, 'getVehicleDetails'],
             'DELETE /delete/{id}' => [$this->vehicleController, 'deleteVehicle'],
         ];
@@ -37,6 +38,7 @@ class Router
         $this->middlewares = [
             'POST /create' => ['admin'],
             'PUT /update/{id}' => ['admin'],
+            'PATCH /update/{id}' => ['admin'],
             'DELETE /delete/{id}' => ['admin'],
         ];
     }

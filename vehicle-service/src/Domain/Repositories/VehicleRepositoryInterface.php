@@ -20,6 +20,8 @@ interface VehicleRepositoryInterface
 
     public function update(VehicleDTO $vehicle): bool;
 
+    public function partialUpdate(string $id, array $fieldsToUpdate): bool;
+
     public function delete(string $id): bool;
 
     public function updateStatus(string $id, string $status): bool;
