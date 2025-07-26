@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Application\UseCases;
 
 use App\Application\DTOs\VehicleDTO;
+use App\Application\Services\DatabaseErrorHandler;
 use App\Domain\Repositories\VehicleRepositoryInterface;
 use Exception;
 
@@ -26,10 +27,15 @@ class PatchVehicleUseCase
         $this->validateBusinessRules($fieldsToUpdate, $existingVehicle);
 
         // Atualizar apenas os campos fornecidos
-        $updated = $this->vehicleRepository->partialUpdate($vehicleId, $fieldsToUpdate);
-        
-        if (!$updated) {
-            throw new Exception('Falha ao atualizar o veículo', 500);
+        try {
+            $updated = $this->vehicleRepository->partialUpdate($vehicleId, $fieldsToUpdate);
+            
+            if (!$updated) {
+                throw new Exception('Falha ao atualizar o veículo', 500);
+            }
+        } catch (\PDOException $e) {
+            // Traduzir erros de banco para mensagens amigáveis
+            DatabaseErrorHandler::handlePDOException($e);
         }
 
         // Retornar o veículo atualizado
@@ -53,32 +59,27 @@ class PatchVehicleUseCase
         // Regra: Verificar unicidade de chassi se fornecido
         if (isset($fieldsToUpdate['chassis_number']) && 
             $fieldsToUpdate['chassis_number'] !== $existingVehicle->chassisNumber) {
-            // Buscar por chassi exato, removendo outros filtros para não interferir
-            $existingChassis = $this->vehicleRepository->search([
-                'chassis_number' => $fieldsToUpdate['chassis_number'],
-                'status' => '' // Remove filtro de status para buscar em todos
-            ]);
-            // Filtrar para garantir match exato
-            foreach ($existingChassis as $vehicle) {
-                if ($vehicle->chassisNumber === $fieldsToUpdate['chassis_number']) {
-                    throw new Exception('Número do chassi já está em uso por outro veículo', 422);
-                }
+            $vehicleWithChassis = $this->vehicleRepository->findByChassisNumber($fieldsToUpdate['chassis_number']);
+            if ($vehicleWithChassis && $vehicleWithChassis->id !== $existingVehicle->id) {
+                throw new Exception('Número do chassi já está em uso por outro veículo', 422);
             }
         }
 
         // Regra: Verificar unicidade de placa se fornecida
         if (isset($fieldsToUpdate['license_plate']) && 
             $fieldsToUpdate['license_plate'] !== $existingVehicle->licensePlate) {
-            // Buscar por placa exata, removendo outros filtros para não interferir
-            $existingPlate = $this->vehicleRepository->search([
-                'license_plate' => $fieldsToUpdate['license_plate'],
-                'status' => '' // Remove filtro de status para buscar em todos
-            ]);
-            // Filtrar para garantir match exato
-            foreach ($existingPlate as $vehicle) {
-                if (strtoupper($vehicle->licensePlate) === strtoupper($fieldsToUpdate['license_plate'])) {
-                    throw new Exception('Placa já está em uso por outro veículo', 422);
-                }
+            $vehicleWithPlate = $this->vehicleRepository->findByLicensePlate($fieldsToUpdate['license_plate']);
+            if ($vehicleWithPlate && $vehicleWithPlate->id !== $existingVehicle->id) {
+                throw new Exception('Placa já está em uso por outro veículo', 422);
+            }
+        }
+
+        // Regra: Verificar unicidade de RENAVAM se fornecido
+        if (isset($fieldsToUpdate['renavam']) && 
+            $fieldsToUpdate['renavam'] !== $existingVehicle->renavam) {
+            $vehicleWithRenavam = $this->vehicleRepository->findByRenavam($fieldsToUpdate['renavam']);
+            if ($vehicleWithRenavam && $vehicleWithRenavam->id !== $existingVehicle->id) {
+                throw new Exception('RENAVAM já está em uso por outro veículo', 422);
             }
         }
 

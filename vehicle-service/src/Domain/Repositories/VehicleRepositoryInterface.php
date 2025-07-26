@@ -25,4 +25,10 @@ interface VehicleRepositoryInterface
     public function delete(string $id): bool;
 
     public function updateStatus(string $id, string $status): bool;
+
+    public function findByChassisNumber(string $chassisNumber): ?VehicleDTO;
+
+    public function findByLicensePlate(string $licensePlate): ?VehicleDTO;
+
+    public function findByRenavam(string $renavam): ?VehicleDTO;
 }

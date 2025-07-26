@@ -145,6 +145,11 @@ class VehicleRepository implements VehicleRepositoryInterface
             $params['license_plate'] = '%' . strtoupper($criteria['license_plate']) . '%';
         }
 
+        if (!empty($criteria['renavam'])) {
+            $sql .= ' AND renavam LIKE :renavam';
+            $params['renavam'] = '%' . $criteria['renavam'] . '%';
+        }
+
         $sql .= ' ORDER BY created_at DESC';
 
         $stmt = $this->connection->prepare($sql);
@@ -251,6 +256,36 @@ class VehicleRepository implements VehicleRepositoryInterface
         $stmt = $this->connection->prepare($sql);
 
         return $stmt->execute(['id' => $id, 'status' => $status]);
+    }
+
+    public function findByChassisNumber(string $chassisNumber): ?VehicleDTO
+    {
+        $sql = 'SELECT * FROM vehicles WHERE chassis_number = :chassis_number AND deleted_at IS NULL';
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute(['chassis_number' => $chassisNumber]);
+
+        $data = $stmt->fetch();
+        return $data ? $this->mapToVehicle($data) : null;
+    }
+
+    public function findByLicensePlate(string $licensePlate): ?VehicleDTO
+    {
+        $sql = 'SELECT * FROM vehicles WHERE license_plate = :license_plate AND deleted_at IS NULL';
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute(['license_plate' => strtoupper($licensePlate)]);
+
+        $data = $stmt->fetch();
+        return $data ? $this->mapToVehicle($data) : null;
+    }
+
+    public function findByRenavam(string $renavam): ?VehicleDTO
+    {
+        $sql = 'SELECT * FROM vehicles WHERE renavam = :renavam AND deleted_at IS NULL';
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute(['renavam' => $renavam]);
+
+        $data = $stmt->fetch();
+        return $data ? $this->mapToVehicle($data) : null;
     }
 
     private function mapToVehicle(array $data): VehicleDTO
