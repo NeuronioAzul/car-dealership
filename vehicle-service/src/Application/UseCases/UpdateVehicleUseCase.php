@@ -18,6 +18,7 @@ class UpdateVehicleUseCase
     {
         // Verificar se o veículo existe
         $existingVehicle = $this->vehicleRepository->findById($vehicleDTO->id);
+
         if (!$existingVehicle) {
             throw new \Exception('Veículo não encontrado', 404);
         }
@@ -47,6 +48,7 @@ class UpdateVehicleUseCase
         // Regra: Verificar unicidade de chassi se alterado
         if ($vehicleDTO->chassisNumber && $vehicleDTO->chassisNumber !== $existingVehicle->chassisNumber) {
             $vehicleWithChassis = $this->vehicleRepository->findByChassisNumber($vehicleDTO->chassisNumber);
+
             if ($vehicleWithChassis && $vehicleWithChassis->id !== $existingVehicle->id) {
                 throw new \Exception('Número do chassi já está em uso por outro veículo', 422);
             }
@@ -55,6 +57,7 @@ class UpdateVehicleUseCase
         // Regra: Verificar unicidade de placa se alterada
         if ($vehicleDTO->licensePlate && $vehicleDTO->licensePlate !== $existingVehicle->licensePlate) {
             $vehicleWithPlate = $this->vehicleRepository->findByLicensePlate($vehicleDTO->licensePlate);
+
             if ($vehicleWithPlate && $vehicleWithPlate->id !== $existingVehicle->id) {
                 throw new \Exception('Placa já está em uso por outro veículo', 422);
             }
@@ -63,13 +66,14 @@ class UpdateVehicleUseCase
         // Regra: Verificar unicidade de RENAVAM se alterado
         if ($vehicleDTO->renavam && $vehicleDTO->renavam !== $existingVehicle->renavam) {
             $vehicleWithRenavam = $this->vehicleRepository->findByRenavam($vehicleDTO->renavam);
+
             if ($vehicleWithRenavam && $vehicleWithRenavam->id !== $existingVehicle->id) {
                 throw new \Exception('RENAVAM já está em uso por outro veículo', 422);
             }
         }
 
         // Regra: Preço de venda deve ser maior que preço de compra
-        if ($vehicleDTO->purchasePrice && $vehicleDTO->price && 
+        if ($vehicleDTO->purchasePrice && $vehicleDTO->price &&
             $vehicleDTO->price <= $vehicleDTO->purchasePrice) {
             throw new \Exception('Preço de venda deve ser maior que o preço de compra', 422);
         }

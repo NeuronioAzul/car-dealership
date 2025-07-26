@@ -36,6 +36,7 @@ class CreateVehicleUseCase
         // Regra: Verificar unicidade de chassi
         if ($vehicleDTO->chassisNumber) {
             $existingVehicle = $this->vehicleRepository->findByChassisNumber($vehicleDTO->chassisNumber);
+
             if ($existingVehicle) {
                 throw new \Exception('Número do chassi já está em uso por outro veículo', 422);
             }
@@ -44,6 +45,7 @@ class CreateVehicleUseCase
         // Regra: Verificar unicidade de placa
         if ($vehicleDTO->licensePlate) {
             $existingVehicle = $this->vehicleRepository->findByLicensePlate($vehicleDTO->licensePlate);
+
             if ($existingVehicle) {
                 throw new \Exception('Placa já está em uso por outro veículo', 422);
             }
@@ -52,13 +54,14 @@ class CreateVehicleUseCase
         // Regra: Verificar unicidade de RENAVAM
         if ($vehicleDTO->renavam) {
             $existingVehicle = $this->vehicleRepository->findByRenavam($vehicleDTO->renavam);
+
             if ($existingVehicle) {
                 throw new \Exception('RENAVAM já está em uso por outro veículo', 422);
             }
         }
 
         // Regra: Preço de venda deve ser maior que preço de compra
-        if ($vehicleDTO->purchasePrice && $vehicleDTO->price && 
+        if ($vehicleDTO->purchasePrice && $vehicleDTO->price &&
             $vehicleDTO->price <= $vehicleDTO->purchasePrice) {
             throw new \Exception('Preço de venda deve ser maior que o preço de compra', 422);
         }

@@ -208,7 +208,7 @@ class VehicleController
             unset($validatedData['id']);
 
             // Filtrar apenas campos que foram fornecidos (não nulos)
-            $fieldsToUpdate = array_filter($validatedData, function($value) {
+            $fieldsToUpdate = array_filter($validatedData, function ($value) {
                 return $value !== null;
             });
 
@@ -228,14 +228,14 @@ class VehicleController
             ]);
         } catch (Exception $e) {
             $code = $e->getCode();
-            
+
             // Garantir que o código seja um inteiro válido
             if (!is_numeric($code) || $code < 100 || $code > 599) {
                 $code = 500;
             } else {
                 $code = (int) $code;
             }
-            
+
             http_response_code($code);
 
             $response = [
