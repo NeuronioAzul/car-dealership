@@ -4,14 +4,37 @@ declare(strict_types=1);
 
 namespace App\Domain\ValueObjects;
 
+use Symfony\Component\Validator\Constraints as Assert;
+
 class CustomerAddress
 {
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 255)]
     private string $street;
+
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 20)]
     private string $number;
+
+    #[Assert\Length(max: 100)]
     private string $complement;
+
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 100)]
     private string $neighborhood;
+
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 100)]
     private string $city;
+
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 2)]
+    #[Assert\Regex(pattern: '/^[A-Z]{2}$/')]
     private string $state;
+
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 10)]
+    #[Assert\Regex(pattern: '/^\d{5}-?\d{3}$/')]
     private string $zipCode;
 
     public function __construct(
