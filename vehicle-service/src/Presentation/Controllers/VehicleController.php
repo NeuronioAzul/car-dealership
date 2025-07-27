@@ -61,7 +61,7 @@ class VehicleController
                     'error' => true,
                     'message' => 'Validation failed',
                     'errors' => $request->errors(),
-                ]);
+                ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 
                 return;
             }
