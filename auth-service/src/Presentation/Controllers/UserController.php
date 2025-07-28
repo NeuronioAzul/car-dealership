@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Presentation\Controllers;
 
-use App\Domain\Repositories\UserRepositoryInterface;
-use App\Infrastructure\Database\UserRepository;
 use App\Application\UseCases\DeleteUserUseCase;
+use App\Domain\Repositories\UserRepositoryInterface;
 use App\Infrastructure\Database\DatabaseConfig;
+use App\Infrastructure\Database\UserRepository;
 use App\Presentation\Middleware\AuthMiddleware;
 
 class UserController
@@ -16,7 +16,8 @@ class UserController
     private DeleteUserUseCase $deleteUserUseCase;
     private AuthMiddleware $authMiddleware;
 
-    public function __construct() {
+    public function __construct()
+    {
         $database = DatabaseConfig::getConnection();
         $this->userRepository = new UserRepository($database);
         $this->deleteUserUseCase = new DeleteUserUseCase($this->userRepository);
@@ -26,17 +27,17 @@ class UserController
     // Implementação do UserController
     // Este controller pode incluir métodos para gerenciar usuários, como criar, atualizar, deletar e listar usuários.
 
-
     // Exemplo de método para listar usuários
     public function delete(string $id): void
     {
         $user = $this->authMiddleware->authenticate();
-        try {
 
+        try {
             // Somente Admin ou o próprio usuário podem deletar um usuário
             if ($user['role'] !== 'admin' && $user['id'] !== $id) {
                 http_response_code(403); // Forbidden
                 echo json_encode(['error' => 'Acesso negado']);
+
                 return;
             }
 

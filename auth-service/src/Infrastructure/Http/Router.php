@@ -16,7 +16,8 @@ class Router
     private UserController $userController;
     private AuthMiddleware $authMiddleware;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->authController = new AuthController();
         $this->userController = new UserController();
         $this->authMiddleware = new AuthMiddleware();
@@ -182,7 +183,6 @@ class Router
         echo json_encode($response);
         exit; // Parar execução após erro de autenticação
     }
-
 
     private function notFound(): void
     {
