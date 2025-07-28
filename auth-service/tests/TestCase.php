@@ -30,6 +30,7 @@ abstract class TestCase extends BaseTestCase
     protected function makeRequest(string $url, string $method = 'GET', ?array $data = null, array $headers = []): array
     {
         $ch = curl_init();
+
         
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -64,7 +65,7 @@ abstract class TestCase extends BaseTestCase
     /**
      * Faz login e retorna o token
      */
-    protected function loginAndGetToken(string $email = 'admin@example.com', string $password = 'admin123'): string
+    protected function loginAndGetToken(string $email = 'admin@concessionaria.com', string $password = 'admin123'): string
     {
         $response = $this->makeRequest(
             "{$this->authServiceUrl}/login",

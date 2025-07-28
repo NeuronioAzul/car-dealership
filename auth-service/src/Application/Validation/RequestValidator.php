@@ -4,147 +4,143 @@ declare(strict_types=1);
 
 namespace App\Application\Validation;
 
+use App\Application\Exceptions\ValidationException;
+use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Validation;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+
 class RequestValidator
 {
-    private array $rules;
-    private array $errors = [];
+    private ValidatorInterface $validator;
 
-    public function __construct(array $rules)
+    public function __construct()
     {
-        $this->rules = $rules;
+        $this->validator = Validation::createValidator();
     }
 
-    public function validate(array $data): bool
+    /**
+     * @param array $data
+     * @param array<string, Constraint[]> $constraints
+     * @throws ValidationException
+     */
+    public function validate(array $data, array $constraints): void
     {
-        $this->errors = [];
+        $collectionConstraint = new Assert\Collection([
+            'fields' => $constraints,
+            'allowExtraFields' => false,
+            'allowMissingFields' => false,
+        ]);
 
-        foreach ($this->rules as $field => $fieldRules) {
-            $rules = explode('|', $fieldRules);
+        $violations = $this->validator->validate($data, $collectionConstraint);
 
-            foreach ($rules as $rule) {
-                if (str_contains($field, '.')) {
-                    // Handle nested fields
-                    $nestedFields = explode('.', $field);
-                    $nestedData = $data;
-                    foreach ($nestedFields as $nestedField) {
-                        if (isset($nestedData[$nestedField])) {
-                            $nestedData = $nestedData[$nestedField];
-                        } else {
-                            $nestedData = null;
-                            break;
-                        }
-                    }
-                    $data[$field] = $nestedData;
-                }
-
-                // Verifica se o campo é um campo aninhado, como 'address.street'
-                if ($rule === 'required' && (!isset($data[$field]) || $data[$field] === '')) {
-                    $this->errors[$field][] = 'O campo é obrigatório.';
-                }
-
-                if ($rule === 'email' && isset($data[$field]) && !filter_var($data[$field], FILTER_VALIDATE_EMAIL)) {
-                    $this->errors[$field][] = 'Formato de email inválido.';
-                }
-
-                if (str_starts_with($rule, 'min:')) {
-                    $min = (int) explode(':', $rule)[1];
-
-                    if (isset($data[$field]) && strlen($data[$field]) < $min) {
-                        $this->errors[$field][] = "Mínimo de $min caracteres.";
-                    }
-                }
-
-                if (str_starts_with($rule, 'max:')) {
-                    $max = (int) explode(':', $rule)[1];
-
-                    if (isset($data[$field]) && strlen($data[$field]) > $max) {
-                        $this->errors[$field][] = "Máximo de $max caracteres.";
-                    }
-                }
-                // Adicione mais regras conforme necessário
-
-                if ($rule === 'boolean' && isset($data[$field]) && !is_bool($data[$field])) {
-                    $this->errors[$field][] = 'O campo deve ser verdadeiro ou falso.';
-                }
-
-                if ($rule === 'date' && isset($data[$field]) && !strtotime($data[$field])) {
-                    $this->errors[$field][] = 'Formato de data inválido. Use o formato YYYY-MM-DD.';
-                }
-
-                if ($rule === 'array' && isset($data[$field]) && !is_array($data[$field])) {
-                    $this->errors[$field][] = 'O campo deve ser um array.';
-                }
-
-                if ($rule === 'numeric' && isset($data[$field]) && !is_numeric($data[$field])) {
-                    $this->errors[$field][] = 'O campo deve ser numérico.';
-                }
-
-                if ($rule === 'uuid' && isset($data[$field]) && !preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $data[$field])) {
-                    $this->errors[$field][] = 'Formato de UUID inválido.';
-                }
-
-                if ($rule === 'phone' && isset($data[$field]) && !preg_match('/^\+?[0-9\s\-\(\)]+$/', $data[$field])) {
-                    $this->errors[$field][] = 'Formato de telefone inválido.';
-                }
-
-                if ($rule === 'zip_code' && isset($data[$field]) && !preg_match('/^\d{5}-\d{3}$/', $data[$field])) {
-                    $this->errors[$field][] = 'Formato de CEP inválido. Precisa ser no formato XXXXX-XXX.';
-                }
-
-                if ($rule === 'boolean' && isset($data[$field]) && !is_bool($data[$field])) {
-                    $this->errors[$field][] = 'O campo deve ser verdadeiro ou falso.';
-                }
-
-                if ($rule === 'accept_terms' && (!isset($data[$field]) || !$data[$field])) {
-                    $this->errors[$field][] = 'É necessário aceitar os termos de uso.';
-                }
-
-                if ($rule === 'accept_privacy' && (!isset($data[$field]) || !$data[$field])) {
-                    $this->errors[$field][] = 'É necessário aceitar a política de privacidade.';
-                }
-
-                if ($rule === 'accept_communications' && (!isset($data[$field]) || !$data[$field])) {
-                    $this->errors[$field][] = 'É necessário aceitar as comunicações.';
-                }
-
-                if ($rule === 'role' && isset($data[$field]) && !in_array($data[$field], ['admin', 'customer'])) {
-                    $this->errors[$field][] = 'O papel deve ser "admin" ou "customer".';
-                }
-
-                if ($rule === 'password' && isset($data[$field])) {
-                    if (strlen($data[$field]) < 8) {
-                        $this->errors[$field][] = 'A senha deve ter pelo menos 8 caracteres.';
-                    }
-
-                    if (!preg_match('/[A-Z]/', $data[$field])) {
-                        $this->errors[$field][] = 'A senha deve conter pelo menos uma letra maiúscula.';
-                    }
-
-                    if (!preg_match('/[a-z]/', $data[$field])) {
-                        $this->errors[$field][] = 'A senha deve conter pelo menos uma letra minúscula.';
-                    }
-
-                    if (!preg_match('/[0-9]/', $data[$field])) {
-                        $this->errors[$field][] = 'A senha deve conter pelo menos um número.';
-                    }
-                }
-
-                # if has in: options
-                if (str_starts_with($rule, 'in:')) {
-                    $options = explode(',', substr($rule, 3));
-
-                    if (isset($data[$field]) && !in_array($data[$field], $options)) {
-                        $this->errors[$field][] = 'O campo deve ser um dos seguintes valores: ' . implode(', ', $options) . '.';
-                    }
-                }
+        if (count($violations) > 0) {
+            $errors = [];
+            foreach ($violations as $violation) {
+                $propertyPath = trim($violation->getPropertyPath(), '[]');
+                $errors[] = sprintf('%s: %s', $propertyPath, $violation->getMessage());
             }
-        }
 
-        return empty($this->errors);
+            throw new ValidationException($errors);
+        }
     }
 
-    public function errors(): array
+    public function getRegisterUserConstraints(): array
     {
-        return $this->errors;
+        return [
+            'name' => [
+                new Assert\NotBlank(['message' => 'Nome é obrigatório']),
+                new Assert\Length([
+                    'min' => 2,
+                    'max' => 100,
+                    'minMessage' => 'Nome deve ter pelo menos {{ limit }} caracteres',
+                    'maxMessage' => 'Nome deve ter no máximo {{ limit }} caracteres'
+                ])
+            ],
+            'email' => [
+                new Assert\NotBlank(['message' => 'Email é obrigatório']),
+                new Assert\Email(['message' => 'Email deve ter um formato válido'])
+            ],
+            'password' => [
+                new Assert\NotBlank(['message' => 'Senha é obrigatória']),
+                new Assert\Length([
+                    'min' => 8,
+                    'minMessage' => 'Senha deve ter pelo menos {{ limit }} caracteres'
+                ])
+            ],
+            'phone' => [
+                new Assert\NotBlank(['message' => 'Telefone é obrigatório']),
+                new Assert\Regex([
+                    'pattern' => '/^\d{10,11}$/',
+                    'message' => 'Telefone deve conter 10 ou 11 dígitos'
+                ])
+            ],
+            'birth_date' => [
+                new Assert\NotBlank(['message' => 'Data de nascimento é obrigatória']),
+                new Assert\Date(['message' => 'Data de nascimento deve ter um formato válido (YYYY-MM-DD)'])
+            ],
+            'address' => [
+                new Assert\Collection([
+                    'fields' => [
+                        'street' => [
+                            new Assert\NotBlank(['message' => 'Rua é obrigatória']),
+                            new Assert\Length(['max' => 255])
+                        ],
+                        'number' => [
+                            new Assert\NotBlank(['message' => 'Número é obrigatório']),
+                            new Assert\Length(['max' => 20])
+                        ],
+                        'neighborhood' => [
+                            new Assert\NotBlank(['message' => 'Bairro é obrigatório']),
+                            new Assert\Length(['max' => 100])
+                        ],
+                        'city' => [
+                            new Assert\NotBlank(['message' => 'Cidade é obrigatória']),
+                            new Assert\Length(['max' => 100])
+                        ],
+                        'state' => [
+                            new Assert\NotBlank(['message' => 'Estado é obrigatório']),
+                            new Assert\Length(['min' => 2, 'max' => 2, 'exactMessage' => 'Estado deve ter exatamente 2 caracteres'])
+                        ],
+                        'zip_code' => [
+                            new Assert\NotBlank(['message' => 'CEP é obrigatório']),
+                            new Assert\Regex([
+                                'pattern' => '/^\d{5}-?\d{3}$/',
+                                'message' => 'CEP deve ter o formato 12345-678 ou 12345678'
+                            ])
+                        ]
+                    ],
+                    'allowExtraFields' => false
+                ])
+            ],
+            'role' => [
+                new Assert\Choice([
+                    'choices' => ['customer', 'admin'],
+                    'message' => 'Role deve ser customer ou admin'
+                ])
+            ],
+            'accept_terms' => [
+                new Assert\IsTrue(['message' => 'É necessário aceitar os termos de uso'])
+            ],
+            'accept_privacy' => [
+                new Assert\IsTrue(['message' => 'É necessário aceitar a política de privacidade'])
+            ],
+            'accept_communications' => [
+                new Assert\Type(['type' => 'bool', 'message' => 'Campo de comunicações deve ser verdadeiro ou falso'])
+            ]
+        ];
+    }
+
+    public function getLoginConstraints(): array
+    {
+        return [
+            'email' => [
+                new Assert\NotBlank(['message' => 'Email é obrigatório']),
+                new Assert\Email(['message' => 'Email deve ter um formato válido'])
+            ],
+            'password' => [
+                new Assert\NotBlank(['message' => 'Senha é obrigatória'])
+            ]
+        ];
     }
 }

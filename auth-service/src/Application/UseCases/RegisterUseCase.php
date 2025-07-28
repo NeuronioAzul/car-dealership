@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Application\UseCases;
 
 use App\Application\Exceptions\UserCreationFailedException;
-use App\Application\Exceptions\ValidationException;
+use App\Application\Validation\RequestValidator;
 use App\Domain\Entities\User;
 use App\Domain\Exceptions\UserAlreadyExistsException;
 use App\Domain\Repositories\UserRepositoryInterface;
@@ -17,19 +17,20 @@ class RegisterUseCase
 {
     public function __construct(
         private readonly UserRepositoryInterface $userRepository,
-        private readonly EventPublisher $eventPublisher
+        private readonly EventPublisher $eventPublisher,
+        private readonly RequestValidator $validator
     ) {
     }
 
     public function execute(array $userData): array
     {
+        // Validar dados usando Symfony Validator
+        $this->validator->validate($userData, $this->validator->getRegisterUserConstraints());
+
         // Validar se email já existe
         if ($this->userRepository->existsByEmail($userData['email'])) {
             throw new UserAlreadyExistsException($userData['email']);
         }
-
-        // Validar dados obrigatórios
-        $this->validateRequiredFields($userData);
 
         // Criar endereço
         $address = new Address(
@@ -78,59 +79,5 @@ class RegisterUseCase
             ],
             'message' => 'Usuário criado com sucesso',
         ];
-    }
-
-    private function validateRequiredFields(array $userData): void
-    {
-        $errors = [];
-        $required = [
-            'name',
-            'email',
-            'password',
-            'phone',
-            'birth_date',
-            'address',
-            'accept_terms',
-            'accept_privacy',
-        ];
-
-        foreach ($required as $field) {
-            if (!isset($userData[$field]) || empty($userData[$field])) {
-                $errors[] = "Campo obrigatório: {$field}";
-            }
-        }
-
-        // Validar endereço
-        if (isset($userData['address']) && is_array($userData['address'])) {
-            $addressRequired = ['street', 'number', 'neighborhood', 'city', 'state', 'zip_code'];
-            foreach ($addressRequired as $field) {
-                if (!isset($userData['address'][$field]) || empty($userData['address'][$field])) {
-                    $errors[] = "Campo obrigatório no endereço: {$field}";
-                }
-            }
-        }
-
-        // Validar aceitação de termos
-        if (isset($userData['accept_terms']) && !$userData['accept_terms']) {
-            $errors[] = 'É necessário aceitar os termos de uso';
-        }
-
-        if (isset($userData['accept_privacy']) && !$userData['accept_privacy']) {
-            $errors[] = 'É necessário aceitar a política de privacidade';
-        }
-
-        // Validar formato do email
-        if (isset($userData['email']) && !filter_var($userData['email'], FILTER_VALIDATE_EMAIL)) {
-            $errors[] = 'Email inválido';
-        }
-
-        // Validar senha
-        if (isset($userData['password']) && strlen($userData['password']) < 8) {
-            $errors[] = 'Senha deve ter pelo menos 8 caracteres';
-        }
-
-        if (!empty($errors)) {
-            throw new ValidationException($errors);
-        }
     }
 }

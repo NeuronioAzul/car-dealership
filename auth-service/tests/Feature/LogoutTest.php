@@ -35,7 +35,7 @@ class LogoutTest extends TestCase
         
         $this->assertEquals(200, $validateResponse['code'], 'Token deve ser válido após login');
         $this->assertTrue($validateResponse['body']['data']['valid']);
-        $this->assertEquals('admin@example.com', $validateResponse['body']['data']['email']);
+        $this->assertEquals('admin@concessionaria.com', $validateResponse['body']['data']['email']);
         
         // 3. Fazer logout
         $logoutResponse = $this->makeRequest(
@@ -180,6 +180,7 @@ class LogoutTest extends TestCase
     {
         // 1. Fazer login duas vezes para obter dois tokens diferentes
         $token1 = $this->loginAndGetToken();
+        sleep(2); // Garantir que o segundo token tenha um timestamp diferente
         $token2 = $this->loginAndGetToken();
         
         $this->assertNotEquals($token1, $token2, 'Tokens devem ser diferentes');

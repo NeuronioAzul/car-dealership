@@ -14,6 +14,7 @@ use App\Infrastructure\Database\DatabaseConfig;
 use App\Infrastructure\Database\TokenBlacklistRepository;
 use App\Infrastructure\Database\UserRepository;
 use App\Infrastructure\Messaging\EventPublisher;
+use App\Application\Validation\RequestValidator;
 
 class AuthController
 {
@@ -28,6 +29,7 @@ class AuthController
         $database = DatabaseConfig::getConnection();
         $userRepository = new UserRepository($database);
         $eventPublisher = new EventPublisher();
+        $requestValidator = new RequestValidator();
 
         // Inicializar serviços de token
         $blacklistRepository = new TokenBlacklistRepository($database);
@@ -35,7 +37,7 @@ class AuthController
         $this->jwtService = new JWTService($this->blacklistService, $userRepository);
 
         $this->loginUseCase = new LoginUseCase($userRepository, $this->jwtService, $eventPublisher);
-        $this->registerUseCase = new RegisterUseCase($userRepository, $eventPublisher);
+        $this->registerUseCase = new RegisterUseCase($userRepository, $eventPublisher, $requestValidator);
         $this->logoutUseCase = new LogoutUseCase($this->jwtService);
     }
 
