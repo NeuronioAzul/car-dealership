@@ -6,9 +6,6 @@ namespace App\Infrastructure\Database;
 
 use App\Application\DTOs\CustomerDTO;
 use App\Domain\Repositories\CustomerRepositoryInterface;
-use App\Domain\ValueObjects\CustomerAddress;
-use DateTime;
-use DateTimeZone;
 use PDO;
 
 class CustomerRepository implements CustomerRepositoryInterface
@@ -29,6 +26,7 @@ class CustomerRepository implements CustomerRepositoryInterface
                 street, number, complement, neighborhood, city, state, zip_code,
                 occupation, company, monthly_income,
                 preferred_contact, newsletter_subscription, sms_notifications,
+                accept_terms, accept_privacy, accept_communications,
                 total_purchases, total_spent, last_purchase_date,
                 customer_score, customer_tier,
                 created_at, updated_at
@@ -38,6 +36,7 @@ class CustomerRepository implements CustomerRepositoryInterface
                 :street, :number, :complement, :neighborhood, :city, :state, :zip_code,
                 :occupation, :company, :monthly_income,
                 :preferred_contact, :newsletter_subscription, :sms_notifications,
+                :accept_terms, :accept_privacy, :accept_communications,
                 :total_purchases, :total_spent, :last_purchase_date,
                 :customer_score, :customer_tier,
                 :created_at, :updated_at
@@ -46,40 +45,32 @@ class CustomerRepository implements CustomerRepositoryInterface
 
         $stmt = $this->connection->prepare($sql);
 
-        return $stmt->execute([
-            'id' => $customer->getId(),
-            'user_id' => $customer->getUserId(),
-            'full_name' => $customer->getFullName(),
-            'email' => $customer->getEmail(),
-            'cpf' => $customer->getCpf(),
-            'rg' => $customer->getRg(),
-            'birth_date' => $customer->getBirthDate() ? $customer->getBirthDate()->format('Y-m-d') : null,
-            'gender' => $customer->getGender(),
-            'marital_status' => $customer->getMaritalStatus(),
-            'phone' => $customer->getPhone(),
-            'mobile' => $customer->getMobile(),
-            'whatsapp' => $customer->getWhatsapp(),
-            'street' => $customer->getAddress()->getStreet(),
-            'number' => $customer->getAddress()->getNumber(),
-            'complement' => $customer->getAddress()->getComplement(),
-            'neighborhood' => $customer->getAddress()->getNeighborhood(),
-            'city' => $customer->getAddress()->getCity(),
-            'state' => $customer->getAddress()->getState(),
-            'zip_code' => $customer->getAddress()->getZipCode(),
-            'occupation' => $customer->getOccupation(),
-            'company' => $customer->getCompany(),
-            'monthly_income' => $customer->getMonthlyIncome(),
-            'preferred_contact' => $customer->getPreferredContact(),
-            'newsletter_subscription' => $customer->isNewsletterSubscription(),
-            'sms_notifications' => $customer->isSmsNotifications(),
-            'total_purchases' => $customer->getTotalPurchases(),
-            'total_spent' => $customer->getTotalSpent(),
-            'last_purchase_date' => $customer->getLastPurchaseDate() ? $customer->getLastPurchaseDate()->format('Y-m-d H:i:s') : null,
-            'customer_score' => $customer->getCustomerScore(),
-            'customer_tier' => $customer->getCustomerTier(),
-            'created_at' => $customer->getCreatedAt()->format('Y-m-d H:i:s'),
-            'updated_at' => $customer->getUpdatedAt()->format('Y-m-d H:i:s'),
-        ]);
+        $customerData = $customer->toArray();
+
+        // Mesclar os dados do endereço com o array principal
+        $customerData = array_merge($customerData, $customerData['address']);
+
+        // Remover o array address aninhado e o campo deleted_at
+        unset($customerData['address']);
+        unset($customerData['deleted_at']);
+
+        // Converter valores boolean para integer para compatibilidade com MySQL
+        $customerData['newsletter_subscription'] = $customerData['newsletter_subscription'] ? 1 : 0;
+        $customerData['sms_notifications'] = $customerData['sms_notifications'] ? 1 : 0;
+        $customerData['accept_terms'] = $customerData['accept_terms'] ? 1 : 0;
+        $customerData['accept_privacy'] = $customerData['accept_privacy'] ? 1 : 0;
+        $customerData['accept_communications'] = $customerData['accept_communications'] ? 1 : 0;
+
+        // // print generated SQL query for debugging
+        // $debugSql = $sql;
+        // foreach ($customerData as $key => $value) {
+        //     $escapedValue = is_null($value) ? 'NULL' : $this->connection->quote((string)(is_array($value) ? json_encode($value) : $value));
+        //     $debugSql = preg_replace('/:' . preg_quote($key, '/') . '\b/', $escapedValue, $debugSql);
+        // }
+        // echo '[DEBUG SQL] ' . $debugSql;
+        // die;
+
+        return $stmt->execute($customerData);
     }
 
     public function findById(string $id): ?CustomerDTO
@@ -165,39 +156,21 @@ class CustomerRepository implements CustomerRepositoryInterface
 
         $stmt = $this->connection->prepare($sql);
 
-        return $stmt->execute([
-            'id' => $customer->getId(),
-            'user_id' => $customer->getUserId(),
-            'full_name' => $customer->getFullName(),
-            'email' => $customer->getEmail(),
-            'cpf' => $customer->getCpf(),
-            'rg' => $customer->getRg(),
-            'birth_date' => $customer->getBirthDate() ? $customer->getBirthDate()->format('Y-m-d') : null,
-            'gender' => $customer->getGender(),
-            'marital_status' => $customer->getMaritalStatus(),
-            'phone' => $customer->getPhone(),
-            'mobile' => $customer->getMobile(),
-            'whatsapp' => $customer->getWhatsapp(),
-            'street' => $customer->getAddress()->getStreet(),
-            'number' => $customer->getAddress()->getNumber(),
-            'complement' => $customer->getAddress()->getComplement(),
-            'neighborhood' => $customer->getAddress()->getNeighborhood(),
-            'city' => $customer->getAddress()->getCity(),
-            'state' => $customer->getAddress()->getState(),
-            'zip_code' => $customer->getAddress()->getZipCode(),
-            'occupation' => $customer->getOccupation(),
-            'company' => $customer->getCompany(),
-            'monthly_income' => $customer->getMonthlyIncome(),
-            'preferred_contact' => $customer->getPreferredContact(),
-            'newsletter_subscription' => $customer->isNewsletterSubscription(),
-            'sms_notifications' => $customer->isSmsNotifications(),
-            'total_purchases' => $customer->getTotalPurchases(),
-            'total_spent' => $customer->getTotalSpent(),
-            'last_purchase_date' => $customer->getLastPurchaseDate() ? $customer->getLastPurchaseDate()->format('Y-m-d H:i:s') : null,
-            'customer_score' => $customer->getCustomerScore(),
-            'customer_tier' => $customer->getCustomerTier(),
-            'updated_at' => $customer->getUpdatedAt()->format('Y-m-d H:i:s'),
-        ]);
+        $customerData = $customer->toArray();
+
+        // Mesclar os dados do endereço com o array principal
+        $customerData = array_merge($customerData, $customerData['address']);
+
+        // Remover o array address aninhado e o campo deleted_at
+        unset($customerData['address']);
+        unset($customerData['deleted_at']);
+        unset($customerData['created_at']); // Não atualizamos created_at
+
+        // Converter valores boolean para integer para compatibilidade com MySQL
+        $customerData['newsletter_subscription'] = $customerData['newsletter_subscription'] ? 1 : 0;
+        $customerData['sms_notifications'] = $customerData['sms_notifications'] ? 1 : 0;
+
+        return $stmt->execute($customerData);
     }
 
     public function delete(string $id): bool
@@ -219,66 +192,48 @@ class CustomerRepository implements CustomerRepositoryInterface
 
     private function mapToCustomer(array $data): CustomerDTO
     {
-        $address = new CustomerAddress(
-            $data['street'] ?? '',
-            $data['number'] ?? '',
-            $data['neighborhood'] ?? '',
-            $data['city'] ?? '',
-            $data['state'] ?? '',
-            $data['zip_code'] ?? '',
-            $data['complement'] ?? ''
-        );
+        // Converter os dados do banco para o formato esperado pelo CustomerDTO
+        $input = [
+            'id' => $data['id'],
+            'userId' => $data['user_id'],
+            'fullName' => $data['full_name'],
+            'email' => $data['email'],
+            'cpf' => $data['cpf'],
+            'rg' => $data['rg'],
+            'birthDate' => $data['birth_date'],
+            'gender' => $data['gender'],
+            'maritalStatus' => $data['marital_status'],
+            'phone' => $data['phone'],
+            'mobile' => $data['mobile'],
+            'whatsapp' => $data['whatsapp'],
+            'address' => [
+                'street' => $data['street'] ?? '',
+                'number' => $data['number'] ?? '',
+                'complement' => $data['complement'] ?? '',
+                'neighborhood' => $data['neighborhood'] ?? '',
+                'city' => $data['city'] ?? '',
+                'state' => $data['state'] ?? '',
+                'zipCode' => $data['zip_code'] ?? '',
+            ],
+            'occupation' => $data['occupation'],
+            'company' => $data['company'],
+            'monthlyIncome' => $data['monthly_income'],
+            'preferredContact' => $data['preferred_contact'] ?? 'email',
+            'newsletterSubscription' => (bool) $data['newsletter_subscription'],
+            'smsNotifications' => (bool) $data['sms_notifications'],
+            'totalPurchases' => $data['total_purchases'] ?? 0,
+            'totalSpent' => $data['total_spent'] ?? 0.0,
+            'lastPurchaseDate' => $data['last_purchase_date'],
+            'customerScore' => $data['customer_score'] ?? 0,
+            'customerTier' => $data['customer_tier'] ?? 'bronze',
+            'acceptTerms' => (bool) ($data['accept_terms'] ?? 0),
+            'acceptPrivacy' => (bool) ($data['accept_privacy'] ?? 0),
+            'acceptCommunications' => (bool) ($data['accept_communications'] ?? 0),
+            'createdAt' => $data['created_at'],
+            'updatedAt' => $data['updated_at'],
+            'deletedAt' => $data['deleted_at'] ?? null,
+        ];
 
-        $customer = new CustomerDTO(
-            userId: $data['user_id'] ?? '',
-            fullName: $data['full_name'] ?? '',
-            email: $data['email'] ?? '',
-            cpf: $data['cpf'] ?? '',
-            rg: $data['rg'] ?? '',
-            birthDate: isset($data['birth_date']) ? new DateTime($data['birth_date']) : null,
-            gender: $data['gender'] ?? null,
-            maritalStatus: $data['marital_status'] ?? null,
-            phone: $data['phone'] ?? '',
-            mobile: $data['mobile'] ?? '',
-            whatsapp: $data['whatsapp'] ?? '',
-            address: $address,
-            occupation: $data['occupation'] ?? null,
-            company: $data['company'] ?? null,
-            monthlyIncome: $data['monthly_income'] ?? null,
-            preferredContact: $data['preferred_contact'] ?? null,
-            newsletterSubscription: $data['newsletter_subscription'] ?? false,
-            smsNotifications: $data['sms_notifications'] ?? false,
-            totalPurchases: $data['total_purchases'] ?? 0,
-            totalSpent: $data['total_spent'] ?? 0.0,
-            lastPurchaseDate: isset($data['last_purchase_date']) ? new DateTime($data['last_purchase_date']) : null,
-            customerScore: $data['customer_score'] ?? 0,
-            customerTier: $data['customer_tier'] ?? 'bronze',
-            #formato pt_BR
-            createdAt: isset($data['created_at']) ? new DateTime($data['created_at'], new DateTimeZone('America/Sao_Paulo')) : '',
-            updatedAt: isset($data['updated_at']) ? new DateTime($data['updated_at'], new DateTimeZone('America/Sao_Paulo')) : ''
-        );
-
-        // Reflection para setar propriedades privadas (id, createdAt, updatedAt, deletedAt)
-        $reflection = new \ReflectionClass($customer);
-
-        $idProperty = $reflection->getProperty('id');
-        $idProperty->setAccessible(true);
-        $idProperty->setValue($customer, $data['id']);
-
-        $createdAtProperty = $reflection->getProperty('createdAt');
-        $createdAtProperty->setAccessible(true);
-        $createdAtProperty->setValue($customer, isset($data['created_at']) ? new DateTime($data['created_at']) : new DateTime());
-
-        $updatedAtProperty = $reflection->getProperty('updatedAt');
-        $updatedAtProperty->setAccessible(true);
-        $updatedAtProperty->setValue($customer, isset($data['updated_at']) ? new DateTime($data['updated_at']) : new DateTime());
-
-        if (!empty($data['deleted_at'])) {
-            $deletedAtProperty = $reflection->getProperty('deletedAt');
-            $deletedAtProperty->setAccessible(true);
-            $deletedAtProperty->setValue($customer, new DateTime($data['deleted_at']));
-        }
-
-        return $customer;
+        return new CustomerDTO($input);
     }
 }

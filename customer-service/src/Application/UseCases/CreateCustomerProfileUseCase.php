@@ -16,7 +16,7 @@ class CreateCustomerProfileUseCase
     public function execute(CustomerDTO $customer): bool
     {
         // Verifica se o cliente já existe pelo email
-        if ($this->customerRepository->existsByEmail($customer->getEmail())) {
+        if ($this->customerRepository->existsByEmail($customer->email)) {
             throw new \Exception('Cliente já cadastrado', 409);
         }
 

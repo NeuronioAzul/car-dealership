@@ -25,7 +25,11 @@ abstract class BaseRequest
 
     public function validate(): bool
     {
-        $constraints = new Assert\Collection($this->constraints());
+        $constraints = new Assert\Collection([
+            'fields' => $this->constraints(),
+            'allowExtraFields' => false,
+            'allowMissingFields' => false,
+        ]);
         $violations = $this->validator->validate($this->data, $constraints);
 
         if (count($violations) > 0) {

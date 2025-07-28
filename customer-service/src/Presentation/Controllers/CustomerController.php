@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Presentation\Controllers;
 
 use App\Application\DTOs\CustomerDTO;
-use App\Application\Validation\CreateCustomerProfileRequest;
 use App\Application\UseCases\CreateCustomerProfileUseCase;
 use App\Application\UseCases\GetCustomerProfileUseCase;
 use App\Application\UseCases\UpdateCustomerProfileUseCase;
+use App\Application\Validation\CreateCustomerProfileRequest;
 use App\Infrastructure\Database\CustomerRepository;
 use App\Infrastructure\Database\DatabaseConfig;
 use App\Infrastructure\Messaging\EventPublisher;
@@ -67,11 +67,12 @@ class CustomerController
                 return;
             }
 
-            $customer = CustomerDTO::fromArray($request->validated());
+            $request = $request->validated();
+
+            $customer = CustomerDTO::fromArray($request);
 
             $customer = $this->createCustomerProfileUseCase->execute($customer);
 
-            
             http_response_code(201);
             echo json_encode([
                 'success' => true,

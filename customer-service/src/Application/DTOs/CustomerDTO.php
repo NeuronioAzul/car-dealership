@@ -17,7 +17,7 @@ class CustomerDTO
 
     #[Assert\NotBlank]
     #[Assert\Uuid]
-    public readonly ?string $userId = null; // ID do usuário associado, se aplicável
+    public readonly ?string $userId;
 
     #[Assert\NotBlank]
     #[Assert\Length(max: 255)]
@@ -34,16 +34,16 @@ class CustomerDTO
     public readonly string $cpf;
 
     #[Assert\Length(max: 20)]
-    public readonly ?string $rg = null;
+    public readonly ?string $rg;
 
     #[Assert\NotBlank]
-    public readonly ?DateTime $birthDate = null;
+    public readonly ?DateTime $birthDate;
 
     #[Assert\Choice(choices: ['M', 'F', 'Other'])]
-    public readonly ?string $gender = null;
+    public readonly ?string $gender;
 
     #[Assert\Choice(choices: ['single', 'married', 'divorced', 'widowed', 'common_law'])]
-    public readonly ?string $maritalStatus = null;
+    public readonly ?string $maritalStatus;
 
     #[Assert\NotBlank]
     #[Assert\Length(max: 20)]
@@ -92,16 +92,16 @@ class CustomerDTO
     public readonly string $customerTier;
 
     #[Assert\NotBlank]
-    #[Assert\Choice(choices: [0, 1])]
-    public readonly int $acceptTerms;
+    #[Assert\Type(type: 'bool')]
+    public readonly bool $acceptTerms;
 
     #[Assert\NotBlank]
-    #[Assert\Choice(choices: [0, 1])]
-    public readonly int $acceptPrivacy;
+    #[Assert\Type(type: 'bool')]
+    public readonly bool $acceptPrivacy;
 
     #[Assert\NotBlank]
-    #[Assert\Choice(choices: [0, 1])]
-    public readonly int $acceptCommunications;
+    #[Assert\Type(type: 'bool')]
+    public readonly bool $acceptCommunications;
 
     #[Assert\Type(DateTimeImmutable::class)]
     public readonly DateTimeImmutable $createdAt;
@@ -113,14 +113,14 @@ class CustomerDTO
     public function __construct(array $input)
     {
         $this->id = $input['id'] ?? Uuid::uuid6()->toString();
-        $this->userId = $input['userId'] ?? null;
-        $this->fullName = $input['fullName'] ?? '';
+        $this->userId = $input['user_id'] ?? null;
+        $this->fullName = $input['full_name'] ?? '';
         $this->email = $input['email'] ?? '';
         $this->cpf = $input['cpf'] ?? '';
         $this->rg = $input['rg'] ?? null;
-        $this->birthDate = isset($input['birthDate']) ? new \DateTime($input['birthDate']) : null;
+        $this->birthDate = isset($input['birth_date']) ? new \DateTime($input['birth_date']) : null;
         $this->gender = $input['gender'] ?? null;
-        $this->maritalStatus = $input['maritalStatus'] ?? null;
+        $this->maritalStatus = $input['marital_status'] ?? null;
         $this->phone = $input['phone'] ?? null;
         $this->mobile = $input['mobile'] ?? null;
         $this->whatsapp = $input['whatsapp'] ?? null;
@@ -131,25 +131,25 @@ class CustomerDTO
             neighborhood: $input['address']['neighborhood'] ?? '',
             city: $input['address']['city'] ?? '',
             state: $input['address']['state'] ?? '',
-            zipCode: $input['address']['zipCode'] ?? ''
+            zipCode: $input['address']['zip_code'] ?? ''
         );
         $this->occupation = $input['occupation'] ?? null;
         $this->company = $input['company'] ?? null;
-        $this->monthlyIncome = $input['monthlyIncome'] ?? null;
-        $this->preferredContact = $input['preferredContact'] ?? 'email';
-        $this->newsletterSubscription = $input['newsletterSubscription'] ?? false;
-        $this->smsNotifications = $input['smsNotifications'] ?? false;
-        $this->totalPurchases = $input['totalPurchases'] ?? 0;
-        $this->totalSpent = $input['totalSpent'] ?? 0.0;
-        $this->lastPurchaseDate = isset($input['lastPurchaseDate']) ? new \DateTime($input['lastPurchaseDate']) : null;
-        $this->customerScore = $input['customerScore'] ?? 0;
-        $this->customerTier = $input['customerTier'] ?? 'bronze';
-        $this->acceptTerms = $input['acceptTerms'] ?? $input['accept_terms'] ?? 0;
-        $this->acceptPrivacy = $input['acceptPrivacy'] ?? $input['accept_privacy'] ?? 0;
-        $this->acceptCommunications = $input['acceptCommunications'] ?? $input['accept_communications'] ?? 0;
-        $this->createdAt = $input['createdAt'] ?? new DateTimeImmutable();
-        $this->updatedAt = $input['updatedAt'] ?? new \DateTime();
-        $this->deletedAt = $input['deletedAt'] ?? null;
+        $this->monthlyIncome = $input['monthly_income'] ?? null;
+        $this->preferredContact = $input['preferred_contact'] ?? 'email';
+        $this->newsletterSubscription = $input['newsletter_subscription'] ?? false;
+        $this->smsNotifications = $input['sms_notifications'] ?? false;
+        $this->totalPurchases = $input['total_purchases'] ?? 0;
+        $this->totalSpent = $input['total_spent'] ?? 0.0;
+        $this->lastPurchaseDate = isset($input['last_purchase_date']) ? new \DateTime($input['last_purchase_date']) : null;
+        $this->customerScore = $input['customer_score'] ?? 0;
+        $this->customerTier = $input['customer_tier'] ?? 'bronze';
+        $this->acceptTerms = $input['accept_terms'] ?? false;
+        $this->acceptPrivacy = $input['accept_privacy'] ?? false;
+        $this->acceptCommunications = $input['accept_communications'] ?? false;
+        $this->createdAt = $input['created_at'] ?? new DateTimeImmutable();
+        $this->updatedAt = $input['updated_at'] ?? new \DateTime();
+        $this->deletedAt = $input['deleted_at'] ?? null;
     }
 
     public static function fromArray(array $input): self
