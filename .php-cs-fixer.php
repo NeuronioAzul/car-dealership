@@ -68,5 +68,7 @@ return (new PhpCsFixer\Config())
         'function_typehint_space' => true,   // Espaços em type hints
         'return_type_declaration' => true,   // Espaços em return types
         'visibility_required' => true,       // Obriga declaração de visibilidade
+        // 'modernize_types_casting' => false,  // Não moderniza octals 0755 -> 0o755
+        // 'octal_notation' => false,           // Mantém notação octal clássica
     ])
     ->setRiskyAllowed(true);
