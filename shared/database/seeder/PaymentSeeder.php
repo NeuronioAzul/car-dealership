@@ -60,7 +60,7 @@ class PaymentSeeder extends BaseSeeder
             $failedAt = $status === 'failed' ? $this->faker->dateTimeBetween($processedAt ?: $createdAt, 'now') : null;
             $refundedAt = $status === 'refunded' ? $this->faker->dateTimeBetween($processedAt ?: $createdAt, 'now') : null;
 
-            $gatewayFee = $this->calculateGatewayFee((float)$code['amount'], $paymentMethod);
+            $gatewayFee = $this->calculateGatewayFee((float) $code['amount'], $paymentMethod);
 
             // Dados de cartão e PIX
             $cardLastFour = in_array($paymentMethod, ['credit_card', 'debit_card']) ? $this->getCardLastFour() : null;

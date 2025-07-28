@@ -41,7 +41,12 @@ CREATE TABLE IF NOT EXISTS customer_profiles (
     preferred_contact ENUM('email', 'phone', 'whatsapp') DEFAULT 'email' COMMENT 'Forma preferida de contato',
     newsletter_subscription BOOLEAN DEFAULT FALSE COMMENT 'Inscrição newsletter',
     sms_notifications BOOLEAN DEFAULT FALSE COMMENT 'Notificações SMS',
-    
+
+    -- Consentimentos
+    accept_terms BOOLEAN DEFAULT FALSE COMMENT 'Aceitou os termos de uso',
+    accept_privacy BOOLEAN DEFAULT FALSE COMMENT 'Aceitou a política de privacidade',
+    accept_communications BOOLEAN DEFAULT FALSE COMMENT 'Aceitou receber comunicações',
+
     -- Histórico de compras
     total_purchases INT DEFAULT 0 COMMENT 'Total de compras realizadas',
     total_spent DECIMAL(12,2) DEFAULT 0.00 COMMENT 'Total gasto',

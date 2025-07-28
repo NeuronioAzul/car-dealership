@@ -68,7 +68,6 @@ try {
             exit(1);
     }
 
-
     $endTime = microtime(true);
     $executionTime = round($endTime - $startTime, 2);
 
