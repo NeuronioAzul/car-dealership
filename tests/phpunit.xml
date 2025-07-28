@@ -3,13 +3,12 @@
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.0/phpunit.xsd"
          bootstrap="bootstrap.php"
          colors="true"
-         verbose="true"
          stopOnFailure="false"
          processIsolation="false"
-         backupGlobals="false"
-         backupStaticAttributes="false">
+         backupGlobals="false">
     
     <testsuites>
+        <!-- Suítes por tipo de teste -->
         <testsuite name="Unit">
             <directory>Unit</directory>
         </testsuite>
@@ -18,6 +17,48 @@
         </testsuite>
         <testsuite name="Feature">
             <directory>Feature</directory>
+        </testsuite>
+        
+        <!-- Suítes por serviço -->
+        <testsuite name="AuthService">
+            <directory>Unit/AuthService</directory>
+            <directory>Feature/AuthService</directory>
+            <directory>Integration/AuthService</directory>
+        </testsuite>
+        <testsuite name="VehicleService">
+            <directory>Unit/VehicleService</directory>
+            <directory>Feature/VehicleService</directory>
+            <directory>Integration/VehicleService</directory>
+        </testsuite>
+        <testsuite name="CustomerService">
+            <directory>Unit/CustomerService</directory>
+            <directory>Feature/CustomerService</directory>
+            <directory>Integration/CustomerService</directory>
+        </testsuite>
+        <testsuite name="PaymentService">
+            <directory>Unit/PaymentService</directory>
+            <directory>Feature/PaymentService</directory>
+            <directory>Integration/PaymentService</directory>
+        </testsuite>
+        <testsuite name="ReservationService">
+            <directory>Unit/ReservationService</directory>
+            <directory>Feature/ReservationService</directory>
+            <directory>Integration/ReservationService</directory>
+        </testsuite>
+        <testsuite name="SalesService">
+            <directory>Unit/SalesService</directory>
+            <directory>Feature/SalesService</directory>
+            <directory>Integration/SalesService</directory>
+        </testsuite>
+        <testsuite name="AdminService">
+            <directory>Unit/AdminService</directory>
+            <directory>Feature/AdminService</directory>
+            <directory>Integration/AdminService</directory>
+        </testsuite>
+        <testsuite name="SagaOrchestrator">
+            <directory>Unit/SagaOrchestrator</directory>
+            <directory>Feature/SagaOrchestrator</directory>
+            <directory>Integration/SagaOrchestrator</directory>
         </testsuite>
     </testsuites>
     
