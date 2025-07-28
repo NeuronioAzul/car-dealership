@@ -18,12 +18,15 @@ class DatabaseErrorHandler
             if (strpos($errorMessage, 'chassis_number') !== false) {
                 throw new Exception('Este número de chassi já está sendo usado por outro veículo', 422);
             }
+
             if (strpos($errorMessage, 'license_plate') !== false) {
                 throw new Exception('Esta placa já está sendo usada por outro veículo', 422);
             }
+
             if (strpos($errorMessage, 'renavam') !== false) {
                 throw new Exception('Este RENAVAM já está sendo usado por outro veículo', 422);
             }
+
             // Erro genérico de duplicação
             throw new Exception('Já existe um veículo com estes dados. Verifique chassi, placa e RENAVAM', 422);
         }
