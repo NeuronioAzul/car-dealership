@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Application\UseCases;
 
+use App\Application\DTOs\CustomerDTO;
 use App\Domain\Repositories\CustomerRepositoryInterface;
 use App\Domain\ValueObjects\CustomerAddress;
 use App\Infrastructure\Messaging\EventPublisher;
@@ -23,7 +24,7 @@ class UpdateCustomerProfileUseCase
     ) {
     }
 
-    public function execute(string $customerId, array $updateData): array
+    public function execute(string $customerId, CustomerDTO $customerData): array
     {
         $customer = $this->customerRepository->findById($customerId);
 
@@ -35,40 +36,13 @@ class UpdateCustomerProfileUseCase
             throw new \Exception('Cliente inativo', 403);
         }
 
-        // Atualizar dados do cliente
-        if (isset($updateData['name'])) {
-            $customer->setFullName($updateData['name']);
-        }
-
-        if (isset($updateData['email'])) {
+        if (isset($customerData->email)) {
             // Verificar se email já existe para outro cliente
-            $existingCustomer = $this->customerRepository->findByEmail($updateData['email']);
+            $existingCustomer = $this->customerRepository->findByEmail($customerData->email);
 
-            if ($existingCustomer && $existingCustomer->getId() !== $customerId) {
+            if ($existingCustomer && $existingCustomer->id !== $customerId) {
                 throw new \Exception('Email já está em uso por outro cliente', 409);
             }
-            $customer->setEmail($updateData['email']);
-        }
-
-        if (isset($updateData['phone'])) {
-            $customer->setPhone($updateData['phone']);
-        }
-
-        if (isset($updateData['birth_date'])) {
-            $customer->setBirthDate(new DateTime($updateData['birth_date']));
-        }
-
-        if (isset($updateData['address'])) {
-            $address = new CustomerAddress(
-                $updateData['address']['street'],
-                $updateData['address']['number'],
-                $updateData['address']['neighborhood'],
-                $updateData['address']['complement'] ?? null,
-                $updateData['address']['city'],
-                $updateData['address']['state'],
-                $updateData['address']['zip_code']
-            );
-            $customer->setAddress($address);
         }
 
         // Salvar alterações
@@ -78,9 +52,9 @@ class UpdateCustomerProfileUseCase
 
         // Publicar evento de atualização
         $this->eventPublisher->publish('customer.profile_updated', [
-            'customer_id' => $customer->getId(),
-            'email' => $customer->getEmail(),
-            'name' => $customer->getFullName(),
+            'customer_id' => $customer->id,
+            'email' => $customer->email,
+            'name' => $customer->fullName,
             'timestamp' => date('Y-m-d H:i:s'),
         ]);
 

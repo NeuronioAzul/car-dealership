@@ -135,21 +135,27 @@ class CustomerDTO
         );
         $this->occupation = $input['occupation'] ?? null;
         $this->company = $input['company'] ?? null;
-        $this->monthlyIncome = $input['monthly_income'] ?? null;
+        $this->monthlyIncome = (float)($input['monthly_income'] ?? 0);
         $this->preferredContact = $input['preferred_contact'] ?? 'email';
         $this->newsletterSubscription = $input['newsletter_subscription'] ?? false;
         $this->smsNotifications = $input['sms_notifications'] ?? false;
         $this->totalPurchases = $input['total_purchases'] ?? 0;
-        $this->totalSpent = $input['total_spent'] ?? 0.0;
+        $this->totalSpent = (float)($input['total_spent'] ?? 0.0);
         $this->lastPurchaseDate = isset($input['last_purchase_date']) ? new \DateTime($input['last_purchase_date']) : null;
         $this->customerScore = $input['customer_score'] ?? 0;
         $this->customerTier = $input['customer_tier'] ?? 'bronze';
         $this->acceptTerms = $input['accept_terms'] ?? false;
         $this->acceptPrivacy = $input['accept_privacy'] ?? false;
         $this->acceptCommunications = $input['accept_communications'] ?? false;
-        $this->createdAt = $input['created_at'] ?? new DateTimeImmutable();
-        $this->updatedAt = $input['updated_at'] ?? new \DateTime();
-        $this->deletedAt = $input['deleted_at'] ?? null;
+        $this->createdAt = isset($input['created_at']) && $input['created_at']
+            ? new DateTimeImmutable($input['created_at'])
+            : new DateTimeImmutable('now');
+        $this->updatedAt = isset($input['updated_at']) && $input['updated_at']
+            ? new DateTime($input['updated_at'])
+            : new DateTime('now');
+        $this->deletedAt = isset($input['deleted_at']) && $input['deleted_at']
+            ? new DateTime($input['deleted_at'])
+            : null;
     }
 
     public static function fromArray(array $input): self

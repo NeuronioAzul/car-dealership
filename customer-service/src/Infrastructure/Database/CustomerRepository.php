@@ -104,11 +104,24 @@ class CustomerRepository implements CustomerRepositoryInterface
         return $data ? $this->mapToCustomer($data) : null;
     }
 
-    public function findAll(): array
+    public function findAll(array $criteria = []): array
     {
-        $sql = 'SELECT * FROM customer_profiles WHERE deleted_at IS NULL ORDER BY created_at DESC';
-        $stmt = $this->connection->query($sql);
+        $sql = 'SELECT * FROM customer_profiles WHERE deleted_at IS NULL';
 
+        // Adicionar filtros à consulta, se houver
+        if (!empty($criteria)) {
+            $sql .= ' AND ' . implode(' AND ', array_map(fn($field) => "$field = :$field", array_keys($criteria)));
+        }
+
+        $sql .= ' ORDER BY created_at DESC';
+        $stmt = $this->connection->prepare($sql);
+
+        // Vincular parâmetros, se houver
+        foreach ($criteria as $field => $value) {
+            $stmt->bindValue(":$field", $value);
+        }
+
+        $stmt->execute();
         $customers = [];
         while ($data = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $customers[] = $this->mapToCustomer($data);
@@ -145,6 +158,9 @@ class CustomerRepository implements CustomerRepositoryInterface
                 preferred_contact = :preferred_contact,
                 newsletter_subscription = :newsletter_subscription,
                 sms_notifications = :sms_notifications,
+                accept_terms = :accept_terms,
+                accept_privacy = :accept_privacy,
+                accept_communications = :accept_communications,
                 total_purchases = :total_purchases,
                 total_spent = :total_spent,
                 last_purchase_date = :last_purchase_date,
@@ -195,14 +211,14 @@ class CustomerRepository implements CustomerRepositoryInterface
         // Converter os dados do banco para o formato esperado pelo CustomerDTO
         $input = [
             'id' => $data['id'],
-            'userId' => $data['user_id'],
-            'fullName' => $data['full_name'],
+            'user_id' => $data['user_id'],
+            'full_name' => $data['full_name'],
             'email' => $data['email'],
             'cpf' => $data['cpf'],
             'rg' => $data['rg'],
-            'birthDate' => $data['birth_date'],
+            'birth_date' => $data['birth_date'],
             'gender' => $data['gender'],
-            'maritalStatus' => $data['marital_status'],
+            'marital_status' => $data['marital_status'],
             'phone' => $data['phone'],
             'mobile' => $data['mobile'],
             'whatsapp' => $data['whatsapp'],
@@ -213,25 +229,25 @@ class CustomerRepository implements CustomerRepositoryInterface
                 'neighborhood' => $data['neighborhood'] ?? '',
                 'city' => $data['city'] ?? '',
                 'state' => $data['state'] ?? '',
-                'zipCode' => $data['zip_code'] ?? '',
+                'zip_code' => $data['zip_code'] ?? '',
             ],
             'occupation' => $data['occupation'],
             'company' => $data['company'],
-            'monthlyIncome' => $data['monthly_income'],
-            'preferredContact' => $data['preferred_contact'] ?? 'email',
-            'newsletterSubscription' => (bool) $data['newsletter_subscription'],
-            'smsNotifications' => (bool) $data['sms_notifications'],
-            'totalPurchases' => $data['total_purchases'] ?? 0,
-            'totalSpent' => $data['total_spent'] ?? 0.0,
-            'lastPurchaseDate' => $data['last_purchase_date'],
-            'customerScore' => $data['customer_score'] ?? 0,
-            'customerTier' => $data['customer_tier'] ?? 'bronze',
-            'acceptTerms' => (bool) ($data['accept_terms'] ?? 0),
-            'acceptPrivacy' => (bool) ($data['accept_privacy'] ?? 0),
-            'acceptCommunications' => (bool) ($data['accept_communications'] ?? 0),
-            'createdAt' => $data['created_at'],
-            'updatedAt' => $data['updated_at'],
-            'deletedAt' => $data['deleted_at'] ?? null,
+            'monthly_income' => $data['monthly_income'],
+            'preferred_contact' => $data['preferred_contact'] ?? 'email',
+            'newsletter_subscription' => (bool) $data['newsletter_subscription'],
+            'sms_notifications' => (bool) $data['sms_notifications'],
+            'total_purchases' => $data['total_purchases'] ?? 0,
+            'total_spent' => $data['total_spent'] ?? 0.0,
+            'last_purchase_date' => $data['last_purchase_date'],
+            'customer_score' => $data['customer_score'] ?? 0,
+            'customer_tier' => $data['customer_tier'] ?? 'bronze',
+            'accept_terms' => (bool) ($data['accept_terms'] ?? 0),
+            'accept_privacy' => (bool) ($data['accept_privacy'] ?? 0),
+            'accept_communications' => (bool) ($data['accept_communications'] ?? 0),
+            'created_at' => $data['created_at'],
+            'updated_at' => $data['updated_at'],
+            'deleted_at' => $data['deleted_at'] ?? null,
         ];
 
         return new CustomerDTO($input);

@@ -16,7 +16,7 @@ interface CustomerRepositoryInterface
 
     public function findByEmail(string $email): ?CustomerDTO;
 
-    public function findAll(): array;
+    public function findAll(array $criteria = []): array;
 
     public function update(CustomerDTO $customer): bool;
 

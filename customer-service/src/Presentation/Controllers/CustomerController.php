@@ -9,6 +9,7 @@ use App\Application\UseCases\CreateCustomerProfileUseCase;
 use App\Application\UseCases\GetCustomerProfileUseCase;
 use App\Application\UseCases\UpdateCustomerProfileUseCase;
 use App\Application\Validation\CreateCustomerProfileRequest;
+use App\Application\Validation\UpdateCustomerProfileRequest;
 use App\Infrastructure\Database\CustomerRepository;
 use App\Infrastructure\Database\DatabaseConfig;
 use App\Infrastructure\Messaging\EventPublisher;
@@ -120,8 +121,27 @@ class CustomerController
             if (!$input) {
                 throw new \Exception('Dados inválidos', 400);
             }
+            $customerProfile = $this->getProfileUseCase->execute($user['user_id']);
 
-            $profile = $this->updateProfileUseCase->execute($user['user_id'], $input);
+            // Valida os dados de entrada
+            $request = new UpdateCustomerProfileRequest($input);
+
+            if (!$request->validate()) {
+                http_response_code(422);
+                echo json_encode([
+                    'error' => true,
+                    'message' => 'Validation failed',
+                    'errors' => $request->errors(),
+                ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+
+                return;
+            }
+
+            $request = $request->validated();
+
+            $customer = CustomerDTO::fromArray($request);
+
+            $profile = $this->updateProfileUseCase->execute($customerProfile['id'], $customer);
 
             http_response_code(200);
             echo json_encode([
@@ -130,12 +150,29 @@ class CustomerController
                 'message' => 'Perfil atualizado com sucesso',
             ]);
         } catch (\Exception $e) {
-            $code = $e->getCode() ?: 500;
+            if (!is_numeric($e->getCode())) {
+                $code = 500;
+            } else {
+                $code = $e->getCode();
+            }
             http_response_code($code);
-            echo json_encode([
+
+            $response = [
                 'error' => true,
-                'message' => $e->getMessage(),
-            ]);
+                'message' => $e->getCode() . ' ' . $e->getMessage(),
+                'code' => $code,
+            ];
+
+            // Adicionar contexto adicional para erros de autenticação
+            if ($code === 401) {
+                $response['type'] = 'authentication_error';
+                $response['action'] = 'redirect_to_login';
+            } elseif ($code === 403) {
+                $response['type'] = 'authorization_error';
+                $response['action'] = 'insufficient_permissions';
+            }
+
+            echo json_encode($response);
         }
     }
 
