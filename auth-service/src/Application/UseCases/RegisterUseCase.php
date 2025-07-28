@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Application\UseCases;
 
+use App\Application\Exceptions\UserCreationFailedException;
+use App\Application\Exceptions\ValidationException;
 use App\Domain\Entities\User;
+use App\Domain\Exceptions\UserAlreadyExistsException;
 use App\Domain\Repositories\UserRepositoryInterface;
 use App\Domain\ValueObjects\Address;
 use App\Infrastructure\Messaging\EventPublisher;
@@ -22,7 +25,7 @@ class RegisterUseCase
     {
         // Validar se email já existe
         if ($this->userRepository->existsByEmail($userData['email'])) {
-            throw new \Exception('Email já cadastrado', 409);
+            throw new UserAlreadyExistsException($userData['email']);
         }
 
         // Validar dados obrigatórios
@@ -54,7 +57,7 @@ class RegisterUseCase
 
         // Salvar usuário
         if (!$this->userRepository->save($user)) {
-            throw new \Exception('Erro ao criar usuário', 500);
+            throw new UserCreationFailedException('Failed to save user to repository');
         }
 
         // Publicar evento de registro
@@ -79,6 +82,7 @@ class RegisterUseCase
 
     private function validateRequiredFields(array $userData): void
     {
+        $errors = [];
         $required = [
             'name',
             'email',
@@ -92,31 +96,41 @@ class RegisterUseCase
 
         foreach ($required as $field) {
             if (!isset($userData[$field]) || empty($userData[$field])) {
-                throw new \Exception("Campo obrigatório: {$field}", 400);
+                $errors[] = "Campo obrigatório: {$field}";
             }
         }
 
         // Validar endereço
-        $addressRequired = ['street', 'number', 'neighborhood', 'city', 'state', 'zip_code'];
-        foreach ($addressRequired as $field) {
-            if (!isset($userData['address'][$field]) || empty($userData['address'][$field])) {
-                throw new \Exception("Campo obrigatório no endereço: {$field}", 400);
+        if (isset($userData['address']) && is_array($userData['address'])) {
+            $addressRequired = ['street', 'number', 'neighborhood', 'city', 'state', 'zip_code'];
+            foreach ($addressRequired as $field) {
+                if (!isset($userData['address'][$field]) || empty($userData['address'][$field])) {
+                    $errors[] = "Campo obrigatório no endereço: {$field}";
+                }
             }
         }
 
         // Validar aceitação de termos
-        if (!$userData['accept_terms'] || !$userData['accept_privacy']) {
-            throw new \Exception('É necessário aceitar os termos de uso e política de privacidade', 400);
+        if (isset($userData['accept_terms']) && !$userData['accept_terms']) {
+            $errors[] = 'É necessário aceitar os termos de uso';
+        }
+
+        if (isset($userData['accept_privacy']) && !$userData['accept_privacy']) {
+            $errors[] = 'É necessário aceitar a política de privacidade';
         }
 
         // Validar formato do email
-        if (!filter_var($userData['email'], FILTER_VALIDATE_EMAIL)) {
-            throw new \Exception('Email inválido', 400);
+        if (isset($userData['email']) && !filter_var($userData['email'], FILTER_VALIDATE_EMAIL)) {
+            $errors[] = 'Email inválido';
         }
 
         // Validar senha
-        if (strlen($userData['password']) < 8) {
-            throw new \Exception('Senha deve ter pelo menos 8 caracteres', 400);
+        if (isset($userData['password']) && strlen($userData['password']) < 8) {
+            $errors[] = 'Senha deve ter pelo menos 8 caracteres';
+        }
+
+        if (!empty($errors)) {
+            throw new ValidationException($errors);
         }
     }
 }
