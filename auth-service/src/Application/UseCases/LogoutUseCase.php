@@ -17,10 +17,18 @@ class LogoutUseCase
 
     public function execute(string $token): void
     {
-        // Validar se o token é válido antes de revogar
-        $this->jwtService->validateToken($token);
-
-        // Revogar o token
-        $this->jwtService->revokeToken($token);
+        try {
+            // Validar se o token é válido antes de revogar
+            $this->jwtService->validateToken($token);
+            
+            // Revogar o token
+            $this->jwtService->revokeToken($token);
+        } catch (\Exception $e) {
+            // Se o token já estiver inválido/revogado, lançar exceção específica
+            if (str_contains($e->getMessage(), 'revogado') || str_contains($e->getMessage(), 'inválido')) {
+                throw new \Exception('Token já foi invalidado ou é inválido', 401);
+            }
+            throw $e;
+        }
     }
 }
