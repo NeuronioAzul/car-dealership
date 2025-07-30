@@ -15,4 +15,20 @@
             <directory>./tests/Integration</directory>
         </testsuite>
     </testsuites>
+    
+    <coverage>
+        <report>
+            <clover outputFile="coverage/clover.xml"/>
+            <html outputDirectory="coverage/html"/>
+            <text outputFile="coverage/coverage.txt" showUncoveredFiles="false"/>
+        </report>
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+        <exclude>
+            <directory>vendor</directory>
+            <directory>tests</directory>
+            <file>public/index.php</file>
+        </exclude>
+    </coverage>
 </phpunit>

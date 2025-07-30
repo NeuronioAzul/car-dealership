@@ -7,6 +7,24 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://github.com/NeuronioAzul/car-dealership/blob/main/LICENSE)
 [![PHP Version](https://img.shields.io/badge/PHP-8.4-777BB4?style=for-the-badge&logo=php)](https://www.php.net/)
 
+## 🧪 Cobertura de Testes por Serviço
+
+> **📋 Como atualizar os badges:** Execute `./scripts/regenerate-auth-badges.sh` após modificações no código para atualizar automaticamente os badges de cobertura.
+
+### Auth Service
+
+[![Coverage](https://img.shields.io/badge/coverage-24.8%25-red?style=for-the-badge&logo=php)](auth-service/coverage/html/index.html)
+[![Tests](https://img.shields.io/badge/tests-51%20total-orange?style=for-the-badge&logo=php)](auth-service/tests/)
+[![Assertions](https://img.shields.io/badge/assertions-137-blue?style=for-the-badge&logo=checkmarx)](auth-service/tests/)
+
+**Cobertura detalhada:**
+
+- **Classes:** 26.47% (9/34)
+- **Métodos:** 33.09% (45/136)
+- **Linhas:** 24.83% (256/1031)
+
+📊 [Relatório completo de cobertura](auth-service/coverage/html/index.html)
+
 **Autor:** Mauro Rocha Tavares
 
 <!-- Adicionar a imagem lado a lado -->
