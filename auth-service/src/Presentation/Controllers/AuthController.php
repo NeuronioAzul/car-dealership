@@ -100,22 +100,9 @@ class AuthController
     {
         try {
             $input = json_decode(file_get_contents('php://input'), true);
-            $request = new RequestUser($input);
 
             if (!$input) {
                 throw new BadRequestException('Dados inválidos');
-            }
-
-            if (!$request->isValid()) {
-                $exception = new UnprocessableEntityException('Erro de validação');
-                http_response_code($exception->getStatusCode());
-                echo json_encode([
-                    'error' => true,
-                    'message' => $exception->getMessage(),
-                    'errors' => $request->errors(),
-                ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-
-                return;
             }
 
             $result = $this->registerUseCase->execute($input);
