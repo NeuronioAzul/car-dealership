@@ -6,22 +6,22 @@ namespace App\Application\Services;
 
 use App\Domain\Entities\User;
 use App\Domain\Repositories\UserRepositoryInterface;
+use App\Infrastructure\Config\JWTConfig;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
 class JWTService
 {
-    private string $secret;
-    private string $algorithm;
-    private int $expiration;
+    private JWTConfig $config;
     private ?TokenBlacklistService $blacklistService;
     private ?UserRepositoryInterface $userRepository;
 
-    public function __construct(?TokenBlacklistService $blacklistService = null, ?UserRepositoryInterface $userRepository = null)
-    {
-        $this->secret = $_ENV['JWT_SECRET'];
-        $this->algorithm = $_ENV['JWT_ALGORITHM'] ?? 'HS256';
-        $this->expiration = (int) $_ENV['JWT_EXPIRATION'];
+    public function __construct(
+        JWTConfig $config,
+        ?TokenBlacklistService $blacklistService = null, 
+        ?UserRepositoryInterface $userRepository = null
+    ) {
+        $this->config = $config;
         $this->blacklistService = $blacklistService;
         $this->userRepository = $userRepository;
     }
@@ -34,10 +34,10 @@ class JWTService
             'email' => $user->getEmail(),
             'role' => $user->getRole(),
             'iat' => time(),
-            'exp' => time() + $this->expiration,
+            'exp' => time() + $this->config->expiration,
         ];
 
-        return JWT::encode($payload, $this->secret, $this->algorithm);
+        return JWT::encode($payload, $this->config->secret, $this->config->algorithm);
     }
 
     public function generateRefreshToken(User $user): string
@@ -47,10 +47,10 @@ class JWTService
             'sub' => $user->getId(),
             'type' => 'refresh',
             'iat' => time(),
-            'exp' => time() + (7 * 24 * 60 * 60), // 7 dias
+            'exp' => time() + $this->config->refreshExpiration,
         ];
 
-        return JWT::encode($payload, $this->secret, $this->algorithm);
+        return JWT::encode($payload, $this->config->secret, $this->config->algorithm);
     }
 
     public function validateToken(string $token): array
@@ -61,7 +61,7 @@ class JWTService
                 throw new \Exception('Token foi revogado', 401);
             }
 
-            $decoded = JWT::decode($token, new Key($this->secret, $this->algorithm));
+            $decoded = JWT::decode($token, new Key($this->config->secret, $this->config->algorithm));
 
             return (array) $decoded;
         } catch (\Exception $e) {
@@ -72,7 +72,7 @@ class JWTService
     public function refreshToken(string $refreshToken): string
     {
         try {
-            $decoded = JWT::decode($refreshToken, new Key($this->secret, $this->algorithm));
+            $decoded = JWT::decode($refreshToken, new Key($this->config->secret, $this->config->algorithm));
 
             if (!isset($decoded->type) || $decoded->type !== 'refresh') {
                 throw new \Exception('Token de refresh inválido', 401);
@@ -83,7 +83,7 @@ class JWTService
                 'iss' => 'car-dealership-issuer',
                 'sub' => $decoded->sub,
                 'iat' => time(),
-                'exp' => time() + $this->expiration,
+                'exp' => time() + $this->config->expiration,
             ];
 
             // Se temos acesso ao repositório de usuários, buscar informações atualizadas
@@ -101,7 +101,7 @@ class JWTService
                 }
             }
 
-            return JWT::encode($payload, $this->secret, $this->algorithm);
+            return JWT::encode($payload, $this->config->secret, $this->config->algorithm);
         } catch (\Exception $e) {
             throw new \Exception('Token de refresh inválido: ' . $e->getMessage(), 401);
         }
