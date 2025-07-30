@@ -36,3 +36,27 @@ tests/results.xml
 /vendor/
 /composer.lock
 auth-service/.phpunit.result.cache
+
+# Coverage reports - ignore large files but keep badge data
+coverage/
+*/coverage/
+coverage.xml
+*/coverage.xml
+coverage.txt
+*/coverage.txt
+*.clover
+*/*.clover
+
+# Keep only badge files for coverage display
+!badges/
+!*/badges/
+!badges/coverage-badges.json
+!*/badges/coverage-badges.json
+!badges/badges.md
+!*/badges/badges.md
+
+# PHPUnit cache and temporary files
+.phpunit.result.cache
+*/.phpunit.result.cache
+phpunit.xml.bak
+*/phpunit.xml.bak

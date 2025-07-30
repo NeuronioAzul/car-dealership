@@ -1,0 +1,15 @@
+{
+    "service": "auth-service",
+    "coverage": {
+        "percentage": "24.8",
+        "color": "red",
+        "badge_url": "https://img.shields.io/badge/coverage-24.8%25-red?style=for-the-badge&logo=php"
+    },
+    "tests": {
+        "total": "51",
+        "assertions": "137",
+        "test_badge_url": "https://img.shields.io/badge/tests-51%20total-orange?style=for-the-badge&logo=php",
+        "assertions_badge_url": "https://img.shields.io/badge/assertions-137-blue?style=for-the-badge&logo=checkmarx"
+    },
+    "generated_at": "2025-07-30T04:06:30Z"
+}
