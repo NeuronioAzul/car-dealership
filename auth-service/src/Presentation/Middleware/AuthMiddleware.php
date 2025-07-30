@@ -5,6 +5,11 @@ declare(strict_types=1);
 namespace App\Presentation\Middleware;
 
 use App\Application\Services\JWTService;
+use App\Application\Services\TokenBlacklistService;
+use App\Infrastructure\Config\JWTConfig;
+use App\Infrastructure\Database\DatabaseConfig;
+use App\Infrastructure\Database\TokenBlacklistRepository;
+use App\Infrastructure\Database\UserRepository;
 
 class AuthMiddleware
 {
@@ -12,7 +17,14 @@ class AuthMiddleware
 
     public function __construct()
     {
-        $this->jwtService = new JWTService();
+        // Inicialização legacy para compatibilidade
+        $database = DatabaseConfig::getConnection();
+        $userRepository = new UserRepository($database);
+        $blacklistRepository = new TokenBlacklistRepository($database);
+        $blacklistService = new TokenBlacklistService($blacklistRepository);
+        $jwtConfig = new JWTConfig();
+        
+        $this->jwtService = new JWTService($jwtConfig, $blacklistService, $userRepository);
     }
 
     public function authenticate(): array
