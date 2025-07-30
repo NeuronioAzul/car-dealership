@@ -10,11 +10,17 @@ use App\Application\Services\TokenBlacklistService;
 use App\Application\UseCases\LoginUseCase;
 use App\Application\UseCases\LogoutUseCase;
 use App\Application\UseCases\RegisterUseCase;
+use App\Application\Validation\RequestValidator;
+use App\Infrastructure\Config\JWTConfig;
 use App\Infrastructure\Database\DatabaseConfig;
 use App\Infrastructure\Database\TokenBlacklistRepository;
 use App\Infrastructure\Database\UserRepository;
+use App\Infrastructure\DI\Container;
 use App\Infrastructure\Messaging\EventPublisher;
-use App\Application\Validation\RequestValidator;
+use App\Presentation\Exceptions\BadRequestException;
+use App\Presentation\Exceptions\UnauthorizedException;
+use App\Presentation\Exceptions\InternalServerErrorException;
+use App\Presentation\Exceptions\UnprocessableEntityException;
 
 class AuthController
 {
@@ -24,17 +30,37 @@ class AuthController
     private JWTService $jwtService;
     private TokenBlacklistService $blacklistService;
 
-    public function __construct()
+    public function __construct(?Container $container = null)
+    {
+        if ($container !== null) {
+            // Nova implementação com DI Container
+            $this->loginUseCase = $container->get(LoginUseCase::class);
+            $this->registerUseCase = $container->get(RegisterUseCase::class);
+            $this->logoutUseCase = $container->get(LogoutUseCase::class);
+            $this->jwtService = $container->get(JWTService::class);
+            $this->blacklistService = $container->get(TokenBlacklistService::class);
+        } else {
+            // Implementação legacy para compatibilidade com testes existentes
+            $this->initializeLegacyDependencies();
+        }
+    }
+
+    /**
+     * Inicialização legacy para compatibilidade
+     * @deprecated Use Container-based initialization instead
+     */
+    private function initializeLegacyDependencies(): void
     {
         $database = DatabaseConfig::getConnection();
         $userRepository = new UserRepository($database);
         $eventPublisher = new EventPublisher();
         $requestValidator = new RequestValidator();
+        $jwtConfig = new JWTConfig();
 
         // Inicializar serviços de token
         $blacklistRepository = new TokenBlacklistRepository($database);
         $this->blacklistService = new TokenBlacklistService($blacklistRepository);
-        $this->jwtService = new JWTService($this->blacklistService, $userRepository);
+        $this->jwtService = new JWTService($jwtConfig, $this->blacklistService, $userRepository);
 
         $this->loginUseCase = new LoginUseCase($userRepository, $this->jwtService, $eventPublisher);
         $this->registerUseCase = new RegisterUseCase($userRepository, $eventPublisher, $requestValidator);
@@ -47,23 +73,26 @@ class AuthController
             $input = json_decode(file_get_contents('php://input'), true);
 
             if (!isset($input['email']) || !isset($input['password'])) {
-                throw new \Exception('Email e senha são obrigatórios', 400);
+                throw new BadRequestException('Email e senha são obrigatórios');
             }
 
             $result = $this->loginUseCase->execute($input['email'], $input['password']);
 
+            header('Content-Type: application/json');
             http_response_code(200);
             echo json_encode([
                 'success' => true,
                 'data' => $result,
             ]);
+        } catch (BadRequestException $e) {
+            http_response_code($e->getStatusCode());
+            header('Content-Type: application/json');
+            echo json_encode($e->toArray());
         } catch (\Exception $e) {
-            $code = $e->getCode() ?: 500;
-            http_response_code($code);
-            echo json_encode([
-                'error' => true,
-                'message' => $e->getMessage(),
-            ]);
+            $exception = new InternalServerErrorException($e->getMessage());
+            http_response_code($exception->getStatusCode());
+            header('Content-Type: application/json');
+            echo json_encode($exception->toArray());
         }
     }
 
@@ -74,14 +103,15 @@ class AuthController
             $request = new RequestUser($input);
 
             if (!$input) {
-                throw new \Exception('Dados inválidos', 400);
+                throw new BadRequestException('Dados inválidos');
             }
 
             if (!$request->isValid()) {
-                http_response_code(422);
+                $exception = new UnprocessableEntityException('Erro de validação');
+                http_response_code($exception->getStatusCode());
                 echo json_encode([
                     'error' => true,
-                    'message' => 'Erro de validação.',
+                    'message' => $exception->getMessage(),
                     'errors' => $request->errors(),
                 ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 
@@ -90,18 +120,21 @@ class AuthController
 
             $result = $this->registerUseCase->execute($input);
 
+            header('Content-Type: application/json');
             http_response_code(201);
             echo json_encode([
                 'success' => true,
                 'data' => $result,
             ]);
+        } catch (BadRequestException | UnprocessableEntityException $e) {
+            http_response_code($e->getStatusCode());
+            header('Content-Type: application/json');
+            echo json_encode($e->toArray());
         } catch (\Exception $e) {
-            $code = $e->getCode() ?: 500;
-            http_response_code($code);
-            echo json_encode([
-                'error' => true,
-                'message' => $e->getMessage(),
-            ]);
+            $exception = new InternalServerErrorException($e->getMessage());
+            http_response_code($exception->getStatusCode());
+            header('Content-Type: application/json');
+            echo json_encode($exception->toArray());
         }
     }
 
@@ -112,13 +145,14 @@ class AuthController
             $input = json_decode(file_get_contents('php://input'), true);
 
             if (!isset($input['refresh_token']) || empty($input['refresh_token'])) {
-                throw new \Exception('Token de refresh não fornecido', 400);
+                throw new BadRequestException('Token de refresh não fornecido');
             }
 
             $refreshToken = $input['refresh_token'];
 
             $newToken = $this->jwtService->refreshToken($refreshToken);
 
+            header('Content-Type: application/json');
             http_response_code(200);
             echo json_encode([
                 'success' => true,
@@ -128,71 +162,65 @@ class AuthController
                     'expires_in' => $_ENV['JWT_EXPIRATION'],
                 ],
             ]);
+        } catch (BadRequestException $e) {
+            http_response_code($e->getStatusCode());
+            header('Content-Type: application/json');
+            echo json_encode($e->toArray());
         } catch (\Exception $e) {
-            $code = $e->getCode() ?: 500;
-            http_response_code($code);
-            echo json_encode([
-                'error' => true,
-                'message' => $e->getMessage(),
-            ]);
+            $exception = new InternalServerErrorException($e->getMessage());
+            http_response_code($exception->getStatusCode());
+            header('Content-Type: application/json');
+            echo json_encode($exception->toArray());
         }
     }
 
     public function logout(): void
     {
         try {
-            $headers = getallheaders();
-            $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
-
+            $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? null;
+            
             if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
-                throw new \Exception('Token não fornecido para logout', 400);
+                throw new BadRequestException('Token não fornecido para logout');
             }
 
             $token = substr($authHeader, 7);
-
-            // Usar o LogoutUseCase
             $this->logoutUseCase->execute($token);
 
+            header('Content-Type: application/json');
             http_response_code(200);
             echo json_encode([
                 'success' => true,
                 'message' => 'Logout realizado com sucesso. Token invalidado.',
             ]);
+        } catch (BadRequestException $e) {
+            http_response_code($e->getStatusCode());
+            header('Content-Type: application/json');
+            echo json_encode($e->toArray());
+        } catch (UnauthorizedException $e) {
+            http_response_code($e->getStatusCode());
+            header('Content-Type: application/json');
+            echo json_encode($e->toArray());
         } catch (\Exception $e) {
-            $code = $e->getCode() ?: 500;
-
-            // Mensagens mais amigáveis para diferentes tipos de erro
-            $message = $e->getMessage();
-
-            if (str_contains($message, 'revogado')) {
-                $message = 'Token já foi invalidado anteriormente.';
-            } elseif (str_contains($message, 'Expired token')) {
-                $message = 'Token já expirou.';
-            } elseif (str_contains($message, 'Token inválido')) {
-                $message = 'Token inválido para logout.';
-            }
-
-            http_response_code($code);
-            echo json_encode([
-                'error' => true,
-                'message' => $message,
-            ]);
+            $exception = new InternalServerErrorException($e->getMessage());
+            http_response_code($exception->getStatusCode());
+            header('Content-Type: application/json');
+            echo json_encode($exception->toArray());
         }
     }
 
     public function validate(): void
     {
         try {
-            $headers = getallheaders();
-            $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
+            $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? null;
 
             if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
-                throw new \Exception('Token não fornecido', 401);
+                throw new UnauthorizedException('Token não fornecido');
             }
 
             $token = substr($authHeader, 7);
             $decoded = $this->jwtService->validateToken($token);
 
+            header('Content-Type: application/json');
             http_response_code(200);
             echo json_encode([
                 'success' => true,
@@ -204,24 +232,21 @@ class AuthController
                     'expires_at' => $decoded['exp'] ?? null,
                 ],
             ]);
-        } catch (\Exception $e) {
-            $code = $e->getCode() ?: 401;
-
-            // Mensagens mais amigáveis para diferentes tipos de erro
-            $message = $e->getMessage();
-
-            if (str_contains($message, 'revogado')) {
-                $message = 'Token foi invalidado. Faça login novamente.';
-            } elseif (str_contains($message, 'Expired token')) {
-                $message = 'Token expirado. Faça login novamente.';
-            } elseif (str_contains($message, 'Token inválido')) {
-                $message = 'Token inválido. Faça login novamente.';
-            }
-
-            http_response_code($code);
+        } catch (UnauthorizedException $e) {
+            http_response_code($e->getStatusCode());
+            header('Content-Type: application/json');
             echo json_encode([
                 'error' => true,
-                'message' => $message,
+                'message' => $e->getMessage(),
+                'valid' => false,
+            ]);
+        } catch (\Exception $e) {
+            $exception = new UnauthorizedException('Token inválido. Faça login novamente.');
+            http_response_code($exception->getStatusCode());
+            header('Content-Type: application/json');
+            echo json_encode([
+                'error' => true,
+                'message' => $exception->getMessage(),
                 'valid' => false,
             ]);
         }
@@ -229,6 +254,7 @@ class AuthController
 
     public function health(): void
     {
+        header('Content-Type: application/json');
         http_response_code(200);
         echo json_encode([
             'success' => true,
