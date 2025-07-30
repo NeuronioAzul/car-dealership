@@ -164,7 +164,11 @@ class AuthController
     public function logout(): void
     {
         try {
-            $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? null;
+            // Tentar várias formas de obter o header Authorization
+            $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? 
+                         $_SERVER['Authorization'] ?? 
+                         getallheaders()['Authorization'] ?? 
+                         null;
             
             if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
                 throw new BadRequestException('Token não fornecido para logout');
@@ -188,17 +192,29 @@ class AuthController
             header('Content-Type: application/json');
             echo json_encode($e->toArray());
         } catch (\Exception $e) {
-            $exception = new InternalServerErrorException($e->getMessage());
-            http_response_code($exception->getStatusCode());
-            header('Content-Type: application/json');
-            echo json_encode($exception->toArray());
+            // Verificar se é erro relacionado a token invalidado
+            if ($e->getCode() === 401 || str_contains($e->getMessage(), 'invalidado') || str_contains($e->getMessage(), 'revogado')) {
+                $exception = new UnauthorizedException('Token já foi invalidado ou é inválido');
+                http_response_code($exception->getStatusCode());
+                header('Content-Type: application/json');
+                echo json_encode($exception->toArray());
+            } else {
+                $exception = new InternalServerErrorException($e->getMessage());
+                http_response_code($exception->getStatusCode());
+                header('Content-Type: application/json');
+                echo json_encode($exception->toArray());
+            }
         }
     }
 
     public function validate(): void
     {
         try {
-            $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? null;
+            // Tentar várias formas de obter o header Authorization
+            $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? 
+                         $_SERVER['Authorization'] ?? 
+                         getallheaders()['Authorization'] ?? 
+                         null;
 
             if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
                 throw new UnauthorizedException('Token não fornecido');
@@ -228,7 +244,13 @@ class AuthController
                 'valid' => false,
             ]);
         } catch (\Exception $e) {
-            $exception = new UnauthorizedException('Token inválido. Faça login novamente.');
+            // Verificar se é token revogado/invalidado
+            if (str_contains($e->getMessage(), 'revogado') || str_contains($e->getMessage(), 'invalidado')) {
+                $exception = new UnauthorizedException('Token foi invalidado. Faça login novamente.');
+            } else {
+                $exception = new UnauthorizedException('Token inválido. Faça login novamente.');
+            }
+            
             http_response_code($exception->getStatusCode());
             header('Content-Type: application/json');
             echo json_encode([
