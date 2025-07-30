@@ -53,7 +53,7 @@
 ### API Gateway e Gerenciamento
 
 - **Kong API Gateway (Community):** Gateway para roteamento, autenticação e rate limiting das APIs.
-- **Kong Deck:** Ferramenta para gerenciar configurações do Kong via código ([documentação](https://github.com/kong/deck/?tab=readme-ov-file#documentation)).
+- **Kong Deck:** faz a sincronização das configurações das rotas que estão no arquivo do Kong com o banco de dados ([documentação](https://github.com/kong/deck/?tab=readme-ov-file#documentation)).
 
 ---
 
