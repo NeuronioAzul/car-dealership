@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Http;
 
+use App\Infrastructure\DI\Container;
 use App\Presentation\Controllers\AuthController;
 use App\Presentation\Controllers\UserController;
 use App\Presentation\Middleware\AuthMiddleware;
@@ -15,10 +16,12 @@ class Router
     private AuthController $authController;
     private UserController $userController;
     private AuthMiddleware $authMiddleware;
+    private Container $container;
 
-    public function __construct()
+    public function __construct(?Container $container = null)
     {
-        $this->authController = new AuthController();
+        $this->container = $container;
+        $this->authController = new AuthController($container);
         $this->userController = new UserController();
         $this->authMiddleware = new AuthMiddleware();
         $this->setupRoutes();
