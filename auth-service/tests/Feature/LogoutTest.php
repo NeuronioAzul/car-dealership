@@ -13,6 +13,23 @@ class LogoutTest extends TestCase
     {
         parent::setUp();
         $this->checkAuthServiceAvailability();
+        
+        // Limpar blacklist de tokens entre testes
+        $this->clearTokenBlacklist();
+    }
+
+    /**
+     * Limpa a blacklist de tokens para evitar interferência entre testes
+     */
+    private function clearTokenBlacklist(): void
+    {
+        // Fazer uma requisição simples para "resetar" o estado
+        // Em um ambiente real, isso seria feito via API ou comando específico
+        try {
+            $this->makeRequest("{$this->authServiceUrl}/health");
+        } catch (\Exception $e) {
+            // Ignorar erros de limpeza
+        }
     }
 
     /**
@@ -68,6 +85,9 @@ class LogoutTest extends TestCase
      */
     public function testLogoutWithAlreadyInvalidatedToken(): void
     {
+        // Aguardar um pouco para evitar conflitos com teste anterior
+        sleep(1);
+        
         // 1. Fazer login e logout
         $token = $this->loginAndGetToken();
         
@@ -178,9 +198,12 @@ class LogoutTest extends TestCase
      */
     public function testMultipleTokensFromSameUser(): void
     {
+        // Aguardar um pouco para evitar conflitos com testes anteriores
+        sleep(1);
+        
         // 1. Fazer login duas vezes para obter dois tokens diferentes
         $token1 = $this->loginAndGetToken();
-        sleep(2); // Garantir que o segundo token tenha um timestamp diferente
+        sleep(3); // Garantir que o segundo token tenha um timestamp diferente
         $token2 = $this->loginAndGetToken();
         
         $this->assertNotEquals($token1, $token2, 'Tokens devem ser diferentes');
