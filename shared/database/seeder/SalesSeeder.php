@@ -179,7 +179,7 @@ class SalesSeeder extends BaseSeeder
 
     private function generateSaleNumber(): string
     {
-        return 'VND' . date('Y') . str_pad(mt_rand(1, 99999), 5, '0', STR_PAD_LEFT);
+        return 'VND' . date('Y') . str_pad((string) mt_rand(1, 99999), 5, '0', STR_PAD_LEFT);
     }
 
     private function generateItemName(): string

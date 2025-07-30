@@ -145,6 +145,11 @@ class VehicleRepository implements VehicleRepositoryInterface
             $params['license_plate'] = '%' . strtoupper($criteria['license_plate']) . '%';
         }
 
+        if (!empty($criteria['renavam'])) {
+            $sql .= ' AND renavam LIKE :renavam';
+            $params['renavam'] = '%' . $criteria['renavam'] . '%';
+        }
+
         $sql .= ' ORDER BY created_at DESC';
 
         $stmt = $this->connection->prepare($sql);
@@ -197,6 +202,46 @@ class VehicleRepository implements VehicleRepositoryInterface
         return $stmt->execute($vehicleData);
     }
 
+    public function partialUpdate(string $id, array $fieldsToUpdate): bool
+    {
+        if (empty($fieldsToUpdate)) {
+            return true; // Nada para atualizar
+        }
+
+        // Construir query dinamicamente baseado nos campos fornecidos
+        $fields = [];
+        $params = ['id' => $id];
+
+        foreach ($fieldsToUpdate as $field => $value) {
+            $fields[] = "{$field} = :{$field}";
+
+            // Converter arrays para JSON (especialmente para o campo 'features')
+            if (is_array($value)) {
+                $params[$field] = json_encode($value);
+            } else {
+                $params[$field] = $value;
+            }
+        }
+
+        // Sempre atualizar o updated_at
+        $fields[] = 'updated_at = NOW()';
+
+        $sql = 'UPDATE vehicles SET ' . implode(', ', $fields) . ' WHERE id = :id';
+
+        $stmt = $this->connection->prepare($sql);
+
+        // print generated SQL query for debugging
+        // $debugSql = $sql;
+        // foreach ($params as $key => $value) {
+        //     $escapedValue = is_null($value) ? 'NULL' : $this->connection->quote((string)(is_array($value) ? json_encode($value) : $value));
+        //     $debugSql = preg_replace('/:' . preg_quote($key, '/') . '\b/', $escapedValue, $debugSql);
+        // }
+        // echo '[DEBUG SQL] ' . $debugSql;
+        // die;
+
+        return $stmt->execute($params);
+    }
+
     public function delete(string $id): bool
     {
         $sql = 'UPDATE vehicles SET deleted_at = NOW(), updated_at = NOW() WHERE id = :id';
@@ -211,6 +256,39 @@ class VehicleRepository implements VehicleRepositoryInterface
         $stmt = $this->connection->prepare($sql);
 
         return $stmt->execute(['id' => $id, 'status' => $status]);
+    }
+
+    public function findByChassisNumber(string $chassisNumber): ?VehicleDTO
+    {
+        $sql = 'SELECT * FROM vehicles WHERE chassis_number = :chassis_number AND deleted_at IS NULL';
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute(['chassis_number' => $chassisNumber]);
+
+        $data = $stmt->fetch();
+
+        return $data ? $this->mapToVehicle($data) : null;
+    }
+
+    public function findByLicensePlate(string $licensePlate): ?VehicleDTO
+    {
+        $sql = 'SELECT * FROM vehicles WHERE license_plate = :license_plate AND deleted_at IS NULL';
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute(['license_plate' => strtoupper($licensePlate)]);
+
+        $data = $stmt->fetch();
+
+        return $data ? $this->mapToVehicle($data) : null;
+    }
+
+    public function findByRenavam(string $renavam): ?VehicleDTO
+    {
+        $sql = 'SELECT * FROM vehicles WHERE renavam = :renavam AND deleted_at IS NULL';
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute(['renavam' => $renavam]);
+
+        $data = $stmt->fetch();
+
+        return $data ? $this->mapToVehicle($data) : null;
     }
 
     private function mapToVehicle(array $data): VehicleDTO

@@ -82,7 +82,83 @@ class VehicleSeeder extends BaseSeeder
             return '/seeder-images/motors/' . basename($path);
         }, $motorImages);
 
-        for ($i = 1; $i <= $vehiclesCount; $i++) {
+        // Criar primeiro veículo padrão para testes
+        $defaultVehicleId = '01920f3e-7890-6abc-def0-123456789012'; // UUID fixo para testes
+        $vehicles[] = [
+            'id' => $defaultVehicleId,
+            'brand' => 'Toyota',
+            'model' => 'Corolla',
+            'year' => 2023,
+            'color' => 'Prata',
+            'fuel_type' => 'gasoline',
+            'transmission_type' => 'automatic',
+            'mileage' => 12000,
+            'price' => 95000.00,
+            'description' => 'Excelente Toyota Corolla 2023 na cor Prata. Veículo seminovo em perfeito estado de conservação, com apenas 12.000 km rodados. Equipado com ar condicionado digital, direção elétrica, vidros e travas elétricas, freios ABS com EBD, airbags frontais e laterais, central multimídia com Android Auto e Apple CarPlay, câmera de ré, sensor de estacionamento traseiro e faróis de LED. Motor 1.8 flex de alta eficiência, com excelente economia de combustível. Ideal para quem busca conforto, tecnologia, economia e segurança em um sedã premium. Revisões em dia na concessionária autorizada Toyota. Documentação completa, IPVA 2024 pago, pronto para transferência imediata.',
+            'status' => 'available',
+            'features' => json_encode([
+                'Ar condicionado digital',
+                'Direção elétrica',
+                'Vidros elétricos',
+                'Travas elétricas',
+                'Freios ABS com EBD',
+                'Airbags frontais e laterais',
+                'Central multimídia touchscreen',
+                'Android Auto e Apple CarPlay',
+                'Câmera de ré',
+                'Sensor de estacionamento traseiro',
+                'Faróis de LED',
+                'Rodas de liga leve 16"',
+                'Controle de estabilidade',
+                'Assistente de partida em rampa',
+                'Bluetooth',
+                'USB e carregador wireless',
+            ]),
+            'engine_size' => '1.8',
+            'doors' => 4,
+            'seats' => 5,
+            'trunk_capacity' => 470,
+            'purchase_price' => 80000.00,
+            'profit_margin' => 18.75,
+            'supplier' => 'Toyota do Brasil Ltda.',
+            'chassis_number' => '9BR52ABCD12345678',
+            'license_plate' => 'BRA2E23',
+            'renavam' => '12345678901',
+            'created_at' => '2024-01-15 10:30:00',
+            'updated_at' => $this->getCurrentTimestamp(),
+            'deleted_at' => null,
+        ];
+
+        // Criar imagens para o veículo padrão
+        $defaultImages = [
+            ['type' => 'main', 'order' => 1, 'alt' => 'Toyota Corolla 2023 - Vista frontal'],
+            ['type' => 'exterior', 'order' => 2, 'alt' => 'Toyota Corolla 2023 - Vista lateral direita'],
+            ['type' => 'exterior', 'order' => 3, 'alt' => 'Toyota Corolla 2023 - Vista traseira'],
+            ['type' => 'interior', 'order' => 4, 'alt' => 'Toyota Corolla 2023 - Painel e volante'],
+            ['type' => 'interior', 'order' => 5, 'alt' => 'Toyota Corolla 2023 - Bancos dianteiros'],
+        ];
+
+        foreach ($defaultImages as $imgData) {
+            $img = !empty($carImagesRel) ? $carImagesRel[0] : '/seeder-images/cars/default-car.jpg';
+
+            if ($imgData['type'] === 'interior' && !empty($motorImagesRel)) {
+                $img = $motorImagesRel[0];
+            }
+
+            $vehicleImages[] = [
+                'id' => $this->generateUuid(),
+                'vehicle_id' => $defaultVehicleId,
+                'image_url' => $img,
+                'image_type' => $imgData['type'],
+                'display_order' => $imgData['order'],
+                'alt_text' => $imgData['alt'],
+                'created_at' => '2024-01-15 10:30:00',
+                'updated_at' => $this->getCurrentTimestamp(),
+            ];
+        }
+
+        // Criar veículos aleatórios (começando do índice 2 para manter o count correto)
+        for ($i = 2; $i <= $vehiclesCount; $i++) {
             $brand = $this->faker->randomElement(array_keys($this->brands));
             $model = $this->faker->randomElement($this->brands[$brand]);
             $year = $this->faker->numberBetween(2018, 2024);
@@ -183,7 +259,8 @@ class VehicleSeeder extends BaseSeeder
         $this->insertBatch('vehicles', $vehicles);
         $this->insertBatch('vehicle_images', $vehicleImages);
 
-        echo "📊 Criados: {$vehiclesCount} veículos com imagens\n";
+        echo "📊 Criados: {$vehiclesCount} veículos (1 padrão + " . ($vehiclesCount - 1) . " aleatórios) com imagens\n";
+        echo "🔧 Veículo padrão para testes: ID {$defaultVehicleId}\n";
     }
 
     private function generateVehicleDescription(string $brand, string $model, int $year, string $color): string

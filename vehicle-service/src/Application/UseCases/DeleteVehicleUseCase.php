@@ -9,11 +9,8 @@ use Ramsey\Uuid\Uuid;
 
 class DeleteVehicleUseCase
 {
-    private VehicleRepositoryInterface $vehicleRepository;
-
-    public function __construct(VehicleRepositoryInterface $vehicleRepository)
+    public function __construct(private readonly VehicleRepositoryInterface $vehicleRepository)
     {
-        $this->vehicleRepository = $vehicleRepository;
     }
 
     public function execute(string $id): void

@@ -1,53 +1,231 @@
-# Testes do Sistema de Concessionária - PHP
+# Sistema de Testes Centralizado - Car Dealership
 
-Este diretório contém todos os testes para validar o sistema de concessionária de veículos desenvolvido em PHP 8.4 com Clean Architecture.
+Este repositório contém todos os testes para o sistema de concessionária, centralizados em uma única localização para facilitar a execução e manutenção.
 
 ## Estrutura de Testes
 
 ```
 tests/
-├── Unit/                     # Testes unitários
-│   ├── Auth/
-│   │   ├── UserEntityTest.php
-│   │   └── JWTServiceTest.php
-│   ├── Vehicle/
-│   │   └── VehicleEntityTest.php
-│   └── Saga/
-│       └── SagaTransactionTest.php
-├── Integration/              # Testes de integração
-│   ├── AuthServiceIntegrationTest.php
-│   └── VehicleServiceIntegrationTest.php
-├── Feature/                  # Testes de feature (end-to-end)
-│   └── CompletePurchaseFlowTest.php
-├── Scripts/                  # Scripts auxiliares
-│   └── DatabaseSeeder.php
-├── composer.json            # Dependências PHP
-├── phpunit.xml             # Configuração PHPUnit
-├── bootstrap.php           # Bootstrap dos testes
-└── run_tests.sh           # Script principal
+├── Unit/                    # Testes unitários
+│   ├── AuthService/
+│   ├── VehicleService/
+│   ├── CustomerService/
+│   ├── PaymentService/
+│   ├── ReservationService/
+│   ├── SalesService/
+│   ├── AdminService/
+│   └── SagaOrchestrator/
+├── Feature/                 # Testes de funcionalidade
+│   ├── AuthService/
+│   ├── VehicleService/
+│   └── ...
+├── Integration/            # Testes de integração
+│   ├── AuthService/
+│   ├── VehicleService/
+│   └── ...
+├── TestCase.php           # Classe base para testes
+├── bootstrap.php          # Configuração inicial
+├── composer.json          # Dependências de teste
+└── phpunit.xml           # Configuração do PHPUnit
 ```
 
-## Executar Todos os Testes
+## Pré-requisitos
 
-Para executar a suíte completa de testes:
+- PHP 8.4+
+- Composer
+- Docker e Docker Compose (para ambiente de desenvolvimento)
 
+## Instalação
+
+1. Navegue para a pasta de testes:
 ```bash
-./tests/run_tests.sh
+cd tests/
 ```
 
-### Opções disponíveis
-
+2. Instale as dependências:
 ```bash
-./tests/run_tests.sh --help
+composer install
 ```
 
-- `--unit`: Executar apenas testes unitários
-- `--integration`: Executar apenas testes de integração  
-- `--feature`: Executar apenas testes de feature
-- `--coverage`: Gerar relatório de cobertura
-- `--stop-services`: Parar serviços após os testes
+## Executando os Testes
 
-## Testes por Categoria
+### Todos os Testes
+```bash
+composer test
+# ou
+./vendor/bin/phpunit
+```
+
+### Por Tipo de Teste
+```bash
+# Testes unitários
+composer test-unit
+
+# Testes de funcionalidade
+composer test-feature
+
+# Testes de integração
+composer test-integration
+```
+
+### Por Serviço
+```bash
+# Testes do Auth Service
+composer test-auth
+
+# Testes do Vehicle Service
+composer test-vehicle
+
+# Testes do Customer Service
+composer test-customer
+
+# Testes do Payment Service
+composer test-payment
+
+# Testes do Reservation Service
+composer test-reservation
+
+# Testes do Sales Service
+composer test-sales
+
+# Testes do Admin Service
+composer test-admin
+
+# Testes do Saga Orchestrator
+composer test-saga
+```
+
+### Executar um Teste Específico
+```bash
+./vendor/bin/phpunit tests/Unit/AuthService/JWTServiceTest.php
+./vendor/bin/phpunit tests/Feature/VehicleService/VehiclesApiTest.php
+```
+
+### Com Cobertura de Código
+```bash
+composer test-coverage
+```
+
+## Configuração de Ambiente
+
+### Ambiente Local (Host)
+Os testes detectam automaticamente se estão rodando no host e usam URLs como `http://localhost:8081`.
+
+### Ambiente Docker
+Quando executados dentro de um container Docker, os testes usam hostnames dos serviços como `http://auth-service:80`.
+
+### Variáveis de Ambiente
+O sistema carrega automaticamente variáveis de ambiente de todos os serviços. Você pode sobrescrever configurações criando um arquivo `.env` na pasta de testes.
+
+## Testes por Serviço
+
+### Auth Service
+- **Unit**: Testes de lógica de JWT, validação de usuário, etc.
+- **Feature**: Testes de login, logout, refresh token, etc.
+- **Integration**: Testes de integração com banco de dados
+
+### Vehicle Service
+- **Unit**: Testes de entidades Vehicle, validações, etc.
+- **Feature**: Testes de API de veículos, autenticação, etc.
+- **Integration**: Testes de integração com outros serviços
+
+### Outros Serviços
+Estrutura similar para Customer, Payment, Reservation, Sales, Admin e Saga Orchestrator.
+
+## Adicionando Novos Testes
+
+### 1. Teste Unitário
+```php
+<?php
+
+namespace Tests\Unit\ServiceName;
+
+use PHPUnit\Framework\TestCase;
+
+class MyTest extends TestCase
+{
+    public function testSomething(): void
+    {
+        $this->assertTrue(true);
+    }
+}
+```
+
+### 2. Teste de Funcionalidade
+```php
+<?php
+
+namespace Tests\Feature\ServiceName;
+
+use Tests\TestCase;
+
+class MyFeatureTest extends TestCase
+{
+    protected function setUp(): void
+    {
+        parent::setUp();
+        
+        if (!$this->isServiceRunning($this->authServiceUrl)) {
+            $this->markTestSkipped('Service não está disponível');
+        }
+    }
+
+    public function testApiEndpoint(): void
+    {
+        $response = $this->makeRequest('/api/endpoint');
+        $this->assertEquals(200, $response['code']);
+    }
+}
+```
+
+## Métodos Auxiliares Disponíveis
+
+Na classe `Tests\TestCase`:
+
+- `makeRequest($url, $method, $data, $headers)` - Faz requisições HTTP
+- `loginAndGetToken($email, $password)` - Faz login e retorna tokens
+- `getAuthHeaders($token)` - Gera headers de autorização
+- `isServiceRunning($url)` - Verifica se um serviço está rodando
+- `waitForService($url, $maxAttempts)` - Aguarda um serviço ficar disponível
+
+## Debugging
+
+### Ver Configuração Atual
+Os testes mostram automaticamente a configuração detectada:
+```
+💻 Detectado ambiente local (host)
+✅ Bootstrap concluído - Ambiente de testes configurado
+```
+
+### Problemas Comuns
+
+1. **Serviços não estão rodando**:
+   ```bash
+   docker-compose up -d
+   ```
+
+2. **Erro de conexão com banco**:
+   - Verifique se o MySQL está rodando
+   - Confirme as credenciais no arquivo .env
+
+3. **Token expirado**:
+   - Os testes fazem login automaticamente
+   - Use `loginAndGetToken()` para obter novos tokens
+
+## Integração Contínua
+
+Para CI/CD, certifique-se de:
+
+1. Subir todos os serviços antes dos testes
+2. Aguardar que os serviços estejam prontos
+3. Executar os testes na ordem correta (Unit → Integration → Feature)
+
+Exemplo:
+```bash
+docker-compose up -d
+sleep 30  # Aguardar serviços subirem
+cd tests && composer test
+```
 
 ### 1. Testes Unitários
 

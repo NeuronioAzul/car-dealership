@@ -30,7 +30,7 @@ class AuthServiceHealthTest extends TestCase
         $response = $this->makeRequest(
             "{$this->authServiceUrl}/login",
             'POST',
-            ['email' => 'admin@example.com', 'password' => 'admin123']
+            ['email' => 'admin@concessionaria.com', 'password' => 'admin123']
         );
 
         $this->assertEquals(200, $response['code'], 'Login deve ser bem-sucedido');

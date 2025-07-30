@@ -1,25 +1,48 @@
 {
     "name": "car-dealership/tests",
-    "description": "Test suite for Car Dealership System",
+    "description": "Centralized Test Suite for Car Dealership Microservices",
     "type": "project",
     "require": {
         "php": "^8.4",
         "phpunit/phpunit": "^10.0",
         "guzzlehttp/guzzle": "^7.0",
         "vlucas/phpdotenv": "^5.0",
-        "fakerphp/faker": "^1.20"
+        "fakerphp/faker": "^1.20",
+        "firebase/php-jwt": "^6.8",
+        "ramsey/uuid": "^4.7",
+        "php-amqplib/php-amqplib": "^3.5",
+        "symfony/validator": "^7.3"
     },
     "autoload": {
         "psr-4": {
-            "Tests\\": "tests/"
-        }
+            "Tests\\": "./",
+            "App\\AuthService\\": "../auth-service/src/",
+            "App\\VehicleService\\": "../vehicle-service/src/",
+            "App\\CustomerService\\": "../customer-service/src/",
+            "App\\PaymentService\\": "../payment-service/src/",
+            "App\\ReservationService\\": "../reservation-service/src/",
+            "App\\SalesService\\": "../sales-service/src/",
+            "App\\AdminService\\": "../admin-service/src/",
+            "App\\SagaOrchestrator\\": "../saga-orchestrator/src/"
+        },
+        "files": [
+            "TestCase.php"
+        ]
     },
     "scripts": {
         "test": "phpunit",
         "test-unit": "phpunit --testsuite=Unit",
         "test-integration": "phpunit --testsuite=Integration",
         "test-feature": "phpunit --testsuite=Feature",
-        "test-coverage": "phpunit --coverage-html coverage"
+        "test-coverage": "phpunit --coverage-html coverage",
+        "test-auth": "phpunit --testsuite=AuthService",
+        "test-vehicle": "phpunit --testsuite=VehicleService",
+        "test-customer": "phpunit --testsuite=CustomerService",
+        "test-payment": "phpunit --testsuite=PaymentService",
+        "test-reservation": "phpunit --testsuite=ReservationService",
+        "test-sales": "phpunit --testsuite=SalesService",
+        "test-admin": "phpunit --testsuite=AdminService",
+        "test-saga": "phpunit --testsuite=SagaOrchestrator"
     }
 }
 

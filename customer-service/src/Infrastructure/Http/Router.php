@@ -23,7 +23,7 @@ class Router
             'POST /profile' => [$this->customerController, 'createCustomer'],
             'GET /profile' => [$this->customerController, 'getProfile'],
             'PUT /profile' => [$this->customerController, 'updateProfile'],
-            'DELETE /profile' => [$this->customerController, 'deleteProfile'],
+            'DELETE /profile/{id}' => [$this->customerController, 'deleteProfile'],
             'GET /health' => [$this->customerController, 'health'],
         ];
     }

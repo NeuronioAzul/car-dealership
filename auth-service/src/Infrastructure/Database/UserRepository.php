@@ -142,7 +142,7 @@ class UserRepository implements UserRepositoryInterface
 
     public function delete(string $id): bool
     {
-        $sql = 'UPDATE users SET deleted_at = NOW(), updated_at = NOW() WHERE id = :id';
+        $sql = 'UPDATE users SET deleted_at = NOW(), updated_at = NOW() WHERE id = :id AND deleted_at IS NULL';
         $stmt = $this->connection->prepare($sql);
 
         return $stmt->execute(['id' => $id]);

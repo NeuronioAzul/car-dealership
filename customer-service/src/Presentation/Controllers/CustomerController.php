@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Presentation\Controllers;
 
 use App\Application\DTOs\CustomerDTO;
-use App\Application\Requests\RequestCustomer;
 use App\Application\UseCases\CreateCustomerProfileUseCase;
 use App\Application\UseCases\GetCustomerProfileUseCase;
 use App\Application\UseCases\UpdateCustomerProfileUseCase;
-use App\Domain\ValueObjects\CustomerAddress;
+use App\Application\Validation\CreateCustomerProfileRequest;
+use App\Application\Validation\UpdateCustomerProfileRequest;
 use App\Infrastructure\Database\CustomerRepository;
 use App\Infrastructure\Database\DatabaseConfig;
 use App\Infrastructure\Messaging\EventPublisher;
@@ -55,57 +55,24 @@ class CustomerController
             }
 
             // Valida os dados de entrada
-            $request = new RequestCustomer($input);
+            $request = new CreateCustomerProfileRequest($input);
 
-            if (!$request->isValid()) {
+            if (!$request->validate()) {
                 http_response_code(422);
                 echo json_encode([
                     'error' => true,
-                    'message' => 'Erro de validação.',
+                    'message' => 'Validation failed',
                     'errors' => $request->errors(),
                 ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 
                 return;
             }
 
-            $customer = new CustomerDTO(
-                userId: $user['user_id'], // Associa o cliente ao usuário autenticado
-                fullName: $input['full_name'],
-                email: $user['email'],
-                cpf: $input['cpf'] ?? null,
-                rg: $input['rg'] ?? null,
-                birthDate: isset($user['birth_date']) ? new \DateTime($user['birth_date']) : null,
-                gender: $input['gender'] ?? null,
-                maritalStatus: $input['marital_status'] ?? null,
-                phone: $user['phone'] ?? null,
-                mobile: $input['cellphone'] ?? null,
-                whatsapp: $input['profession'] ?? null,
-                address: new CustomerAddress(
-                    street: $input['address']['street'],
-                    number: $input['address']['number'],
-                    complement: $input['address']['complement'] ?? '',
-                    neighborhood: $input['address']['neighborhood'],
-                    city: $input['address']['city'],
-                    state: $input['address']['state'],
-                    zipCode: $input['address']['zip_code']
-                ),
-                occupation: $input['occupation'] ?? null,
-                company: $input['company'] ?? null,
-                monthlyIncome: $input['monthly_income'] ?? 0.0,
-                preferredContact: $input['preferred_contact'] ?? 'email',
-                newsletterSubscription: $input['newsletter_subscription'] ?? false,
-                smsNotifications: $input['sms_notifications'] ?? false,
-                totalPurchases: 0, // Inicialmente zero
-                totalSpent: 0.0, // Inicialmente zero
-                lastPurchaseDate: null, // Inicialmente nulo
-                customerScore: 0, // Inicialmente zero
-                customerTier: 'bronze' // Inicialmente bronze
-            );
+            $request = $request->validated();
+
+            $customer = CustomerDTO::fromArray($request);
 
             $customer = $this->createCustomerProfileUseCase->execute($customer);
-
-            var_dump($user['email'], $customer);
-            die();
 
             http_response_code(201);
             echo json_encode([
@@ -154,8 +121,27 @@ class CustomerController
             if (!$input) {
                 throw new \Exception('Dados inválidos', 400);
             }
+            $customerProfile = $this->getProfileUseCase->execute($user['user_id']);
 
-            $profile = $this->updateProfileUseCase->execute($user['user_id'], $input);
+            // Valida os dados de entrada
+            $request = new UpdateCustomerProfileRequest($input);
+
+            if (!$request->validate()) {
+                http_response_code(422);
+                echo json_encode([
+                    'error' => true,
+                    'message' => 'Validation failed',
+                    'errors' => $request->errors(),
+                ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+
+                return;
+            }
+
+            $request = $request->validated();
+
+            $customer = CustomerDTO::fromArray($request);
+
+            $profile = $this->updateProfileUseCase->execute($customerProfile['id'], $customer);
 
             http_response_code(200);
             echo json_encode([
@@ -164,12 +150,29 @@ class CustomerController
                 'message' => 'Perfil atualizado com sucesso',
             ]);
         } catch (\Exception $e) {
-            $code = $e->getCode() ?: 500;
+            if (!is_numeric($e->getCode())) {
+                $code = 500;
+            } else {
+                $code = $e->getCode();
+            }
             http_response_code($code);
-            echo json_encode([
+
+            $response = [
                 'error' => true,
-                'message' => $e->getMessage(),
-            ]);
+                'message' => $e->getCode() . ' ' . $e->getMessage(),
+                'code' => $code,
+            ];
+
+            // Adicionar contexto adicional para erros de autenticação
+            if ($code === 401) {
+                $response['type'] = 'authentication_error';
+                $response['action'] = 'redirect_to_login';
+            } elseif ($code === 403) {
+                $response['type'] = 'authorization_error';
+                $response['action'] = 'insufficient_permissions';
+            }
+
+            echo json_encode($response);
         }
     }
 

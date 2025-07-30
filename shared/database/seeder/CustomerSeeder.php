@@ -72,6 +72,11 @@ class CustomerSeeder extends BaseSeeder
                 'newsletter_subscription' => $this->faker->boolean(70) ? 1 : 0,
                 'sms_notifications' => $this->faker->boolean(50) ? 1 : 0,
 
+                // -- Consentimentos
+                'accept_terms' => $this->faker->boolean(90) ? 1 : 0,
+                'accept_privacy' => $this->faker->boolean(90) ? 1 : 0,
+                'accept_communications' => $this->faker->boolean(90) ? 1 : 0,
+
                 'total_purchases' => $this->faker->numberBetween(0, 100000),
                 'total_spent' => $this->faker->randomFloat(2, 0, 100000),
                 'last_purchase_date' => ($this->faker->optional(0.5, null)) ? $this->faker->dateTimeBetween('-2 years', 'now')->format('Y-m-d') : null,

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Application\UseCases;
 
 use App\Application\Services\JWTService;
+use App\Domain\Exceptions\InvalidCredentialsException;
+use App\Domain\Exceptions\UserNotFoundException;
 use App\Domain\Repositories\UserRepositoryInterface;
 use App\Infrastructure\Messaging\EventPublisher;
 
@@ -23,16 +25,16 @@ class LoginUseCase
         $user = $this->userRepository->findByEmail($email);
 
         if (!$user) {
-            throw new \Exception('Usuário não encontrado', 404);
+            throw new UserNotFoundException($email);
         }
 
         if ($user->isDeleted()) {
-            throw new \Exception('Usuário inativo', 403);
+            throw new InvalidCredentialsException();
         }
 
         // Verificar senha
         if (!$user->verifyPassword($password)) {
-            throw new \Exception('Credenciais inválidas', 401);
+            throw new InvalidCredentialsException();
         }
 
         // Gerar token JWT

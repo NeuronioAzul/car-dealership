@@ -100,7 +100,7 @@ final class VehicleDTO
 
     public function __construct(array $input)
     {
-        $this->id = $input['id'] ?? UuidV6::uuid6();
+        $this->id = $input['id'] ?? UuidV6::uuid6()->toString();
         $this->brand = trim($input['brand'] ?? '');
         $this->model = trim($input['model'] ?? '');
         $this->year = (int) ($input['year'] ?? 0);

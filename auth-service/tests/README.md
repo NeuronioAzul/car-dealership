@@ -116,7 +116,7 @@ docker compose exec auth-db mysql -u root -pauth_password auth_db -e "SELECT * F
 # Login
 curl -X POST http://localhost:8081/api/v1/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@example.com","password":"admin123"}'
+  -d '{"email":"admin@concessionaria.com","password":"admin123"}'
 
 # Logout (substitua TOKEN pelo token recebido)
 curl -X POST http://localhost:8081/api/v1/auth/logout \

@@ -35,3 +35,4 @@ tests/results.xml
 .php-cs-fixer.cache
 /vendor/
 /composer.lock
+auth-service/.phpunit.result.cache

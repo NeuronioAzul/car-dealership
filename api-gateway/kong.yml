@@ -275,6 +275,21 @@ routes:
           secret_is_base64: false
           key_claim_name: iss
 
+  - name: auth-user-delete
+    service:
+      name: auth-service
+    strip_path: false
+    paths:
+      - /api/v1/auth/users
+    methods:
+      - DELETE
+      - OPTIONS
+    plugins:
+      - name: jwt
+        config:
+          secret_is_base64: false
+          key_claim_name: iss
+
   - name: auth-refresh
     service:
       name: auth-service
@@ -284,11 +299,6 @@ routes:
     methods:
       - POST
       - OPTIONS
-    plugins:
-      - name: jwt
-        config:
-          secret_is_base64: false
-          key_claim_name: iss
   
   - name: auth-logout
     service:
@@ -300,11 +310,6 @@ routes:
       - POST
       - GET
       - OPTIONS
-    plugins:
-      - name: jwt
-        config:
-          secret_is_base64: false
-          key_claim_name: iss
 
   # Customer Service Routes (Protected)
   - name: customer-profile
@@ -371,6 +376,7 @@ routes:
       - /api/v1/vehicles/update
     methods:
       - PUT
+      - PATCH
       - OPTIONS
     plugins:
       - name: jwt
