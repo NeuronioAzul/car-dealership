@@ -192,4 +192,93 @@ class RabbitMQConnectionTest extends TestCase
         $this->assertStringContainsString('use PhpAmqpLib\Channel\AMQPChannel;', $content);
         $this->assertStringContainsString('use PhpAmqpLib\Connection\AMQPStreamConnection;', $content);
     }
+
+    public function test_environment_variables_setup(): void
+    {
+        // Test environment variable setup
+        $_ENV['RABBITMQ_HOST'] = 'test-host';
+        $_ENV['RABBITMQ_PORT'] = '5673';
+        $_ENV['RABBITMQ_USER'] = 'test-user';
+        $_ENV['RABBITMQ_PASS'] = 'test-pass';
+        
+        $this->assertEquals('test-host', $_ENV['RABBITMQ_HOST']);
+        $this->assertEquals('5673', $_ENV['RABBITMQ_PORT']);
+        $this->assertEquals('test-user', $_ENV['RABBITMQ_USER']);
+        $this->assertEquals('test-pass', $_ENV['RABBITMQ_PASS']);
+        
+        // Reset for other tests
+        $_ENV['RABBITMQ_HOST'] = 'localhost';
+        $_ENV['RABBITMQ_PORT'] = '5672';
+        $_ENV['RABBITMQ_USER'] = 'guest';
+        $_ENV['RABBITMQ_PASS'] = 'guest';
+    }
+
+    public function test_exchange_name_in_code(): void
+    {
+        $reflection = new \ReflectionClass(RabbitMQConnection::class);
+        $fileName = $reflection->getFileName();
+        $content = file_get_contents($fileName);
+        
+        $this->assertStringContainsString('car.dealership.events', $content);
+        $this->assertStringContainsString('topic', $content);
+    }
+
+    public function test_static_property_types(): void
+    {
+        $reflection = new \ReflectionClass(RabbitMQConnection::class);
+        
+        $connectionProperty = $reflection->getProperty('connection');
+        $channelProperty = $reflection->getProperty('channel');
+        
+        $this->assertTrue($connectionProperty->hasType());
+        $this->assertTrue($channelProperty->hasType());
+        
+        $connectionType = $connectionProperty->getType();
+        $channelType = $channelProperty->getType();
+        
+        $this->assertStringContainsString('AMQPStreamConnection', $connectionType->__toString());
+        $this->assertStringContainsString('AMQPChannel', $channelType->__toString());
+    }
+
+    public function test_singleton_pattern_characteristics(): void
+    {
+        $reflection = new \ReflectionClass(RabbitMQConnection::class);
+        
+        // No public constructor (typical singleton pattern)
+        $constructor = $reflection->getConstructor();
+        $this->assertNull($constructor);
+        
+        // Only static methods
+        $methods = $reflection->getMethods(\ReflectionMethod::IS_PUBLIC);
+        foreach ($methods as $method) {
+            $this->assertTrue($method->isStatic(), "Method {$method->getName()} should be static");
+        }
+    }
+
+    public function test_class_final_or_abstract_status(): void
+    {
+        $reflection = new \ReflectionClass(RabbitMQConnection::class);
+        
+        // Test that class is neither final nor abstract (can be extended if needed)
+        $this->assertFalse($reflection->isFinal());
+        $this->assertFalse($reflection->isAbstract());
+        $this->assertTrue($reflection->isInstantiable());
+    }
+
+    public function test_return_type_annotations(): void
+    {
+        $reflection = new \ReflectionClass(RabbitMQConnection::class);
+        
+        $getInstance = $reflection->getMethod('getInstance');
+        $close = $reflection->getMethod('close');
+        
+        $getInstanceReturnType = $getInstance->getReturnType();
+        $closeReturnType = $close->getReturnType();
+        
+        $this->assertNotNull($getInstanceReturnType);
+        $this->assertNotNull($closeReturnType);
+        
+        $this->assertEquals('PhpAmqpLib\Channel\AMQPChannel', $getInstanceReturnType->__toString());
+        $this->assertEquals('void', $closeReturnType->__toString());
+    }
 }

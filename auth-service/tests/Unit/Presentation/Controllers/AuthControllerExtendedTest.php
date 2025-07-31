@@ -88,9 +88,25 @@ class AuthControllerExtendedTest extends TestCase
 
     public function test_health_method_implementation(): void
     {
-        // Create a container mock that returns mock services
+        // Create a container mock that returns proper mock services
         $containerMock = $this->createMock(Container::class);
-        $containerMock->method('get')->willReturn($this->createMock(\stdClass::class));
+        $containerMock->method('get')
+            ->willReturnCallback(function ($className) {
+                switch ($className) {
+                    case LoginUseCase::class:
+                        return $this->createMock(LoginUseCase::class);
+                    case RegisterUseCase::class:
+                        return $this->createMock(RegisterUseCase::class);
+                    case LogoutUseCase::class:
+                        return $this->createMock(LogoutUseCase::class);
+                    case JWTService::class:
+                        return $this->createMock(JWTService::class);
+                    case TokenBlacklistService::class:
+                        return $this->createMock(TokenBlacklistService::class);
+                    default:
+                        return null;
+                }
+            });
         
         $controller = new AuthController($containerMock);
         
@@ -240,9 +256,25 @@ class AuthControllerExtendedTest extends TestCase
 
     public function test_health_endpoint_headers(): void
     {
-        // Mock container
+        // Mock container with proper service mocks
         $containerMock = $this->createMock(Container::class);
-        $containerMock->method('get')->willReturn($this->createMock(\stdClass::class));
+        $containerMock->method('get')
+            ->willReturnCallback(function ($className) {
+                switch ($className) {
+                    case LoginUseCase::class:
+                        return $this->createMock(LoginUseCase::class);
+                    case RegisterUseCase::class:
+                        return $this->createMock(RegisterUseCase::class);
+                    case LogoutUseCase::class:
+                        return $this->createMock(LogoutUseCase::class);
+                    case JWTService::class:
+                        return $this->createMock(JWTService::class);
+                    case TokenBlacklistService::class:
+                        return $this->createMock(TokenBlacklistService::class);
+                    default:
+                        return null;
+                }
+            });
         
         $controller = new AuthController($containerMock);
         
