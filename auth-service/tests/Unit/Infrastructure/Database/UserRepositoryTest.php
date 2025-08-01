@@ -12,6 +12,7 @@ use PDO;
 use PDOStatement;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+use App\Application\DTOs\User\UserDTO;
 
 class UserRepositoryTest extends TestCase
 {
@@ -39,7 +40,7 @@ class UserRepositoryTest extends TestCase
             '01000-000'
         );
 
-        $user = new User(
+        $user = new UserDTO(
             'John Doe',
             'john@example.com',
             'password123',

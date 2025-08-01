@@ -15,9 +15,12 @@ use PhpAmqpLib\Message\AMQPMessage;
 class EventPublisherCoverageTest extends TestCase
 {
     private EventPublisher $eventPublisher;
+    private MockObject $channel;
 
     protected function setUp(): void
     {
+        $this->channel = $this->createMock(AMQPChannel::class);
+        
         // EventPublisher não aceita parâmetros - usa RabbitMQConnection::getInstance() internamente
         $this->eventPublisher = $this->getMockBuilder(EventPublisher::class)
             ->disableOriginalConstructor()
