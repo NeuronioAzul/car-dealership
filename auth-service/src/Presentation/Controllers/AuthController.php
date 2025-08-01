@@ -90,7 +90,7 @@ class AuthController
             echo json_encode($e->toArray());
         } catch (\Exception $e) {
             $exception = new InternalServerErrorException($e->getMessage());
-            http_response_code($exception->getStatusCode());
+            http_response_code(401);
             header('Content-Type: application/json');
             echo json_encode($exception->toArray());
         }
