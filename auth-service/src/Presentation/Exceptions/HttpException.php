@@ -23,7 +23,7 @@ abstract class HttpException extends Exception
         return [
             'error' => true,
             'message' => $this->getMessage(),
-            'code' => $this->getCode()
+            'code' => $this->getStatusCode()
         ];
     }
 }
