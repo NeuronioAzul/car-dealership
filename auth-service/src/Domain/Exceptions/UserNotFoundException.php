@@ -8,10 +8,8 @@ class UserNotFoundException extends DomainException
 {
     public function __construct(?string $identifier = null)
     {
-        $message = $identifier 
-            ? "User with identifier '{$identifier}' not found"
-            : "User not found";
+        $message = 'Invalid credentials provided';
         
-        parent::__construct($message, 404);
+        parent::__construct($message, 401);
     }
 }
