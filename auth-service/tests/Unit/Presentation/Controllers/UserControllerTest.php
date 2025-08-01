@@ -338,7 +338,42 @@ class UserControllerTest extends TestCase
      */
     public function testDeleteWithInvalidId(): void
     {
-        $this->assertTrue(true); // Placeholder for actual test logic
+        // Criar uma instância usando reflection para injetar mocks
+        $controller = $this->createUserControllerWithMocks();
+        
+        // Configurar mock da autenticação como admin
+        $this->mockAuthMiddleware
+            ->expects($this->once())
+            ->method('authenticate')
+            ->willReturn([
+                'id' => 'admin-user-id',
+                'role' => 'admin',
+                'email' => 'admin@test.com'
+            ]);
+
+        // Configurar mock do use case - pode retornar false ou lançar exceção
+        // dependendo da validação interna do use case
+        $this->mockDeleteUseCase
+            ->expects($this->once())
+            ->method('execute')
+            ->with('invalid-uuid-format')
+            ->willReturn(false);
+
+        // Capturar output para verificar a resposta
+        ob_start();
+        
+        // Executar o método com ID inválido
+        $controller->delete('invalid-uuid-format');
+        
+        $output = ob_get_clean();
+        
+        // Com ID inválido, esperamos que retorne usuário não encontrado
+        $response = json_decode($output, true);
+        $this->assertIsArray($response);
+        $this->assertArrayHasKey('error', $response);
+        $this->assertEquals('Usuário não encontrado', $response['error']);
+        
+        $this->addToAssertionCount(1);
     }
 
     /**
@@ -346,7 +381,41 @@ class UserControllerTest extends TestCase
      */
     public function testDeleteWithEmptyId(): void
     {
-        $this->assertTrue(true); // Placeholder for actual test logic
+        // Criar uma instância usando reflection para injetar mocks
+        $controller = $this->createUserControllerWithMocks();
+        
+        // Configurar mock da autenticação como admin
+        $this->mockAuthMiddleware
+            ->expects($this->once())
+            ->method('authenticate')
+            ->willReturn([
+                'id' => 'admin-user-id',
+                'role' => 'admin',
+                'email' => 'admin@test.com'
+            ]);
+
+        // Configurar mock do use case para ID vazio
+        $this->mockDeleteUseCase
+            ->expects($this->once())
+            ->method('execute')
+            ->with('')
+            ->willReturn(false);
+
+        // Capturar output para verificar a resposta
+        ob_start();
+        
+        // Executar o método com ID vazio
+        $controller->delete('');
+        
+        $output = ob_get_clean();
+        
+        // Com ID vazio, esperamos que retorne usuário não encontrado
+        $response = json_decode($output, true);
+        $this->assertIsArray($response);
+        $this->assertArrayHasKey('error', $response);
+        $this->assertEquals('Usuário não encontrado', $response['error']);
+        
+        $this->addToAssertionCount(1);
     }
 
     /**
@@ -354,7 +423,28 @@ class UserControllerTest extends TestCase
      */
     public function testAuthenticationMiddleware(): void
     {
-        $this->assertTrue(true); // Placeholder for actual test logic
+        // Criar uma instância usando reflection para injetar mocks
+        $controller = $this->createUserControllerWithMocks();
+        
+        // Configurar mock do middleware para lançar exceção de autenticação
+        $authException = new \Exception('Token inválido. Faça login novamente para continuar.', 401);
+        $this->mockAuthMiddleware
+            ->expects($this->once())
+            ->method('authenticate')
+            ->willThrowException($authException);
+
+        // O use case NÃO deve ser chamado se a autenticação falhar
+        $this->mockDeleteUseCase
+            ->expects($this->never())
+            ->method('execute');
+
+        // A exceção deve ser lançada quando authenticate() for chamado
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Token inválido. Faça login novamente para continuar.');
+        $this->expectExceptionCode(401);
+        
+        // Executar o método - deve lançar exceção antes de qualquer output
+        $controller->delete('some-user-id');
     }
 
     /**
@@ -362,7 +452,47 @@ class UserControllerTest extends TestCase
      */
     public function testDependencyInitialization(): void
     {
-        $this->assertTrue(true); // Placeholder for actual test logic
+        // Usar reflection para verificar a inicialização das dependências
+        $reflection = new ReflectionClass(UserController::class);
+        
+        // Verificar que o construtor existe
+        $constructor = $reflection->getConstructor();
+        $this->assertNotNull($constructor);
+        
+        // Verificar que não tem parâmetros obrigatórios (dependências são criadas internamente)
+        $this->assertEquals(0, $constructor->getNumberOfRequiredParameters());
+        
+        // Verificar que as propriedades privadas existem
+        $userRepositoryProperty = $reflection->getProperty('userRepository');
+        $this->assertTrue($userRepositoryProperty->isPrivate());
+        $this->assertEquals('userRepository', $userRepositoryProperty->getName());
+        
+        $deleteUseCaseProperty = $reflection->getProperty('deleteUserUseCase');
+        $this->assertTrue($deleteUseCaseProperty->isPrivate());
+        $this->assertEquals('deleteUserUseCase', $deleteUseCaseProperty->getName());
+        
+        $authMiddlewareProperty = $reflection->getProperty('authMiddleware');
+        $this->assertTrue($authMiddlewareProperty->isPrivate());
+        $this->assertEquals('authMiddleware', $authMiddlewareProperty->getName());
+        
+        // Verificar que o método delete existe e é público
+        $deleteMethod = $reflection->getMethod('delete');
+        $this->assertTrue($deleteMethod->isPublic());
+        $this->assertEquals('delete', $deleteMethod->getName());
+        $this->assertEquals(1, $deleteMethod->getNumberOfRequiredParameters());
+        
+        // Verificar os tipos dos parâmetros do método delete
+        $parameters = $deleteMethod->getParameters();
+        $this->assertCount(1, $parameters);
+        $this->assertEquals('id', $parameters[0]->getName());
+        
+        // Verificar se o parâmetro tem tipo definido
+        $paramType = $parameters[0]->getType();
+        if ($paramType instanceof \ReflectionNamedType) {
+            $this->assertEquals('string', $paramType->getName());
+        }
+        
+        $this->addToAssertionCount(1);
     }
 
     /**
@@ -370,7 +500,36 @@ class UserControllerTest extends TestCase
      */
     public function testPrivateProperties(): void
     {
-        $this->assertTrue(true); // Placeholder for actual test logic
+        $reflection = new ReflectionClass(UserController::class);
+        
+        // Verificar que todas as propriedades são privadas
+        $properties = $reflection->getProperties();
+        
+        foreach ($properties as $property) {
+            $this->assertTrue($property->isPrivate(), 
+                "Propriedade '{$property->getName()}' deve ser privada");
+        }
+        
+        // Verificar especificamente as propriedades esperadas
+        $expectedProperties = ['userRepository', 'deleteUserUseCase', 'authMiddleware'];
+        
+        foreach ($expectedProperties as $expectedProperty) {
+            $this->assertTrue($reflection->hasProperty($expectedProperty),
+                "Propriedade '{$expectedProperty}' deve existir");
+            
+            $property = $reflection->getProperty($expectedProperty);
+            $this->assertTrue($property->isPrivate(),
+                "Propriedade '{$expectedProperty}' deve ser privada");
+        }
+        
+        // Verificar que não há propriedades públicas ou protegidas
+        $publicProperties = $reflection->getProperties(\ReflectionProperty::IS_PUBLIC);
+        $protectedProperties = $reflection->getProperties(\ReflectionProperty::IS_PROTECTED);
+        
+        $this->assertEmpty($publicProperties, 'Não deve haver propriedades públicas');
+        $this->assertEmpty($protectedProperties, 'Não deve haver propriedades protegidas');
+        
+        $this->addToAssertionCount(1);
     }
 
     /**
@@ -378,7 +537,45 @@ class UserControllerTest extends TestCase
      */
     public function testHttp403Response(): void
     {
-        $this->assertTrue(true); // Placeholder for actual test logic
+        // Criar uma instância usando reflection para injetar mocks
+        $controller = $this->createUserControllerWithMocks();
+        
+        // Configurar mock da autenticação como customer (não admin)
+        $this->mockAuthMiddleware
+            ->expects($this->once())
+            ->method('authenticate')
+            ->willReturn([
+                'id' => 'customer-user-id',
+                'role' => 'customer',
+                'email' => 'customer@test.com'
+            ]);
+
+        // O use case NÃO deve ser chamado porque o acesso é negado
+        $this->mockDeleteUseCase
+            ->expects($this->never())
+            ->method('execute');
+
+        // Capturar tanto headers quanto output
+        ob_start();
+        
+        // Executar o método tentando deletar outro usuário
+        $controller->delete('different-user-id');
+        
+        $output = ob_get_clean();
+        
+        // Verificar que a resposta JSON indica erro de acesso negado
+        $response = json_decode($output, true);
+        $this->assertIsArray($response);
+        $this->assertArrayHasKey('error', $response);
+        $this->assertEquals('Acesso negado', $response['error']);
+        
+        // Verificar que o output contém JSON válido
+        $this->assertJson($output);
+        
+        // Em um cenário real, http_response_code(403) seria chamado
+        // Como não podemos testar diretamente os headers em unit tests,
+        // validamos que a lógica de negação de acesso foi executada corretamente
+        $this->addToAssertionCount(1);
     }
 
     /**
@@ -386,7 +583,46 @@ class UserControllerTest extends TestCase
      */
     public function testHttp404Response(): void
     {
-        $this->assertTrue(true); // Placeholder for actual test logic
+        // Criar uma instância usando reflection para injetar mocks
+        $controller = $this->createUserControllerWithMocks();
+        
+        // Configurar mock da autenticação como admin (tem permissão)
+        $this->mockAuthMiddleware
+            ->expects($this->once())
+            ->method('authenticate')
+            ->willReturn([
+                'id' => 'admin-user-id',
+                'role' => 'admin',
+                'email' => 'admin@test.com'
+            ]);
+
+        // Configurar mock do use case para retornar false (usuário não encontrado)
+        $this->mockDeleteUseCase
+            ->expects($this->once())
+            ->method('execute')
+            ->with('non-existent-user-id')
+            ->willReturn(false);
+
+        // Capturar output para verificar resposta HTTP 404
+        ob_start();
+        
+        // Executar o método com usuário inexistente
+        $controller->delete('non-existent-user-id');
+        
+        $output = ob_get_clean();
+        
+        // Verificar que a resposta JSON indica usuário não encontrado
+        $response = json_decode($output, true);
+        $this->assertIsArray($response);
+        $this->assertArrayHasKey('error', $response);
+        $this->assertEquals('Usuário não encontrado', $response['error']);
+        
+        // Verificar que o output contém JSON válido
+        $this->assertJson($output);
+        
+        // Em um cenário real, http_response_code(404) seria chamado
+        // Validamos que a lógica de "usuário não encontrado" foi executada
+        $this->addToAssertionCount(1);
     }
 
     /**
@@ -394,7 +630,43 @@ class UserControllerTest extends TestCase
      */
     public function testHttp204Response(): void
     {
-        $this->assertTrue(true); // Placeholder for actual test logic
+        // Criar uma instância usando reflection para injetar mocks
+        $controller = $this->createUserControllerWithMocks();
+        
+        // Configurar mock da autenticação como admin (tem permissão)
+        $this->mockAuthMiddleware
+            ->expects($this->once())
+            ->method('authenticate')
+            ->willReturn([
+                'id' => 'admin-user-id',
+                'role' => 'admin',
+                'email' => 'admin@test.com'
+            ]);
+
+        // Configurar mock do use case para retornar true (sucesso na deleção)
+        $this->mockDeleteUseCase
+            ->expects($this->once())
+            ->method('execute')
+            ->with('existing-user-id')
+            ->willReturn(true);
+
+        // Capturar output para verificar resposta HTTP 204 (No Content)
+        ob_start();
+        
+        // Executar o método com usuário existente
+        $controller->delete('existing-user-id');
+        
+        $output = ob_get_clean();
+        
+        // Para HTTP 204 (No Content), o output deve estar vazio
+        $this->assertEmpty($output, 'HTTP 204 No Content deve ter output vazio');
+        
+        // Verificar que o conteúdo não é JSON (pois está vazio)
+        $this->assertEquals('', $output);
+        
+        // Em um cenário real, http_response_code(204) seria chamado
+        // Validamos que a deleção foi bem-sucedida sem retornar conteúdo
+        $this->addToAssertionCount(1);
     }
 
     /**
@@ -402,6 +674,49 @@ class UserControllerTest extends TestCase
      */
     public function testCustomErrorCodeHandling(): void
     {
-        $this->assertTrue(true); // Placeholder for actual test logic
+        // Criar uma instância usando reflection para injetar mocks
+        $controller = $this->createUserControllerWithMocks();
+        
+        // Configurar mock da autenticação como admin
+        $this->mockAuthMiddleware
+            ->expects($this->once())
+            ->method('authenticate')
+            ->willReturn([
+                'id' => 'admin-user-id',
+                'role' => 'admin',
+                'email' => 'admin@test.com'
+            ]);
+
+        // Configurar mock do use case para lançar exceção com código customizado
+        $customException = new \Exception('Erro de validação customizado', 422);
+        $this->mockDeleteUseCase
+            ->expects($this->once())
+            ->method('execute')
+            ->with('problematic-user-id')
+            ->willThrowException($customException);
+
+        // Capturar output para verificar tratamento de erro customizado
+        ob_start();
+        
+        // Executar o método
+        $controller->delete('problematic-user-id');
+        
+        $output = ob_get_clean();
+        
+        // Verificar que a resposta JSON contém o erro customizado
+        $response = json_decode($output, true);
+        $this->assertIsArray($response);
+        $this->assertArrayHasKey('error', $response);
+        $this->assertArrayHasKey('message', $response);
+        $this->assertTrue($response['error']);
+        $this->assertEquals('Erro de validação customizado', $response['message']);
+        
+        // Verificar que o output contém JSON válido
+        $this->assertJson($output);
+        
+        // Verificar que o formato da resposta é consistente com outros testes de erro
+        $this->assertCount(2, $response); // Deve conter apenas 'error' e 'message'
+        
+        $this->addToAssertionCount(1);
     }
 }
