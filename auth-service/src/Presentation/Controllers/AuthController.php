@@ -11,6 +11,7 @@ use App\Application\UseCases\LoginUseCase;
 use App\Application\UseCases\LogoutUseCase;
 use App\Application\UseCases\RegisterUseCase;
 use App\Application\Validation\RequestValidator;
+use App\Domain\Exceptions\UserAlreadyExistsException;
 use App\Infrastructure\Config\JWTConfig;
 use App\Infrastructure\Database\DatabaseConfig;
 use App\Infrastructure\Database\TokenBlacklistRepository;
@@ -18,6 +19,7 @@ use App\Infrastructure\Database\UserRepository;
 use App\Infrastructure\DI\Container;
 use App\Infrastructure\Messaging\EventPublisher;
 use App\Presentation\Exceptions\BadRequestException;
+use App\Presentation\Exceptions\ConflictException;
 use App\Presentation\Exceptions\UnauthorizedException;
 use App\Presentation\Exceptions\InternalServerErrorException;
 use App\Presentation\Exceptions\UnprocessableEntityException;
@@ -117,6 +119,11 @@ class AuthController
             http_response_code($e->getStatusCode());
             header('Content-Type: application/json');
             echo json_encode($e->toArray());
+        } catch (UserAlreadyExistsException $e) {
+            $exception = new ConflictException($e->getMessage());
+            http_response_code($exception->getStatusCode());
+            header('Content-Type: application/json');
+            echo json_encode($exception->toArray());
         } catch (\Exception $e) {
             $exception = new InternalServerErrorException($e->getMessage());
             http_response_code($exception->getStatusCode());
