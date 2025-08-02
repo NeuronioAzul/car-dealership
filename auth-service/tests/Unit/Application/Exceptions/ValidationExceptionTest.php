@@ -35,7 +35,6 @@ class ValidationExceptionTest extends TestCase
         $errors = [
             'email' => 'Invalid email format',
             'phone' => 'Phone number is required',
-            'address' => ['street' => 'Street is required']
         ];
         $exception = new ValidationException($errors);
 

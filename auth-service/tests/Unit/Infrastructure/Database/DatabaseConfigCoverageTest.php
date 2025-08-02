@@ -37,12 +37,18 @@ class DatabaseConfigCoverageTest extends TestCase
 
     public function testGetConnectionFailsWithoutDatabase(): void
     {
+        // Reset static connection to force new connection attempt
+        $reflection = new \ReflectionClass(DatabaseConfig::class);
+        $property = $reflection->getProperty('connection');
+        $property->setAccessible(true);
+        $property->setValue(null, null);
+        
         // Set fake environment variables but ensure no database driver
-        $_ENV['DB_HOST'] = 'fake_host';
-        $_ENV['DB_PORT'] = '3306';
-        $_ENV['DB_NAME'] = 'fake_db';
-        $_ENV['DB_USER'] = 'fake_user';
-        $_ENV['DB_PASS'] = 'fake_pass';
+        $_ENV['DB_HOST'] = 'fake_host_that_does_not_exist';
+        $_ENV['DB_PORT'] = '9999'; // Use invalid port
+        $_ENV['DB_DATABASE'] = 'fake_db';
+        $_ENV['DB_USERNAME'] = 'fake_user';
+        $_ENV['DB_PASSWORD'] = 'fake_pass';
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Erro na conexão com o banco de dados');
@@ -52,11 +58,17 @@ class DatabaseConfigCoverageTest extends TestCase
 
     public function testGetConnectionWithInvalidHost(): void
     {
-        $_ENV['DB_HOST'] = 'invalid_host_123';
-        $_ENV['DB_PORT'] = '3306';
-        $_ENV['DB_NAME'] = 'test_db';
-        $_ENV['DB_USER'] = 'test_user';
-        $_ENV['DB_PASS'] = 'test_pass';
+        // Reset static connection to force new connection attempt
+        $reflection = new \ReflectionClass(DatabaseConfig::class);
+        $property = $reflection->getProperty('connection');
+        $property->setAccessible(true);
+        $property->setValue(null, null);
+        
+        $_ENV['DB_HOST'] = 'definitely_invalid_host_12345';
+        $_ENV['DB_PORT'] = '9999'; // Use invalid port
+        $_ENV['DB_DATABASE'] = 'test_db';
+        $_ENV['DB_USERNAME'] = 'test_user';
+        $_ENV['DB_PASSWORD'] = 'test_pass';
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Erro na conexão com o banco de dados');

@@ -56,7 +56,7 @@ class UnauthorizedExceptionTest extends TestCase
         $this->assertIsArray($array);
         $this->assertTrue($array['error']);
         $this->assertEquals('Unauthorized access', $array['message']);
-        $this->assertEquals(500, $array['code']);
+        $this->assertEquals(401, $array['code']);
     }
 
     public function test_constructor_with_previous_exception(): void

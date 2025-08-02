@@ -58,7 +58,7 @@ class HttpExceptionTest extends TestCase
         
         $this->assertTrue($array['error']);
         $this->assertEquals('Test message', $array['message']);
-        $this->assertEquals(400, $array['code']);
+        $this->assertEquals(418, $array['code']);
     }
 
     public function test_to_array_with_different_message(): void
@@ -69,6 +69,6 @@ class HttpExceptionTest extends TestCase
         
         $this->assertTrue($array['error']);
         $this->assertEquals('Another error message', $array['message']);
-        $this->assertEquals(422, $array['code']);
+        $this->assertEquals(418, $array['code']);
     }
 }

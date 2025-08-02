@@ -265,15 +265,7 @@ class AuthServiceHealthTest extends TestCase
             'name' => 'Test User',
             'email' => 'existing@example.com',
             'password' => 'password123',
-            'phone' => '11987654321',
-            'address' => [
-                'street' => 'Test Street',
-                'number' => '123',
-                'neighborhood' => 'Test Neighborhood',
-                'city' => 'Test City',
-                'state' => 'Test State',
-                'zip_code' => '12345-678'
-            ]
+            'phone' => '11987654321'
         ];
         
         $this->makeRequest("{$this->authServiceUrl}/register", 'POST', $userData);

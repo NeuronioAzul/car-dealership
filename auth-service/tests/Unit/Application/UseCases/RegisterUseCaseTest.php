@@ -42,15 +42,6 @@ class RegisterUseCaseTest extends TestCase
             'password' => 'senhaSegura123',
             'phone' => '11999999999',
             'role' => 'customer',
-            'address' => [
-                'street' => 'Rua das Flores, 123',
-                'number' => '456',
-                'neighborhood' => 'Centro',
-                'city' => 'São Paulo',
-                'state' => 'SP',
-                'zip_code' => '01234-567',
-                'country' => 'Brasil'
-            ],
             'birth_date' => '1990-01-01',
             'accept_terms' => true,
             'accept_privacy' => true,
@@ -151,28 +142,6 @@ class RegisterUseCaseTest extends TestCase
             ->with($invalidData, [])
             ->once()
             ->andThrow(new ValidationException(['name' => ['Nome é obrigatório']]));
-
-        $this->expectException(ValidationException::class);
-        $this->expectExceptionCode(422);
-
-        $this->registerUseCase->execute($invalidData);
-    }
-
-    public function testRegistrationFailsWithMissingAddressFields(): void
-    {
-        $invalidData = $this->validUserData;
-        unset($invalidData['address']['street']);
-
-        $this->validator
-            ->shouldReceive('getRegisterUserConstraints')
-            ->once()
-            ->andReturn([]);
-
-        $this->validator
-            ->shouldReceive('validate')
-            ->with($invalidData, [])
-            ->once()
-            ->andThrow(new ValidationException(['address.street' => ['Rua é obrigatória']]));
 
         $this->expectException(ValidationException::class);
         $this->expectExceptionCode(422);

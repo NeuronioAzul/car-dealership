@@ -41,11 +41,39 @@ class DatabaseConfigTest extends TestCase
 
     public function test_get_connection_fails_without_environment(): void
     {
-        // Test that getConnection fails in test environment without proper DB config
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Erro na conexão com o banco de dados:');
-
-        DatabaseConfig::getConnection();
+        // Store original values
+        $originalHost = $_ENV['DB_HOST'] ?? null;
+        $originalPort = $_ENV['DB_PORT'] ?? null;
+        $originalDatabase = $_ENV['DB_DATABASE'] ?? null;
+        $originalUsername = $_ENV['DB_USERNAME'] ?? null;
+        $originalPassword = $_ENV['DB_PASSWORD'] ?? null;
+        
+        // Unset environment variables to force failure
+        unset($_ENV['DB_HOST']);
+        unset($_ENV['DB_PORT']);
+        unset($_ENV['DB_DATABASE']);
+        unset($_ENV['DB_USERNAME']);
+        unset($_ENV['DB_PASSWORD']);
+        
+        // Reset static connection
+        $reflection = new \ReflectionClass(DatabaseConfig::class);
+        $connectionProperty = $reflection->getProperty('connection');
+        $connectionProperty->setAccessible(true);
+        $connectionProperty->setValue(null);
+        
+        try {
+            $this->expectException(\Exception::class);
+            $this->expectExceptionMessage('Erro na conexão com o banco de dados:');
+            
+            DatabaseConfig::getConnection();
+        } finally {
+            // Restore original values
+            if ($originalHost !== null) $_ENV['DB_HOST'] = $originalHost;
+            if ($originalPort !== null) $_ENV['DB_PORT'] = $originalPort;
+            if ($originalDatabase !== null) $_ENV['DB_DATABASE'] = $originalDatabase;
+            if ($originalUsername !== null) $_ENV['DB_USERNAME'] = $originalUsername;
+            if ($originalPassword !== null) $_ENV['DB_PASSWORD'] = $originalPassword;
+        }
     }
 
     public function test_static_connection_property_default_value(): void

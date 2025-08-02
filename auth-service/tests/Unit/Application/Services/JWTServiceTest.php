@@ -10,7 +10,6 @@ use App\Application\Services\TokenBlacklistService;
 use App\Domain\Entities\User;
 use App\Domain\Repositories\UserRepositoryInterface;
 use App\Infrastructure\Config\JWTConfig;
-use App\Domain\ValueObjects\Address;
 use PHPUnit\Framework\MockObject\MockObject;
 
 class JWTServiceTest extends TestCase
@@ -42,22 +41,12 @@ class JWTServiceTest extends TestCase
             $this->userRepository
         );
 
-        $address = new Address(
-            'Rua Teste',
-            '123',
-            'Centro',
-            'São Paulo',
-            'SP',
-            '01000-000'
-        );
-
         $this->user = new User(
             'João Silva',
             'joao@test.com',
             'password123',
             '11999999999',
             new \DateTime('1990-01-01'),
-            $address,
             'customer',
             true,
             true,

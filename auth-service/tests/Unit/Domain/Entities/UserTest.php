@@ -5,28 +5,17 @@ declare(strict_types=1);
 namespace Tests\Unit\Domain\Entities;
 
 use App\Domain\Entities\User;
-use App\Domain\ValueObjects\Address;
 use DateTime;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 
 class UserTest extends TestCase
 {
-    private Address $validAddress;
     private DateTime $validBirthDate;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
-        $this->validAddress = new Address(
-            'Rua das Flores',
-            '123',
-            'Centro',
-            'São Paulo',
-            'SP',
-            '01234-567'
-        );
         
         $this->validBirthDate = new DateTime('1990-01-01');
     }
@@ -38,8 +27,7 @@ class UserTest extends TestCase
             'joao@email.com',
             'password123',
             '11999999999',
-            $this->validBirthDate,
-            $this->validAddress
+            $this->validBirthDate
         );
 
         $this->assertInstanceOf(User::class, $user);
@@ -47,7 +35,6 @@ class UserTest extends TestCase
         $this->assertEquals('joao@email.com', $user->getEmail());
         $this->assertEquals('11999999999', $user->getPhone());
         $this->assertEquals($this->validBirthDate, $user->getBirthDate());
-        $this->assertEquals($this->validAddress, $user->getAddress());
         $this->assertEquals('customer', $user->getRole());
         $this->assertFalse($user->getAcceptTerms());
         $this->assertFalse($user->getAcceptPrivacy());
@@ -62,7 +49,6 @@ class UserTest extends TestCase
             'password123',
             '11999999999',
             $this->validBirthDate,
-            $this->validAddress
         );
 
         $this->assertNotEmpty($user->getId());
@@ -79,7 +65,6 @@ class UserTest extends TestCase
             $plainPassword,
             '11999999999',
             $this->validBirthDate,
-            $this->validAddress
         );
 
         $this->assertNotEquals($plainPassword, $user->getPassword());
@@ -94,7 +79,6 @@ class UserTest extends TestCase
             'password123',
             '11999999999',
             $this->validBirthDate,
-            $this->validAddress,
             'admin'
         );
 
@@ -109,7 +93,6 @@ class UserTest extends TestCase
             'password123',
             '11999999999',
             $this->validBirthDate,
-            $this->validAddress,
             'customer',
             true,  // acceptTerms
             true,  // acceptPrivacy
@@ -131,7 +114,6 @@ class UserTest extends TestCase
             'password123',
             '11999999999',
             $this->validBirthDate,
-            $this->validAddress
         );
         
         $afterCreation = new DateTime();
@@ -153,7 +135,6 @@ class UserTest extends TestCase
             'password123',
             '11999999999',
             $this->validBirthDate,
-            $this->validAddress
         );
 
         $originalUpdatedAt = $user->getUpdatedAt();
@@ -175,7 +156,6 @@ class UserTest extends TestCase
             'password123',
             '11999999999',
             $this->validBirthDate,
-            $this->validAddress
         );
 
         $this->assertNull($user->getDeletedAt());
@@ -197,7 +177,6 @@ class UserTest extends TestCase
             $plainPassword,
             '11999999999',
             $this->validBirthDate,
-            $this->validAddress
         );
 
         $this->assertTrue($user->verifyPassword($plainPassword));
@@ -212,7 +191,6 @@ class UserTest extends TestCase
             'password123',
             '11999999999',
             $this->validBirthDate,
-            $this->validAddress,
             'customer'
         );
 
@@ -222,7 +200,6 @@ class UserTest extends TestCase
             'password123',
             '11999999999',
             $this->validBirthDate,
-            $this->validAddress,
             'admin'
         );
 
@@ -241,7 +218,6 @@ class UserTest extends TestCase
             'password123',
             '11999999999',
             $this->validBirthDate,
-            $this->validAddress,
             'customer',
             true,
             true,
@@ -259,7 +235,6 @@ class UserTest extends TestCase
         $this->assertTrue($array['accept_terms']);
         $this->assertTrue($array['accept_privacy']);
         $this->assertFalse($array['accept_communications']);
-        $this->assertArrayHasKey('address', $array);
         $this->assertArrayHasKey('created_at', $array);
         $this->assertArrayHasKey('updated_at', $array);
         $this->assertNull($array['deleted_at']);
@@ -273,7 +248,6 @@ class UserTest extends TestCase
             'password123',
             '11999999999',
             $this->validBirthDate,
-            $this->validAddress
         );
 
         $user2 = new User(
@@ -282,7 +256,6 @@ class UserTest extends TestCase
             'password123',
             '11888888888',
             $this->validBirthDate,
-            $this->validAddress
         );
 
         $this->assertNotEquals($user1->getId(), $user2->getId());
@@ -296,7 +269,6 @@ class UserTest extends TestCase
             'password123',
             '11999999999',
             $this->validBirthDate,
-            $this->validAddress,
             'customer',
             true,
             true, // acceptPrivacy
@@ -314,7 +286,6 @@ class UserTest extends TestCase
             'password123',
             '11999999999',
             $this->validBirthDate,
-            $this->validAddress,
             'customer',
             true,
             true,
@@ -334,7 +305,6 @@ class UserTest extends TestCase
             'password123',
             '11999999999',
             $this->validBirthDate,
-            $this->validAddress
         );
 
         $afterCreation = new DateTime();
@@ -354,7 +324,6 @@ class UserTest extends TestCase
             'password123',
             '11999999999',
             $this->validBirthDate,
-            $this->validAddress
         );
 
         $afterCreation = new DateTime();
@@ -372,7 +341,6 @@ class UserTest extends TestCase
             'password123',
             '11999999999',
             $this->validBirthDate,
-            $this->validAddress
         );
 
         $this->assertNull($user->getDeletedAt());
@@ -386,7 +354,6 @@ class UserTest extends TestCase
             'password123',
             '11999999999',
             $this->validBirthDate,
-            $this->validAddress
         );
 
         $newName = 'New Name';
@@ -403,7 +370,6 @@ class UserTest extends TestCase
             'password123',
             '11999999999',
             $this->validBirthDate,
-            $this->validAddress
         );
 
         $newEmail = 'new@email.com';
@@ -420,38 +386,12 @@ class UserTest extends TestCase
             'password123',
             '11999999999',
             $this->validBirthDate,
-            $this->validAddress
         );
 
         $newPhone = '11888888888';
         $user->setPhone($newPhone);
 
         $this->assertEquals($newPhone, $user->getPhone());
-    }
-
-    public function test_set_address(): void
-    {
-        $user = new User(
-            'Test User',
-            'test@email.com',
-            'password123',
-            '11999999999',
-            $this->validBirthDate,
-            $this->validAddress
-        );
-
-        $newAddress = new Address(
-            'Nova Rua',
-            '456',
-            'Novo Bairro',
-            'Rio de Janeiro',
-            'RJ',
-            '20000-000'
-        );
-
-        $user->setAddress($newAddress);
-
-        $this->assertEquals($newAddress, $user->getAddress());
     }
 
     public function test_set_role(): void
@@ -462,7 +402,6 @@ class UserTest extends TestCase
             'password123',
             '11999999999',
             $this->validBirthDate,
-            $this->validAddress,
             'customer'
         );
 
@@ -479,7 +418,6 @@ class UserTest extends TestCase
             'password123',
             '11999999999',
             $this->validBirthDate,
-            $this->validAddress,
             'customer',
             false,
             false,
@@ -503,7 +441,6 @@ class UserTest extends TestCase
             'oldpassword',
             '11999999999',
             $this->validBirthDate,
-            $this->validAddress
         );
 
         $oldPasswordHash = $user->getPassword();

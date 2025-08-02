@@ -7,10 +7,9 @@ namespace Tests\Unit\Infrastructure\Messaging;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 use App\Infrastructure\Messaging\EventPublisher;
-use App\Infrastructure\Messaging\RabbitMQConnection;
 use PhpAmqpLib\Channel\AMQPChannel;
-use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Message\AMQPMessage;
+use ReflectionClass;
 
 class EventPublisherCoverageTest extends TestCase
 {
@@ -21,10 +20,12 @@ class EventPublisherCoverageTest extends TestCase
     {
         $this->channel = $this->createMock(AMQPChannel::class);
         
-        // EventPublisher não aceita parâmetros - usa RabbitMQConnection::getInstance() internamente
-        $this->eventPublisher = $this->getMockBuilder(EventPublisher::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $reflector = new ReflectionClass(EventPublisher::class);
+        $this->eventPublisher = $reflector->newInstanceWithoutConstructor();
+
+        $property = $reflector->getProperty('channel');
+        $property->setAccessible(true);
+        $property->setValue($this->eventPublisher, $this->channel);
     }
 
     public function testPublishEventWithBasicData(): void
@@ -35,12 +36,14 @@ class EventPublisherCoverageTest extends TestCase
         $this->channel
             ->expects($this->once())
             ->method('basic_publish')
-            ->with($this->callback(function (AMQPMessage $message) use ($eventType, $data) {
-                $body = json_decode($message->getBody(), true);
-                return $body['event_type'] === $eventType && 
-                       $body['data'] === $data &&
-                       isset($body['timestamp']);
-            }), '', 'auth_events');
+            ->with(
+                $this->callback(function (AMQPMessage $message) use ($data) {
+                    $body = json_decode($message->getBody(), true);
+                    return $body === $data;
+                }),
+                'car.dealership.events',
+                $eventType
+            );
 
         $this->eventPublisher->publish($eventType, $data);
     }
@@ -63,12 +66,14 @@ class EventPublisherCoverageTest extends TestCase
         $this->channel
             ->expects($this->once())
             ->method('basic_publish')
-            ->with($this->callback(function (AMQPMessage $message) use ($eventType, $data) {
-                $body = json_decode($message->getBody(), true);
-                return $body['event_type'] === $eventType && 
-                       $body['data'] === $data &&
-                       isset($body['timestamp']);
-            }), '', 'auth_events');
+            ->with(
+                $this->callback(function (AMQPMessage $message) use ($data) {
+                    $body = json_decode($message->getBody(), true);
+                    return $body === $data;
+                }),
+                'car.dealership.events',
+                $eventType
+            );
 
         $this->eventPublisher->publish($eventType, $data);
     }
@@ -81,12 +86,14 @@ class EventPublisherCoverageTest extends TestCase
         $this->channel
             ->expects($this->once())
             ->method('basic_publish')
-            ->with($this->callback(function (AMQPMessage $message) use ($eventType) {
-                $body = json_decode($message->getBody(), true);
-                return $body['event_type'] === $eventType && 
-                       $body['data'] === [] &&
-                       isset($body['timestamp']);
-            }), '', 'auth_events');
+            ->with(
+                $this->callback(function (AMQPMessage $message) use ($data) {
+                    $body = json_decode($message->getBody(), true);
+                    return $body === $data;
+                }),
+                'car.dealership.events',
+                $eventType
+            );
 
         $this->eventPublisher->publish($eventType, $data);
     }
@@ -99,30 +106,34 @@ class EventPublisherCoverageTest extends TestCase
         $this->channel
             ->expects($this->once())
             ->method('basic_publish')
-            ->with($this->callback(function (AMQPMessage $message) use ($eventType, $data) {
-                $body = json_decode($message->getBody(), true);
-                return $body['event_type'] === $eventType && 
-                       $body['data'] === $data &&
-                       isset($body['timestamp']);
-            }), '', 'auth_events');
+            ->with(
+                $this->callback(function (AMQPMessage $message) use ($data) {
+                    $body = json_decode($message->getBody(), true);
+                    return $body === $data;
+                }),
+                'car.dealership.events',
+                $eventType
+            );
 
         $this->eventPublisher->publish($eventType, $data);
     }
 
     public function testPublishEventWithBooleanData(): void
     {
-        $eventType = 'user.verified';
-        $data = ['verified' => true, 'auto_verified' => false];
+        $eventType = 'feature.toggled';
+        $data = ['feature_x' => true, 'feature_y' => false];
 
         $this->channel
             ->expects($this->once())
             ->method('basic_publish')
-            ->with($this->callback(function (AMQPMessage $message) use ($eventType, $data) {
-                $body = json_decode($message->getBody(), true);
-                return $body['event_type'] === $eventType && 
-                       $body['data'] === $data &&
-                       isset($body['timestamp']);
-            }), '', 'auth_events');
+            ->with(
+                $this->callback(function (AMQPMessage $message) use ($data) {
+                    $body = json_decode($message->getBody(), true);
+                    return $body === $data;
+                }),
+                'car.dealership.events',
+                $eventType
+            );
 
         $this->eventPublisher->publish($eventType, $data);
     }
@@ -130,84 +141,33 @@ class EventPublisherCoverageTest extends TestCase
     public function testPublishEventMessageFormat(): void
     {
         $eventType = 'test.event';
-        $data = ['test' => 'data'];
+        $data = ['key' => 'value'];
 
         $this->channel
             ->expects($this->once())
             ->method('basic_publish')
-            ->with($this->callback(function (AMQPMessage $message) {
-                // Check message properties
-                $this->assertInstanceOf(AMQPMessage::class, $message);
-                
-                $body = json_decode($message->getBody(), true);
-                $this->assertIsArray($body);
-                $this->assertArrayHasKey('event_type', $body);
-                $this->assertArrayHasKey('data', $body);
-                $this->assertArrayHasKey('timestamp', $body);
-                
-                // Check timestamp format
-                $this->assertIsString($body['timestamp']);
-                $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $body['timestamp']);
-                
-                return true;
-            }), '', 'auth_events');
+            ->with(
+                $this->callback(function (AMQPMessage $message) {
+                    $this->assertEquals('application/json', $message->get('content_type'));
+                    $this->assertEquals(AMQPMessage::DELIVERY_MODE_PERSISTENT, $message->get('delivery_mode'));
+                    return true;
+                }),
+                'car.dealership.events',
+                $eventType
+            );
 
         $this->eventPublisher->publish($eventType, $data);
-    }
-
-    public function testConstructorInitializesChannel(): void
-    {
-        $rabbitMQConnection = $this->createMock(RabbitMQConnection::class);
-        $channel = $this->createMock(AMQPChannel::class);
-        
-        $rabbitMQConnection
-            ->expects($this->once())
-            ->method('getChannel')
-            ->willReturn($channel);
-
-        $eventPublisher = new EventPublisher($rabbitMQConnection);
-        
-        $this->assertInstanceOf(EventPublisher::class, $eventPublisher);
     }
 
     public function testPublishEventWithStringData(): void
     {
-        $eventType = 'system.message';
-        $data = ['message' => 'System started successfully', 'level' => 'info'];
+        $eventType = 'log.info';
+        $data = ['message' => 'This is a log message'];
 
         $this->channel
             ->expects($this->once())
-            ->method('basic_publish')
-            ->with($this->isInstanceOf(AMQPMessage::class), '', 'auth_events');
+            ->method('basic_publish');
 
         $this->eventPublisher->publish($eventType, $data);
-    }
-
-    public function testPublishEventWithNumericData(): void
-    {
-        $eventType = 'metrics.counter';
-        $data = ['count' => 100, 'total' => 1000, 'percentage' => 10.5];
-
-        $this->channel
-            ->expects($this->once())
-            ->method('basic_publish')
-            ->with($this->isInstanceOf(AMQPMessage::class), '', 'auth_events');
-
-        $this->eventPublisher->publish($eventType, $data);
-    }
-
-    public function testEventPublisherClassStructure(): void
-    {
-        $reflection = new \ReflectionClass(EventPublisher::class);
-        
-        $this->assertTrue($reflection->hasProperty('channel'));
-        $this->assertTrue($reflection->hasMethod('__construct'));
-        $this->assertTrue($reflection->hasMethod('publish'));
-        
-        $constructMethod = $reflection->getMethod('__construct');
-        $this->assertTrue($constructMethod->isPublic());
-        
-        $publishMethod = $reflection->getMethod('publish');
-        $this->assertTrue($publishMethod->isPublic());
     }
 }

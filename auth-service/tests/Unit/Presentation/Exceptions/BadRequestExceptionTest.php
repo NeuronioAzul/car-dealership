@@ -56,6 +56,6 @@ class BadRequestExceptionTest extends TestCase
         $this->assertIsArray($array);
         $this->assertTrue($array['error']);
         $this->assertEquals('Bad request message', $array['message']);
-        $this->assertEquals(500, $array['code']);
+        $this->assertEquals(400, $array['code']);
     }
 }

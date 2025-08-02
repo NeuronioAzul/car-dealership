@@ -56,7 +56,7 @@ class UnprocessableEntityExceptionTest extends TestCase
         $this->assertIsArray($array);
         $this->assertTrue($array['error']);
         $this->assertEquals('Validation error occurred', $array['message']);
-        $this->assertEquals(500, $array['code']);
+        $this->assertEquals(422, $array['code']);
     }
 
     public function test_constructor_with_previous_exception(): void

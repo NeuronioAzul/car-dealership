@@ -26,14 +26,6 @@ class RequestValidatorTest extends TestCase
             'password' => 'password123',
             'phone' => '11999999999',
             'birth_date' => '1990-01-01',
-            'address' => [
-                'street' => 'Rua das Flores',
-                'number' => '123',
-                'neighborhood' => 'Centro',
-                'city' => 'São Paulo',
-                'state' => 'SP',
-                'zip_code' => '01234-567'
-            ],
             'role' => 'customer',
             'accept_terms' => true,
             'accept_privacy' => true,
@@ -52,14 +44,6 @@ class RequestValidatorTest extends TestCase
             'password' => 'password123',
             'phone' => '11999999999',
             'birth_date' => '1990-01-01',
-            'address' => [
-                'street' => 'Rua das Flores',
-                'number' => '123',
-                'neighborhood' => 'Centro',
-                'city' => 'São Paulo',
-                'state' => 'SP',
-                'zip_code' => '01234-567'
-            ],
             'role' => 'customer',
             'accept_terms' => true,
             'accept_privacy' => true,
@@ -78,14 +62,6 @@ class RequestValidatorTest extends TestCase
             'password' => 'password123',
             'phone' => '11999999999',
             'birth_date' => '1990-01-01',
-            'address' => [
-                'street' => 'Rua das Flores',
-                'number' => '123',
-                'neighborhood' => 'Centro',
-                'city' => 'São Paulo',
-                'state' => 'SP',
-                'zip_code' => '01234-567'
-            ],
             'role' => 'customer',
             'accept_terms' => true,
             'accept_privacy' => true,
@@ -104,14 +80,6 @@ class RequestValidatorTest extends TestCase
             'password' => '123',
             'phone' => '11999999999',
             'birth_date' => '1990-01-01',
-            'address' => [
-                'street' => 'Rua das Flores',
-                'number' => '123',
-                'neighborhood' => 'Centro',
-                'city' => 'São Paulo',
-                'state' => 'SP',
-                'zip_code' => '01234-567'
-            ],
             'role' => 'customer',
             'accept_terms' => true,
             'accept_privacy' => true,
@@ -130,37 +98,6 @@ class RequestValidatorTest extends TestCase
             'password' => 'password123',
             'phone' => '123',
             'birth_date' => '1990-01-01',
-            'address' => [
-                'street' => 'Rua das Flores',
-                'number' => '123',
-                'neighborhood' => 'Centro',
-                'city' => 'São Paulo',
-                'state' => 'SP',
-                'zip_code' => '01234-567'
-            ],
-            'role' => 'customer',
-            'accept_terms' => true,
-            'accept_privacy' => true,
-            'accept_communications' => false
-        ];
-
-        $this->expectException(ValidationException::class);
-        $this->validator->validate($invalidData, $this->validator->getRegisterUserConstraints());
-    }
-
-    public function testRegisterValidationFailsWithIncompleteAddress(): void
-    {
-        $invalidData = [
-            'name' => 'João Silva',
-            'email' => 'joao@email.com',
-            'password' => 'password123',
-            'phone' => '11999999999',
-            'birth_date' => '1990-01-01',
-            'address' => [
-                'street' => 'Rua das Flores',
-                'number' => '123',
-                // missing neighborhood, city, state, zip_code
-            ],
             'role' => 'customer',
             'accept_terms' => true,
             'accept_privacy' => true,
@@ -179,14 +116,6 @@ class RequestValidatorTest extends TestCase
             'password' => 'password123',
             'phone' => '11999999999',
             'birth_date' => '1990-01-01',
-            'address' => [
-                'street' => 'Rua das Flores',
-                'number' => '123',
-                'neighborhood' => 'Centro',
-                'city' => 'São Paulo',
-                'state' => 'SP',
-                'zip_code' => '01234-567'
-            ],
             'role' => 'customer',
             'accept_terms' => false,
             'accept_privacy' => true,

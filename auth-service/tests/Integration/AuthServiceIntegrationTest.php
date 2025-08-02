@@ -37,14 +37,7 @@ class AuthServiceIntegrationTest extends TestCase
             'password' => 'password123',
             'phone' => '11999999999',
             'birth_date' => '1990-01-01',
-            'address' => [
-                'street' => 'Rua das Flores',
-                'number' => '123',
-                'neighborhood' => 'Centro',
-                'city' => 'São Paulo',
-                'state' => 'SP',
-                'zip_code' => '01234-567'
-            ],
+
             'role' => 'customer',
             'accept_terms' => true,
             'accept_privacy' => true,
@@ -118,14 +111,7 @@ class AuthServiceIntegrationTest extends TestCase
             'password' => 'strongPassword123!',
             'phone' => '11987654321',
             'birth_date' => '1985-05-15',
-            'address' => [
-                'street' => 'Rua da Integração',
-                'number' => '456',
-                'neighborhood' => 'Centro',
-                'city' => 'São Paulo',
-                'state' => 'SP',
-                'zip_code' => '01234-567'
-            ],
+
             'role' => 'customer',
             'accept_terms' => true,
             'accept_privacy' => true,
@@ -187,14 +173,7 @@ class AuthServiceIntegrationTest extends TestCase
             'password' => 'testPassword123!',
             'phone' => '11987654321',
             'birth_date' => '1990-01-01',
-            'address' => [
-                'street' => 'Rua do Login',
-                'number' => '123',
-                'neighborhood' => 'Centro',
-                'city' => 'São Paulo',
-                'state' => 'SP',
-                'zip_code' => '01234-567'
-            ],
+
             'role' => 'customer',
             'accept_terms' => true,
             'accept_privacy' => true,
@@ -304,14 +283,7 @@ class AuthServiceIntegrationTest extends TestCase
             'password' => 'refreshPassword123!',
             'phone' => '11987654321',
             'birth_date' => '1988-03-10',
-            'address' => [
-                'street' => 'Rua do Refresh',
-                'number' => '789',
-                'neighborhood' => 'Centro',
-                'city' => 'São Paulo',
-                'state' => 'SP',
-                'zip_code' => '01234-567'
-            ],
+
             'role' => 'customer',
             'accept_terms' => true,
             'accept_privacy' => true,
@@ -425,14 +397,7 @@ class AuthServiceIntegrationTest extends TestCase
             'password' => 'validatePassword123!',
             'phone' => '11987654321',
             'birth_date' => '1992-08-20',
-            'address' => [
-                'street' => 'Rua da Validação',
-                'number' => '321',
-                'neighborhood' => 'Centro',
-                'city' => 'São Paulo',
-                'state' => 'SP',
-                'zip_code' => '01234-567'
-            ],
+
             'role' => 'customer',
             'accept_terms' => true,
             'accept_privacy' => true,
@@ -567,14 +532,7 @@ class AuthServiceIntegrationTest extends TestCase
             'password' => 'blacklistPassword123!',
             'phone' => '11987654321',
             'birth_date' => '1985-12-25',
-            'address' => [
-                'street' => 'Rua do Blacklist',
-                'number' => '555',
-                'neighborhood' => 'Centro',
-                'city' => 'São Paulo',
-                'state' => 'SP',
-                'zip_code' => '01234-567'
-            ],
+
             'role' => 'customer',
             'accept_terms' => true,
             'accept_privacy' => true,
@@ -732,14 +690,7 @@ class AuthServiceIntegrationTest extends TestCase
             'password' => 'persistencePassword123!',
             'phone' => '11987654321',
             'birth_date' => '1987-06-15',
-            'address' => [
-                'street' => 'Rua da Persistência',
-                'number' => '777',
-                'neighborhood' => 'Vila Madalena',
-                'city' => 'São Paulo',
-                'state' => 'SP',
-                'zip_code' => '05435-123'
-            ],
+
             'role' => 'customer',
             'accept_terms' => true,
             'accept_privacy' => true,
@@ -855,14 +806,7 @@ class AuthServiceIntegrationTest extends TestCase
             'password' => 'eventPassword123!',
             'phone' => '11987654321',
             'birth_date' => '1989-09-30',
-            'address' => [
-                'street' => 'Rua dos Eventos',
-                'number' => '888',
-                'neighborhood' => 'Itaim Bibi',
-                'city' => 'São Paulo',
-                'state' => 'SP',
-                'zip_code' => '04534-567'
-            ],
+
             'role' => 'customer',
             'accept_terms' => true,
             'accept_privacy' => true,
@@ -1011,14 +955,7 @@ class AuthServiceIntegrationTest extends TestCase
             'password' => 'middlewarePassword123!',
             'phone' => '11987654321',
             'birth_date' => '1991-04-12',
-            'address' => [
-                'street' => 'Rua do Middleware',
-                'number' => '999',
-                'neighborhood' => 'Pinheiros',
-                'city' => 'São Paulo',
-                'state' => 'SP',
-                'zip_code' => '05422-987'
-            ],
+
             'role' => 'customer',
             'accept_terms' => true,
             'accept_privacy' => true,
@@ -1114,14 +1051,7 @@ class AuthServiceIntegrationTest extends TestCase
             'password' => 'rolePassword123!',
             'phone' => '11987654321',
             'birth_date' => '1990-05-15',
-            'address' => [
-                'street' => 'Rua dos Roles',
-                'number' => '123',
-                'neighborhood' => 'Centro',
-                'city' => 'São Paulo',
-                'state' => 'SP',
-                'zip_code' => '01234-567'
-            ],
+
             'role' => 'customer',
             'accept_terms' => true,
             'accept_privacy' => true,
@@ -1144,17 +1074,17 @@ class AuthServiceIntegrationTest extends TestCase
 
         // Validações básicas
         $this->assertNotFalse($customerResponse, 'Deve conseguir registrar usuário customer');
-        
+
         if ($customerResponse !== false && $customerHttpCode === 201) {
             $customerDecoded = json_decode($customerResponse, true);
-            
+
             if (isset($customerDecoded['success']) && $customerDecoded['success']) {
                 // Verificar se role foi definida corretamente
                 $userData = $customerDecoded['data']['user'] ?? $customerDecoded['data'];
                 $this->assertEquals('customer', $userData['role'], 'Role customer deve ser persistida corretamente');
-                
+
                 sleep(1);
-                
+
                 // Fazer login e verificar role no token
                 $loginData = [
                     'email' => $customerData['email'],
@@ -1176,12 +1106,12 @@ class AuthServiceIntegrationTest extends TestCase
 
                 if ($loginResponse !== false && $loginHttpCode === 200) {
                     $loginDecoded = json_decode($loginResponse, true);
-                    
+
                     if (isset($loginDecoded['success']) && $loginDecoded['success']) {
                         $accessToken = $loginDecoded['data']['access_token'];
-                        
+
                         sleep(1);
-                        
+
                         // Validar token e verificar role
                         $ch = curl_init();
                         curl_setopt($ch, CURLOPT_URL, $this->baseUrl . '/validate');
@@ -1200,7 +1130,7 @@ class AuthServiceIntegrationTest extends TestCase
 
                         if ($validateResponse !== false && $validateHttpCode === 200) {
                             $validateDecoded = json_decode($validateResponse, true);
-                            
+
                             if (isset($validateDecoded['success']) && $validateDecoded['success']) {
                                 $this->assertEquals('customer', $validateDecoded['data']['role'], 'Role no token deve ser customer');
                             }
@@ -1212,21 +1142,14 @@ class AuthServiceIntegrationTest extends TestCase
 
         // Testar role inválida
         sleep(1);
-        
+
         $invalidRoleData = [
             'name' => 'Admin Invalid Test',
             'email' => 'admin.invalid.' . time() . '@email.com',
             'password' => 'adminPassword123!',
             'phone' => '11987654321',
             'birth_date' => '1985-03-20',
-            'address' => [
-                'street' => 'Rua Admin',
-                'number' => '456',
-                'neighborhood' => 'Centro',
-                'city' => 'São Paulo',
-                'state' => 'SP',
-                'zip_code' => '01234-567'
-            ],
+
             'role' => 'invalid_role',
             'accept_terms' => true,
             'accept_privacy' => true,
@@ -1248,10 +1171,10 @@ class AuthServiceIntegrationTest extends TestCase
 
         // Deve rejeitar role inválida ou usar role padrão
         $this->assertNotFalse($invalidResponse, 'Deve conseguir conectar para testar role inválida');
-        
+
         if ($invalidResponse !== false && $invalidHttpCode > 0) {
             $invalidDecoded = json_decode($invalidResponse, true);
-            
+
             // Se rejeitou (422), validar erro de validação
             if ($invalidHttpCode === 422) {
                 $this->assertArrayHasKey('error', $invalidDecoded, 'Deve retornar erro para role inválida');
@@ -1271,24 +1194,17 @@ class AuthServiceIntegrationTest extends TestCase
     {
         // Este teste valida comportamento quando há problemas de conectividade/banco
         // Testamos cenários que podem gerar erros de banco indiretamente
-        
+
         // Testar registro com dados que podem causar conflito
         $conflictEmail = 'conflict.test.' . time() . '@email.com';
-        
+
         $userData = [
             'name' => 'Primeiro Usuário',
             'email' => $conflictEmail,
             'password' => 'dbErrorPassword123!',
             'phone' => '11987654321',
             'birth_date' => '1990-01-01',
-            'address' => [
-                'street' => 'Rua DB Error',
-                'number' => '123',
-                'neighborhood' => 'Centro',
-                'city' => 'São Paulo',
-                'state' => 'SP',
-                'zip_code' => '01234-567'
-            ],
+
             'role' => 'customer',
             'accept_terms' => true,
             'accept_privacy' => true,
@@ -1310,13 +1226,13 @@ class AuthServiceIntegrationTest extends TestCase
         curl_close($ch);
 
         $this->assertNotFalse($firstResponse, 'Deve conseguir fazer primeiro registro');
-        
+
         if ($firstResponse !== false && $firstHttpCode === 201) {
             sleep(1);
-            
+
             // Tentar registrar novamente com mesmo email (deve gerar conflito)
             $userData['name'] = 'Segundo Usuário (Conflito)';
-            
+
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $this->baseUrl . '/register');
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -1332,15 +1248,15 @@ class AuthServiceIntegrationTest extends TestCase
 
             // Deve tratar conflito de email adequadamente
             $this->assertNotFalse($conflictResponse, 'Deve conseguir conectar para testar conflito');
-            
+
             if ($conflictResponse !== false && $conflictHttpCode > 0) {
                 $conflictDecoded = json_decode($conflictResponse, true);
-                
+
                 // Deve retornar erro 409 (Conflict) ou 422 (Validation Error)
                 $this->assertContains($conflictHttpCode, [409, 422], 'Deve retornar código de erro apropriado para conflito');
                 $this->assertIsArray($conflictDecoded, 'Resposta de erro deve ser JSON válido');
                 $this->assertArrayHasKey('error', $conflictDecoded, 'Resposta de erro deve conter flag de erro');
-                
+
                 // Verificar se mensagem indica problema de duplicação
                 $message = $conflictDecoded['message'] ?? '';
                 $this->assertStringContainsString('já existe', $message, 'Mensagem deve indicar que email já existe');
@@ -1349,7 +1265,7 @@ class AuthServiceIntegrationTest extends TestCase
 
         // Testar login com credenciais que não existem (simula erro de consulta)
         sleep(1);
-        
+
         $nonExistentLogin = [
             'email' => 'naoexiste.' . time() . '@email.com',
             'password' => 'senhaInexistente123!'
@@ -1370,10 +1286,10 @@ class AuthServiceIntegrationTest extends TestCase
 
         // Deve tratar usuário inexistente adequadamente
         $this->assertNotFalse($loginResponse, 'Deve conseguir conectar para testar login inexistente');
-        
+
         if ($loginResponse !== false && $loginHttpCode > 0) {
             $this->assertEquals(401, $loginHttpCode, 'Login inexistente deve retornar 401 Unauthorized');
-            
+
             $loginDecoded = json_decode($loginResponse, true);
             $this->assertIsArray($loginDecoded, 'Resposta de erro de login deve ser JSON válido');
             $this->assertArrayHasKey('error', $loginDecoded, 'Resposta deve conter indicador de erro');
@@ -1386,7 +1302,7 @@ class AuthServiceIntegrationTest extends TestCase
     public function testInvalidDataHandling(): void
     {
         // Testar registro com dados inválidos/faltantes
-        
+
         // Teste 1: Email inválido
         $invalidEmailData = [
             'name' => 'Email Inválido Test',
@@ -1394,14 +1310,7 @@ class AuthServiceIntegrationTest extends TestCase
             'password' => 'validPassword123!',
             'phone' => '11987654321',
             'birth_date' => '1990-01-01',
-            'address' => [
-                'street' => 'Rua Inválida',
-                'number' => '123',
-                'neighborhood' => 'Centro',
-                'city' => 'São Paulo',
-                'state' => 'SP',
-                'zip_code' => '01234-567'
-            ],
+
             'role' => 'customer',
             'accept_terms' => true,
             'accept_privacy' => true,
@@ -1422,11 +1331,11 @@ class AuthServiceIntegrationTest extends TestCase
         curl_close($ch);
 
         $this->assertNotFalse($emailResponse, 'Deve conseguir conectar para testar email inválido');
-        
+
         if ($emailResponse !== false && $emailHttpCode > 0) {
             // Deve rejeitar email inválido (pode ser erro de validação ou erro interno)
             $this->assertContains($emailHttpCode, [400, 422, 500], 'Email inválido deve retornar erro apropriado');
-            
+
             $emailDecoded = json_decode($emailResponse, true);
             $this->assertIsArray($emailDecoded, 'Resposta deve ser JSON válido');
             $this->assertArrayHasKey('error', $emailDecoded, 'Deve conter indicador de erro');
@@ -1441,14 +1350,7 @@ class AuthServiceIntegrationTest extends TestCase
             'password' => '123',
             'phone' => '11987654321',
             'birth_date' => '1990-01-01',
-            'address' => [
-                'street' => 'Rua Senha Fraca',
-                'number' => '456',
-                'neighborhood' => 'Centro',
-                'city' => 'São Paulo',
-                'state' => 'SP',
-                'zip_code' => '01234-567'
-            ],
+
             'role' => 'customer',
             'accept_terms' => true,
             'accept_privacy' => true,
@@ -1470,7 +1372,7 @@ class AuthServiceIntegrationTest extends TestCase
 
         if ($passwordResponse !== false && $passwordHttpCode > 0) {
             $passwordDecoded = json_decode($passwordResponse, true);
-            
+
             // Se rejeitou senha fraca, validar erro
             if ($passwordHttpCode === 422) {
                 $this->assertArrayHasKey('error', $passwordDecoded, 'Deve conter erro de validação para senha fraca');
@@ -1508,10 +1410,10 @@ class AuthServiceIntegrationTest extends TestCase
 
         // Deve rejeitar dados obrigatórios faltando
         $this->assertNotFalse($missingResponse, 'Deve conseguir conectar para testar dados faltando');
-        
+
         if ($missingResponse !== false && $missingHttpCode > 0) {
             $this->assertContains($missingHttpCode, [400, 422, 500], 'Dados obrigatórios faltando deve retornar erro');
-            
+
             $missingDecoded = json_decode($missingResponse, true);
             $this->assertIsArray($missingDecoded, 'Resposta deve ser JSON válido');
             $this->assertArrayHasKey('error', $missingDecoded, 'Deve conter indicador de erro');
@@ -1541,7 +1443,7 @@ class AuthServiceIntegrationTest extends TestCase
         // Deve rejeitar dados de login inválidos
         if ($invalidLoginResponse !== false && $invalidLoginHttpCode > 0) {
             $this->assertContains($invalidLoginHttpCode, [400, 401, 422, 500], 'Login inválido deve retornar erro apropriado');
-            
+
             $invalidLoginDecoded = json_decode($invalidLoginResponse, true);
             $this->assertIsArray($invalidLoginDecoded, 'Resposta deve ser JSON válido');
             $this->assertArrayHasKey('error', $invalidLoginDecoded, 'Deve conter indicador de erro');
@@ -1555,7 +1457,7 @@ class AuthServiceIntegrationTest extends TestCase
     {
         // Este teste valida o comportamento com tokens expirados
         // Como não podemos alterar tempo real, testamos comportamento indireto
-        
+
         // Criar usuário para gerar tokens
         $userData = [
             'name' => 'Token Expiry Test',
@@ -1563,14 +1465,7 @@ class AuthServiceIntegrationTest extends TestCase
             'password' => 'expiryPassword123!',
             'phone' => '11987654321',
             'birth_date' => '1985-08-15',
-            'address' => [
-                'street' => 'Rua Token Expiry',
-                'number' => '789',
-                'neighborhood' => 'Centro',
-                'city' => 'São Paulo',
-                'state' => 'SP',
-                'zip_code' => '01234-567'
-            ],
+
             'role' => 'customer',
             'accept_terms' => true,
             'accept_privacy' => true,
@@ -1592,10 +1487,10 @@ class AuthServiceIntegrationTest extends TestCase
         curl_close($ch);
 
         $this->assertNotFalse($registerResponse, 'Deve conseguir registrar usuário para teste de expiração');
-        
+
         if ($registerResponse !== false && $registerHttpCode === 201) {
             sleep(1);
-            
+
             // Fazer login para obter token
             $loginData = [
                 'email' => $userData['email'],
@@ -1617,12 +1512,12 @@ class AuthServiceIntegrationTest extends TestCase
 
             if ($loginResponse !== false && $loginHttpCode === 200) {
                 $loginDecoded = json_decode($loginResponse, true);
-                
+
                 if (isset($loginDecoded['success']) && $loginDecoded['success']) {
                     $accessToken = $loginDecoded['data']['access_token'];
-                    
+
                     sleep(1);
-                    
+
                     // Validar que token está funcionando inicialmente
                     $ch = curl_init();
                     curl_setopt($ch, CURLOPT_URL, $this->baseUrl . '/validate');
@@ -1642,28 +1537,28 @@ class AuthServiceIntegrationTest extends TestCase
                     // Token deve estar válido inicialmente
                     if ($validateResponse !== false && $validateHttpCode === 200) {
                         $validateDecoded = json_decode($validateResponse, true);
-                        
+
                         if (isset($validateDecoded['success']) && $validateDecoded['success']) {
                             $this->assertTrue($validateDecoded['data']['valid'], 'Token deve estar válido inicialmente');
-                            
+
                             // Verificar se há informação de expiração
                             if (isset($validateDecoded['data']['expires_at'])) {
                                 $expiresAt = $validateDecoded['data']['expires_at'];
                                 $this->assertNotEmpty($expiresAt, 'Token deve ter informação de expiração');
                                 $this->assertIsNumeric($expiresAt, 'Expiração deve ser timestamp numérico');
-                                
+
                                 // Verificar se expiração é no futuro
                                 $currentTime = time();
                                 $this->assertGreaterThan($currentTime, $expiresAt, 'Token deve expirar no futuro');
                             }
                         }
                     }
-                    
+
                     // Testar comportamento com token malformado (simula token corrompido/expirado)
                     sleep(1);
-                    
+
                     $malformedToken = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.expired.token';
-                    
+
                     $ch = curl_init();
                     curl_setopt($ch, CURLOPT_URL, $this->baseUrl . '/validate');
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -1682,15 +1577,15 @@ class AuthServiceIntegrationTest extends TestCase
                     // Sistema deve rejeitar token malformado/expirado
                     if ($expiredResponse !== false && $expiredHttpCode > 0) {
                         $this->assertEquals(401, $expiredHttpCode, 'Token malformado deve retornar 401');
-                        
+
                         $expiredDecoded = json_decode($expiredResponse, true);
                         $this->assertIsArray($expiredDecoded, 'Resposta deve ser JSON válido');
                         $this->assertFalse($expiredDecoded['valid'] ?? true, 'Token malformado deve retornar valid=false');
                     }
-                    
+
                     // Fazer logout para invalidar token atual (simula limpeza)
                     sleep(1);
-                    
+
                     $ch = curl_init();
                     curl_setopt($ch, CURLOPT_URL, $this->baseUrl . '/logout');
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -1722,7 +1617,7 @@ class AuthServiceIntegrationTest extends TestCase
     {
         // Teste indiretamente as configurações através dos endpoints
         // que dependem de variáveis de ambiente como DB_HOST, JWT_SECRET, etc.
-        
+
         // Testar se o endpoint de health funciona (indica que as config básicas estão OK)
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $this->baseUrl . '/health');
@@ -1737,11 +1632,11 @@ class AuthServiceIntegrationTest extends TestCase
 
         // Validação básica de conectividade
         $this->assertNotFalse($healthResponse, 'Endpoint de health deve ser acessivel (config de ambiente funcionando)');
-        
+
         if ($healthResponse !== false && $healthHttpCode > 0) {
             // Se health endpoint funciona, configurações básicas estão OK
             $this->assertContains($healthHttpCode, [200, 404], 'Health endpoint deve retornar status válido');
-            
+
             if ($healthHttpCode === 200) {
                 $healthDecoded = json_decode($healthResponse, true);
                 $this->assertIsArray($healthDecoded, 'Health response deve ser JSON válido');
@@ -1757,14 +1652,7 @@ class AuthServiceIntegrationTest extends TestCase
             'password' => 'envConfigPassword123!',
             'phone' => '11987654321',
             'birth_date' => '1990-01-01',
-            'address' => [
-                'street' => 'Rua Env Config',
-                'number' => '123',
-                'neighborhood' => 'Centro',
-                'city' => 'São Paulo',
-                'state' => 'SP',
-                'zip_code' => '01234-567'
-            ],
+
             'role' => 'customer',
             'accept_terms' => true,
             'accept_privacy' => true,
@@ -1786,18 +1674,18 @@ class AuthServiceIntegrationTest extends TestCase
 
         // Se conseguiu registrar, configurações de banco estão funcionando
         $this->assertNotFalse($registerResponse, 'Registro deve funcionar (configurações de DB corretas)');
-        
+
         if ($registerResponse !== false && $registerHttpCode > 0) {
             // Se registro funciona, configurações de ambiente estão adequadas
             $this->assertContains($registerHttpCode, [201, 409, 422, 500], 'Registro deve processar com configurações válidas');
-            
+
             $registerDecoded = json_decode($registerResponse, true);
             $this->assertIsArray($registerDecoded, 'Response deve ser JSON válido (config de env OK)');
-            
+
             // Se conseguiu criar usuário, testar login (valida JWT_SECRET)
             if ($registerHttpCode === 201) {
                 sleep(1);
-                
+
                 $loginData = [
                     'email' => $userData['email'],
                     'password' => $userData['password']
@@ -1819,7 +1707,7 @@ class AuthServiceIntegrationTest extends TestCase
                 // Login funcionando indica que JWT_SECRET está configurado
                 if ($loginResponse !== false && $loginHttpCode === 200) {
                     $loginDecoded = json_decode($loginResponse, true);
-                    
+
                     if (isset($loginDecoded['data']['access_token'])) {
                         $this->assertNotEmpty($loginDecoded['data']['access_token'], 'Token JWT deve ser gerado (JWT_SECRET configurado)');
                     }
@@ -1835,21 +1723,14 @@ class AuthServiceIntegrationTest extends TestCase
     {
         // Este teste valida se o sistema degrada graciosamente quando RabbitMQ não está disponível
         // Em ambiente de teste, RabbitMQ pode não estar rodando, mas o sistema deve continuar funcionando
-        
+
         $userData = [
             'name' => 'RabbitMQ Test User',
             'email' => 'rabbitmq.test.' . time() . '@email.com',
             'password' => 'rabbitMQPassword123!',
             'phone' => '11987654321',
             'birth_date' => '1985-06-10',
-            'address' => [
-                'street' => 'Rua RabbitMQ',
-                'number' => '456',
-                'neighborhood' => 'Centro',
-                'city' => 'São Paulo',
-                'state' => 'SP',
-                'zip_code' => '01234-567'
-            ],
+
             'role' => 'customer',
             'accept_terms' => true,
             'accept_privacy' => true,
@@ -1872,17 +1753,17 @@ class AuthServiceIntegrationTest extends TestCase
 
         // Sistema deve funcionar mesmo se RabbitMQ não estiver disponível
         $this->assertNotFalse($registerResponse, 'Registro deve funcionar mesmo sem RabbitMQ');
-        
+
         if ($registerResponse !== false && $registerHttpCode > 0) {
             $registerDecoded = json_decode($registerResponse, true);
             $this->assertIsArray($registerDecoded, 'Response deve ser JSON válido');
-            
+
             // Se registro funcionou, sistema está degradando graciosamente
             if ($registerHttpCode === 201) {
                 $this->assertTrue($registerDecoded['success'] ?? false, 'Sistema deve funcionar sem RabbitMQ (degradação graciosa)');
-                
+
                 sleep(1);
-                
+
                 // Testar login também (pode gerar eventos)
                 $loginData = [
                     'email' => $userData['email'],
@@ -1906,10 +1787,10 @@ class AuthServiceIntegrationTest extends TestCase
                 if ($loginResponse !== false && $loginHttpCode === 200) {
                     $loginDecoded = json_decode($loginResponse, true);
                     $this->assertTrue($loginDecoded['success'] ?? false, 'Login deve funcionar sem RabbitMQ (resiliência)');
-                    
+
                     if (isset($loginDecoded['data']['access_token'])) {
                         sleep(1);
-                        
+
                         // Testar logout (pode tentar publicar evento de logout)
                         $ch = curl_init();
                         curl_setopt($ch, CURLOPT_URL, $this->baseUrl . '/logout');
@@ -1943,7 +1824,7 @@ class AuthServiceIntegrationTest extends TestCase
     {
         // Este teste valida indiretamente se o container DI está funcionando
         // testando se os serviços são injetados corretamente via API
-        
+
         // Criar usuário para testar diferentes serviços injetados
         $userData = [
             'name' => 'DI Container Test',
@@ -1951,14 +1832,7 @@ class AuthServiceIntegrationTest extends TestCase
             'password' => 'diContainerPassword123!',
             'phone' => '11987654321',
             'birth_date' => '1988-12-25',
-            'address' => [
-                'street' => 'Rua DI Container',
-                'number' => '789',
-                'neighborhood' => 'Centro',
-                'city' => 'São Paulo',
-                'state' => 'SP',
-                'zip_code' => '01234-567'
-            ],
+
             'role' => 'customer',
             'accept_terms' => true,
             'accept_privacy' => true,
@@ -1981,17 +1855,17 @@ class AuthServiceIntegrationTest extends TestCase
 
         // Se register funciona, UserRepository e PasswordHasher foram injetados corretamente
         $this->assertNotFalse($registerResponse, 'RegisterUseCase deve funcionar via DI container');
-        
+
         if ($registerResponse !== false && $registerHttpCode > 0) {
             $registerDecoded = json_decode($registerResponse, true);
             $this->assertIsArray($registerDecoded, 'Response de register deve ser válida (DI funcionando)');
-            
+
             // Se registro funcionou, container DI está resolvendo dependências
             if ($registerHttpCode === 201) {
                 $this->assertTrue($registerDecoded['success'] ?? false, 'RegisterUseCase injetado via DI');
-                
+
                 sleep(1);
-                
+
                 // Testar LoginUseCase (via container DI)
                 $loginData = [
                     'email' => $userData['email'],
@@ -2015,12 +1889,12 @@ class AuthServiceIntegrationTest extends TestCase
                 if ($loginResponse !== false && $loginHttpCode === 200) {
                     $loginDecoded = json_decode($loginResponse, true);
                     $this->assertTrue($loginDecoded['success'] ?? false, 'LoginUseCase injetado via DI');
-                    
+
                     if (isset($loginDecoded['data']['access_token'])) {
                         $accessToken = $loginDecoded['data']['access_token'];
-                        
+
                         sleep(1);
-                        
+
                         // Testar ValidateTokenUseCase (via container DI)
                         $ch = curl_init();
                         curl_setopt($ch, CURLOPT_URL, $this->baseUrl . '/validate');
@@ -2041,9 +1915,9 @@ class AuthServiceIntegrationTest extends TestCase
                         if ($validateResponse !== false && $validateHttpCode === 200) {
                             $validateDecoded = json_decode($validateResponse, true);
                             $this->assertTrue($validateDecoded['data']['valid'] ?? false, 'ValidateTokenUseCase injetado via DI');
-                            
+
                             sleep(1);
-                            
+
                             // Testar LogoutUseCase (via container DI)
                             $ch = curl_init();
                             curl_setopt($ch, CURLOPT_URL, $this->baseUrl . '/logout');
