@@ -6,7 +6,6 @@ namespace App\Infrastructure\Database;
 
 use App\Domain\Entities\User;
 use App\Domain\Repositories\UserRepositoryInterface;
-use App\Domain\ValueObjects\Address;
 use DateTime;
 use PDO;
 
@@ -24,12 +23,10 @@ class UserRepository implements UserRepositoryInterface
         $sql = '
             INSERT INTO users (
                 id, name, email, password, phone, birth_date,
-                street, number, neighborhood, city, state, zip_code,
                 role, accept_terms, accept_privacy, accept_communications,
                 created_at, updated_at
             ) VALUES (
                 :id, :name, :email, :password, :phone, :birth_date,
-                :street, :number, :neighborhood, :city, :state, :zip_code,
                 :role, :accept_terms, :accept_privacy, :accept_communications,
                 :created_at, :updated_at
             )
@@ -44,12 +41,6 @@ class UserRepository implements UserRepositoryInterface
             'password' => $user->getPassword(),
             'phone' => $user->getPhone(),
             'birth_date' => $user->getBirthDate()->format('Y-m-d'),
-            'street' => $user->getAddress()->getStreet(),
-            'number' => $user->getAddress()->getNumber(),
-            'neighborhood' => $user->getAddress()->getNeighborhood(),
-            'city' => $user->getAddress()->getCity(),
-            'state' => $user->getAddress()->getState(),
-            'zip_code' => $user->getAddress()->getZipCode(),
             'role' => $user->getRole(),
             'accept_terms' => $user->getAcceptTerms(),
             'accept_privacy' => $user->getAcceptPrivacy(),
@@ -103,11 +94,6 @@ class UserRepository implements UserRepositoryInterface
                 password = :password,
                 phone = :phone,
                 birth_date = :birth_date,
-                street = :street,
-                number = :number,
-                neighborhood = :neighborhood,
-                city = :city,
-                state = :state,
                 zip_code = :zip_code,
                 role = :role,
                 accept_terms = :accept_terms,
@@ -126,12 +112,6 @@ class UserRepository implements UserRepositoryInterface
             'password' => $user->getPassword(),
             'phone' => $user->getPhone(),
             'birth_date' => $user->getBirthDate()->format('Y-m-d'),
-            'street' => $user->getAddress()->getStreet(),
-            'number' => $user->getAddress()->getNumber(),
-            'neighborhood' => $user->getAddress()->getNeighborhood(),
-            'city' => $user->getAddress()->getCity(),
-            'state' => $user->getAddress()->getState(),
-            'zip_code' => $user->getAddress()->getZipCode(),
             'role' => $user->getRole(),
             'accept_terms' => $user->getAcceptTerms(),
             'accept_privacy' => $user->getAcceptPrivacy(),
@@ -159,26 +139,16 @@ class UserRepository implements UserRepositoryInterface
 
     private function mapToUser(array $data): User
     {
-        $address = new Address(
-            $data['street'],
-            $data['number'],
-            $data['neighborhood'],
-            $data['city'],
-            $data['state'],
-            $data['zip_code']
-        );
-
         $user = new User(
             $data['name'],
             $data['email'],
             '', // Password será definido diretamente
             $data['phone'],
             new DateTime($data['birth_date']),
-            $address,
             $data['role'],
             (bool) $data['accept_terms'],
             (bool) $data['accept_privacy'],
-            (bool) $data['accept_communications']
+            (bool) $data['accept_communications'],
         );
 
         // Usar reflection para definir propriedades privadas

@@ -9,7 +9,6 @@ use App\Application\Validation\RequestValidator;
 use App\Domain\Entities\User;
 use App\Domain\Exceptions\UserAlreadyExistsException;
 use App\Domain\Repositories\UserRepositoryInterface;
-use App\Domain\ValueObjects\Address;
 use App\Infrastructure\Messaging\EventPublisher;
 use DateTime;
 
@@ -32,16 +31,6 @@ class RegisterUseCase
             throw new UserAlreadyExistsException($userData['email']);
         }
 
-        // Criar endereço
-        $address = new Address(
-            $userData['address']['street'],
-            $userData['address']['number'],
-            $userData['address']['neighborhood'],
-            $userData['address']['city'],
-            $userData['address']['state'],
-            $userData['address']['zip_code']
-        );
-
         // Criar usuário
         $user = new User(
             $userData['name'],
@@ -49,7 +38,6 @@ class RegisterUseCase
             $userData['password'],
             $userData['phone'],
             new DateTime($userData['birth_date']),
-            $address,
             $userData['role'] ?? 'customer',
             $userData['accept_terms'] ?? false,
             $userData['accept_privacy'] ?? false,

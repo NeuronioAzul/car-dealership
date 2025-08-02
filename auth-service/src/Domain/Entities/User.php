@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Domain\Entities;
 
-use App\Domain\ValueObjects\Address;
 use DateTime;
 use Ramsey\Uuid\Uuid;
 
@@ -16,7 +15,6 @@ class User
     private string $password;
     private string $phone;
     private DateTime $birthDate;
-    private Address $address;
     private string $role; // 'customer' or 'admin'
     private bool $acceptTerms;
     private bool $acceptPrivacy;
@@ -31,7 +29,6 @@ class User
         string $password,
         string $phone,
         DateTime $birthDate,
-        Address $address,
         string $role = 'customer',
         bool $acceptTerms = false,
         bool $acceptPrivacy = false,
@@ -43,7 +40,6 @@ class User
         $this->password = password_hash($password, PASSWORD_ARGON2ID);
         $this->phone = $phone;
         $this->birthDate = $birthDate;
-        $this->address = $address;
         $this->role = $role;
         $this->acceptTerms = $acceptTerms;
         $this->acceptPrivacy = $acceptPrivacy;
@@ -82,11 +78,6 @@ class User
     public function getBirthDate(): DateTime
     {
         return $this->birthDate;
-    }
-
-    public function getAddress(): Address
-    {
-        return $this->address;
     }
 
     public function getRole(): string
@@ -155,12 +146,6 @@ class User
         $this->updatedAt = new DateTime();
     }
 
-    public function setAddress(Address $address): void
-    {
-        $this->address = $address;
-        $this->updatedAt = new DateTime();
-    }
-
     public function setRole(string $role): void
     {
         $this->role = $role;
@@ -219,7 +204,6 @@ class User
             'email' => $this->email,
             'phone' => $this->phone,
             'birth_date' => $this->birthDate->format('Y-m-d'),
-            'address' => $this->address->toArray(),
             'role' => $this->role,
             'accept_terms' => $this->acceptTerms,
             'accept_privacy' => $this->acceptPrivacy,
