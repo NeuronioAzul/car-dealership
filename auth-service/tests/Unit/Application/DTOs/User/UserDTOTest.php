@@ -59,7 +59,7 @@ class UserDTOTest extends TestCase
         $constructor = $reflection->getConstructor();
         $parameters = $constructor->getParameters();
 
-        $this->assertCount(13, $parameters);
+        $this->assertCount(12, $parameters);
 
         $expectedParameters = [
             'id', 'name', 'email', 'phone', 'birth_date', 'role',
@@ -128,18 +128,18 @@ class UserDTOTest extends TestCase
             '11777777777',
             '1995-01-01',
             'customer',
-            null,
-            false,
+            true,
             false,
             false,
             '2023-01-01 10:00:00',
+            null,
             null
         );
 
         $this->assertIsBool($userDTO->accept_terms);
         $this->assertIsBool($userDTO->accept_privacy);
         $this->assertIsBool($userDTO->accept_communications);
-        $this->assertFalse($userDTO->accept_terms);
+        $this->assertTrue($userDTO->accept_terms);
         $this->assertFalse($userDTO->accept_privacy);
         $this->assertFalse($userDTO->accept_communications);
     }
@@ -153,12 +153,12 @@ class UserDTOTest extends TestCase
             '11666666666',
             '2000-12-31',
             'customer',
-            null,
             true,
             true,
             true,
             '2023-12-31 23:59:59',
-            '2024-01-01 00:00:00'
+            '2024-01-01 00:00:00',
+            null
         );
 
         $this->assertIsString($userDTO->id);

@@ -42,7 +42,7 @@ class ValidationExceptionTest extends TestCase
 
         $this->assertEquals($errors, $retrievedErrors);
         $this->assertIsArray($retrievedErrors);
-        $this->assertCount(3, $retrievedErrors);
+        $this->assertCount(2, $retrievedErrors);
     }
 
     public function testWithEmptyErrors(): void
